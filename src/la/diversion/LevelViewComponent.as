@@ -18,8 +18,7 @@ package la.diversion
 	import flash.events.Event;
 	import flash.events.MouseEvent;
 	
-	public class LevelViewComponent extends Sprite
-	{
+	public class LevelViewComponent extends Sprite {
 		protected var cellSize:int = 50;
 		protected var pathGrid:Grid;
 		protected var playerHelper:IsoPrimitive;
@@ -28,8 +27,7 @@ package la.diversion
 		protected var isoView:IsoView;
 		protected var isoScene:IsoScene;
 		
-		public function LevelViewComponent()
-		{
+		public function LevelViewComponent(){
 			super();
 			
 			makeGrid(40,40);
@@ -38,8 +36,7 @@ package la.diversion
 		public function makeGrid(cols:int, rows:int):void{
 			pathGrid = new Grid(cols, rows);
 			
-			for(var i:int = 0; i < 20; i++)
-			{
+			for(var i:int = 0; i < 20; i++){
 				pathGrid.setWalkable(Math.floor(Math.random() * 8) + 2,
 					Math.floor(Math.random() * 8)+ 2,
 					false);
@@ -47,30 +44,24 @@ package la.diversion
 			drawGrid();
 		}
 		
-		protected function drawGrid():void
-		{
+		protected function drawGrid():void {
 			isoScene 		= new IsoScene();
 			playerHelper	= new IsoPrimitive();
 			isoSprite 		= new IsoSprite();
 			isoView 		= new IsoView();
 			
-			for(var i:int = 0; i < pathGrid.numCols; i++)
-			{
-				for(var j:int = 0; j < pathGrid.numRows; j++)
-				{
+			for(var i:int = 0; i < pathGrid.numCols; i++) {
+				for(var j:int = 0; j < pathGrid.numRows; j++) {
 					var node:Node = pathGrid.getNode(i, j);
 					var box:IsoBox = new IsoBox();
 					
-					if (node.walkable)
-					{
+					if (node.walkable) {
 						box.setSize(cellSize, cellSize, 0);
 						box.addEventListener(MouseEvent.CLICK, onGridItemClick);
 						box.fills = [
 							new SolidColorFill(0x00ff00, .5)
 						];
-					}
-					else
-					{
+					}else{
 						box.setSize(cellSize, cellSize, 0);
 						box.addEventListener(MouseEvent.CLICK, onGridItemClick);
 						box.fills = [
@@ -128,17 +119,14 @@ package la.diversion
 		}
 		*/
 		
-		protected function findPath():void
-		{
+		protected function findPath():void {
 			var astar:AStar = new AStar();
 			var speed:Number = .3;
-			if(astar.findPath(pathGrid))
-			{
+			if(astar.findPath(pathGrid)) {
 				path = astar.path;
 			}
 			
-			for (var i:int = 0; i < path.length; i++)
-			{
+			for (var i:int = 0; i < path.length; i++) {
 				var targetX:Number = path[i].x * cellSize;
 				var targetY:Number = path[i].y * cellSize;
 				

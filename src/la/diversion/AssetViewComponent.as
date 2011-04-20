@@ -6,8 +6,7 @@ package la.diversion
 	
 	public class AssetViewComponent extends Sprite
 	{
-		public function AssetViewComponent()
-		{
+		public function AssetViewComponent() {
 			super();
 			
 			this.graphics.lineStyle(3,0x00ff00);

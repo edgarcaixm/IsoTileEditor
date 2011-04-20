@@ -14,8 +14,7 @@ package la.diversion
 		public var parent:Node;
 		public var costMultiplier:Number = 1.0;
 		
-		public function Node(x:int, y:int)
-		{
+		public function Node(x:int, y:int)	{
 			this.x = x;
 			this.y = y;
 		}

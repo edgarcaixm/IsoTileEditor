@@ -6,8 +6,7 @@ package la.diversion
 	
 	public class PropertyViewComponent extends Sprite
 	{
-		public function PropertyViewComponent()
-		{
+		public function PropertyViewComponent()	{
 			super();
 			
 			this.graphics.lineStyle(3,0x00ff00);

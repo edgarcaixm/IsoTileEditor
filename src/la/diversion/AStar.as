@@ -15,12 +15,10 @@ package la.diversion
 		private var _diagCost:Number = Math.SQRT2;
 		
 		
-		public function AStar()
-		{
+		public function AStar()	{
 		}
 		
-		public function findPath(grid:Grid):Boolean
-		{
+		public function findPath(grid:Grid):Boolean	{
 			_grid = grid;
 			_open = new Array();
 			_closed = new Array();
@@ -34,20 +32,16 @@ package la.diversion
 			return search();
 		}
 		
-		public function search():Boolean
-		{
+		public function search():Boolean {
 			var node:Node = _startNode;
-			while(node != _endNode)
-			{
+			while(node != _endNode)	{
 				var startX:int = Math.max(0, node.x - 1);
 				var endX:int = Math.min(_grid.numCols - 1, node.x + 1);
 				var startY:int = Math.max(0, node.y - 1);
 				var endY:int = Math.min(_grid.numRows - 1, node.y + 1);
 				
-				for(var i:int = startX; i <= endX; i++)
-				{
-					for(var j:int = startY; j <= endY; j++)
-					{
+				for(var i:int = startX; i <= endX; i++)	{
+					for(var j:int = startY; j <= endY; j++)	{
 						var test:Node = _grid.getNode(i, j);
 						if(test == node || 
 						   !test.walkable ||
@@ -65,18 +59,14 @@ package la.diversion
 						var g:Number = node.g + cost * test.costMultiplier;
 						var h:Number = _heuristic(test);
 						var f:Number = g + h;
-						if(isOpen(test) || isClosed(test))
-						{
-							if(test.f > f)
-							{
+						if(isOpen(test) || isClosed(test)) {
+							if(test.f > f)	{
 								test.f = f;
 								test.g = g;
 								test.h = h;
 								test.parent = node;
 							}
-						}
-						else
-						{
+						} else	{
 							test.f = f;
 							test.g = g;
 							test.h = h;
@@ -85,12 +75,10 @@ package la.diversion
 						}
 					}
 				}
-				for(var o:int = 0; o < _open.length; o++)
-				{
+				for(var o:int = 0; o < _open.length; o++){
 				}
 				_closed.push(node);
-				if(_open.length == 0)
-				{
+				if(_open.length == 0){
 					trace("no path found");
 					return false
 				}
@@ -101,8 +89,7 @@ package la.diversion
 			return true;
 		}
 		
-		private function buildPath():void
-		{
+		private function buildPath():void {
 			_path = new Array();
 			var node:Node = _endNode;
 			_path.push(node);
@@ -113,49 +100,39 @@ package la.diversion
 			}
 		}
 		
-		public function get path():Array
-		{
+		public function get path():Array{
 			return _path;
 		}
 		
-		private function isOpen(node:Node):Boolean
-		{
-			for(var i:int = 0; i < _open.length; i++)
-			{
-				if(_open[i] == node)
-				{
+		private function isOpen(node:Node):Boolean{
+			for(var i:int = 0; i < _open.length; i++){
+				if(_open[i] == node){
 					return true;
 				}
 			}
 			return false;
 		}
 		
-		private function isClosed(node:Node):Boolean
-		{
-			for(var i:int = 0; i < _closed.length; i++)
-			{
-				if(_closed[i] == node)
-				{
+		private function isClosed(node:Node):Boolean{
+			for(var i:int = 0; i < _closed.length; i++)	{
+				if(_closed[i] == node){
 					return true;
 				}
 			}
 			return false;
 		}
 		
-		private function manhattan(node:Node):Number
-		{
+		private function manhattan(node:Node):Number{
 			return Math.abs(node.x - _endNode.x) * _straightCost + Math.abs(node.y + _endNode.y) * _straightCost;
 		}
 		
-		private function euclidian(node:Node):Number
-		{
+		private function euclidian(node:Node):Number{
 			var dx:Number = node.x - _endNode.x;
 			var dy:Number = node.y - _endNode.y;
 			return Math.sqrt(dx * dx + dy * dy) * _straightCost;
 		}
 		
-		private function diagonal(node:Node):Number
-		{
+		private function diagonal(node:Node):Number	{
 			var dx:Number = Math.abs(node.x - _endNode.x);
 			var dy:Number = Math.abs(node.y - _endNode.y);
 			var diag:Number = Math.min(dx, dy);
@@ -163,8 +140,7 @@ package la.diversion
 			return _diagCost * diag + _straightCost * (straight - 2 * diag);
 		}
 		
-		public function get visited():Array
-		{
+		public function get visited():Array	{
 			return _closed.concat(_open);
 		}
 	}

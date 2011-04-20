@@ -8,17 +8,14 @@ package la.diversion
 		private var _numCols:int;
 		private var _numRows:int;
 		
-		public function Grid(numCols:int, numRows:int)
-		{
+		public function Grid(numCols:int, numRows:int){
 			_numCols = numCols;
 			_numRows = numRows;
 			_nodes = new Array();
 			
-			for(var i:int = 0; i < _numCols; i++)
-			{
+			for(var i:int = 0; i < _numCols; i++){
 				_nodes[i] = new Array();
-				for(var j:int = 0; j < _numRows; j++)
-				{
+				for(var j:int = 0; j < _numRows; j++){
 					_nodes[i][j] = new Node(i, j);
 				}
 			}
@@ -29,8 +26,7 @@ package la.diversion
 		 * @param x The x coord.
 		 * @param y The y coord.
 		 */
-		public function getNode(x:int, y:int):Node
-		{
+		public function getNode(x:int, y:int):Node{
 			return _nodes[x][y] as Node;
 		}
 		
@@ -39,8 +35,7 @@ package la.diversion
 		 * @param x The x coord.
 		 * @param y The y coord.
 		 */
-		public function setEndNode(x:int, y:int):void
-		{
+		public function setEndNode(x:int, y:int):void{
 			_endNode = _nodes[x][y] as Node;
 		}
 		
@@ -49,8 +44,7 @@ package la.diversion
 		 * @param x The x coord.
 		 * @param y The y coord.
 		 */
-		public function setStartNode(x:int, y:int):void
-		{
+		public function setStartNode(x:int, y:int):void{
 			_startNode = _nodes[x][y] as Node;
 		}
 		
@@ -59,40 +53,35 @@ package la.diversion
 		 * @param x The x coord.
 		 * @param y The y coord.
 		 */
-		public function setWalkable(x:int, y:int, value:Boolean):void
-		{
+		public function setWalkable(x:int, y:int, value:Boolean):void{
 			_nodes[x][y].walkable = value;
 		}
 
 		/**
 		 * Returns the end node.
 		 */
-		public function get endNode():Node
-		{
+		public function get endNode():Node{
 			return _endNode;
 		}
 		
 		/**
 		 * Returns the number of columns in the grid.
 		 */
-		public function get numCols():int
-		{
+		public function get numCols():int{
 			return _numCols;
 		}
 		
 		/**
 		 * Returns the number of rows in the grid.
 		 */
-		public function get numRows():int
-		{
+		public function get numRows():int{
 			return _numRows;
 		}
 		
 		/**
 		 * Returns the start node.
 		 */
-		public function get startNode():Node
-		{
+		public function get startNode():Node{
 			return _startNode;
 		}
 		
