@@ -1,5 +1,6 @@
-package la.diversion
+package la.diversion.levelView
 {
+
 	public class Grid
 	{
 		private var _startNode:Node;

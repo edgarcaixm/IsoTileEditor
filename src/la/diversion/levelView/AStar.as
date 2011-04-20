@@ -1,5 +1,6 @@
-package la.diversion
+package la.diversion.levelView
 {
+
 	public class AStar
 	{
 		private var _open:Array;

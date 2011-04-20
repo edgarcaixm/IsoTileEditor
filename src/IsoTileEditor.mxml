@@ -27,14 +27,17 @@ THE SOFTWARE.
 					   xmlns:mx="library://ns.adobe.com/flex/mx" width="1142" height="777" 
 					   creationComplete="init();">
 	
+	<fx:Declarations>
+		<!-- Place non-visual elements (e.g., services, value objects) here -->
+	</fx:Declarations>
 	
 	<fx:Script>
 		<![CDATA[
 			import flash.display.Sprite;
 			
-			import la.diversion.AssetViewComponent;
-			import la.diversion.LevelViewComponent;
-			import la.diversion.PropertyViewComponent;
+			import la.diversion.assetView.AssetViewComponent;
+			import la.diversion.levelView.LevelViewComponent;
+			import la.diversion.propertyView.PropertyViewComponent;
 			
 			private function init():void {
 				var levelComponent:LevelViewComponent = new LevelViewComponent();
@@ -48,10 +51,6 @@ THE SOFTWARE.
 		]]>
 	</fx:Script>
 	
-	
-	<fx:Declarations>
-		<!-- Place non-visual elements (e.g., services, value objects) here -->
-	</fx:Declarations>
 	<s:Panel x="10" y="10" width="760" height="760" title="Scene" id="scenePanel">
 		<s:SpriteVisualElement id="scene">
 		</s:SpriteVisualElement>

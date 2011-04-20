@@ -1,4 +1,4 @@
-package la.diversion
+package la.diversion.levelView
 {
 	/**
 	 * Represents a specific node evaluated as part of a pathfinding algorithm.
