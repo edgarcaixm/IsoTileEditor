@@ -24,7 +24,9 @@ THE SOFTWARE.
 
 <s:WindowedApplication xmlns:fx="http://ns.adobe.com/mxml/2009" 
 					   xmlns:s="library://ns.adobe.com/flex/spark" 
-					   xmlns:mx="library://ns.adobe.com/flex/mx" width="1142" height="777" 
+					   xmlns:mx="library://ns.adobe.com/flex/mx" 
+					   xmlns:com="*" 
+					   width="1142" height="777" 
 					   creationComplete="init();">
 	
 	<fx:Declarations>
@@ -46,7 +48,7 @@ THE SOFTWARE.
 				
 				scene.addChild(levelComponent);
 				assets.addChild(assetComponent);
-				properties.addChild(propertyComponent);
+				//properties.addChild(propertyComponent);
 			}
 		]]>
 	</fx:Script>
@@ -60,7 +62,8 @@ THE SOFTWARE.
 		</s:SpriteVisualElement>
 	</s:Panel>
 	<s:Panel x="784" y="382" width="345" height="388" title="Properties" id="propertiesPanel">
-		<s:SpriteVisualElement id="properties">
-		</s:SpriteVisualElement>
+		<com:ScenePropertyView>
+			
+		</com:ScenePropertyView>
 	</s:Panel>
 </s:WindowedApplication>
