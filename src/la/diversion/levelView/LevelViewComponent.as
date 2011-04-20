@@ -1,4 +1,4 @@
-package la.diversion
+package la.diversion.levelView
 {
 	import as3isolib.display.IsoSprite;
 	import as3isolib.display.IsoView;
@@ -17,6 +17,7 @@ package la.diversion
 	import flash.display.StageScaleMode;
 	import flash.events.Event;
 	import flash.events.MouseEvent;
+	
 	
 	public class LevelViewComponent extends Sprite {
 		protected var cellSize:int = 50;
