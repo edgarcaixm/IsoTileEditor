@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<s:Group xmlns:fx="http://ns.adobe.com/mxml/2009" 
+		 xmlns:s="library://ns.adobe.com/flex/spark" 
+		 xmlns:mx="library://ns.adobe.com/flex/mx" width="345" height="368">
+	<s:layout>
+		<s:BasicLayout/>
+	</s:layout>
+	<fx:Declarations>
+		<!-- Place non-visual elements (e.g., services, value objects) here -->
+	</fx:Declarations>
+	<s:Label x="48" y="44" text="Total Cells Wide:"/>
+	<s:Label x="48" y="73" text="Total Cells High:"/>
+	<s:TextInput x="146" y="34" width="38" id="totalCellsWide"/>
+	<s:TextInput x="146" y="63" width="38" id="totalCellsHigh"/>
+</s:Group>
