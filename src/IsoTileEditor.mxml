@@ -41,6 +41,9 @@ THE SOFTWARE.
 			import la.diversion.levelView.LevelViewComponent;
 			import la.diversion.propertyView.PropertyViewComponent;
 			
+			import mx.controls.TextInput;
+			import mx.events.FlexEvent;
+			
 			private function init():void {
 				var levelComponent:LevelViewComponent = new LevelViewComponent();
 				var assetComponent:AssetViewComponent = new AssetViewComponent();
@@ -48,7 +51,22 @@ THE SOFTWARE.
 				
 				scene.addChild(levelComponent);
 				assets.addChild(assetComponent);
-				//properties.addChild(propertyComponent);
+			
+				sceneProperties.totalCellsWide.addEventListener(FlexEvent.VALUE_COMMIT, onCellsChanged, false, 0, true);
+				sceneProperties.totalCellsHigh.addEventListener(FlexEvent.VALUE_COMMIT, onCellsChanged, false, 0, true);
+			}
+			
+			private function onCellsChanged(event:Event):void {
+				var id:String = event.target["id"];
+				var value:int = event.target["text"];
+				switch (id) {
+					case "totalCellsWide":
+						//TODO: set grid width
+						break;
+					case "totalCellsHight":
+						//TODO: set grid height
+						break;
+				}
 			}
 		]]>
 	</fx:Script>
@@ -62,7 +80,7 @@ THE SOFTWARE.
 		</s:SpriteVisualElement>
 	</s:Panel>
 	<s:Panel x="784" y="382" width="345" height="388" title="Properties" id="propertiesPanel">
-		<com:ScenePropertyView>
+		<com:ScenePropertyView id="sceneProperties">
 			
 		</com:ScenePropertyView>
 	</s:Panel>
