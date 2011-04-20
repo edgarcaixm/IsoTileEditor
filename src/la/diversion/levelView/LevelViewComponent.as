@@ -27,21 +27,71 @@ package la.diversion.levelView
 		protected var isoSprite:IsoSprite;
 		protected var isoView:IsoView;
 		protected var isoScene:IsoScene;
+		protected var zoomFactor:Number = 1;
+		
+		private var _isPanning:Boolean = false;
+		private var _panX:Number = 0;
+		private var _panY:Number = 0;
+		private var _panOriginX:Number = 0;
+		private var _panOriginY:Number = 0;
 		
 		public function LevelViewComponent(){
 			super();
 			
+			var bg:Sprite = new Sprite();
+			bg.graphics.beginFill(0x00FFFF);
+			bg.graphics.drawRect(0,0,760,760);
+			bg.graphics.endFill();
+			bg.x = 3;
+			bg.y = 3;
+			this.addChild(bg);
+			
+			
 			makeGrid(40,40);
+			this.addEventListener(MouseEvent.MOUSE_WHEEL, handleMouseEventMouseWheel);
+			this.addEventListener(MouseEvent.MOUSE_DOWN, handleMouseEventMouseDown);
+		}
+		
+		private function handleMouseEventMouseWheel(event:MouseEvent):void{
+			trace("MouseWheel delta=" + event.delta);
+			zoomFactor = zoomFactor + (event.delta / 10);
+			if (zoomFactor < 0.3){
+				zoomFactor = 0.3;
+			}else if(zoomFactor > 2){
+				zoomFactor = 2;
+			}
+			trace("zoomFactor = " + zoomFactor);
+			isoView.zoom(zoomFactor);
+		}
+		
+		private function handleMouseEventMouseDown(event:MouseEvent):void{
+			trace("Mouse Down At x=" + event.stageX + ", y=" + event.stageY);
+			trace("Mouse Down At isoView.currentX=" +  isoView.currentX + ", isoView.currentY=" + isoView.currentY);
+			_panX = event.stageX;
+			_panY = event.stageY;
+			_panOriginX = isoView.currentX;
+			_panOriginY = isoView.currentY;
+			_isPanning = true;
+			this.addEventListener(MouseEvent.MOUSE_MOVE, handleMouseEventMouseMove);
+			this.addEventListener(MouseEvent.MOUSE_UP, handleMouseEventMouseStop);
+			this.addEventListener(MouseEvent.ROLL_OUT, handleMouseEventMouseStop);
+		}
+		
+		private function handleMouseEventMouseStop(event:MouseEvent):void{
+			this.removeEventListener(MouseEvent.MOUSE_MOVE, handleMouseEventMouseMove);
+			this.removeEventListener(MouseEvent.MOUSE_UP, handleMouseEventMouseStop);
+			this.removeEventListener(MouseEvent.ROLL_OUT, handleMouseEventMouseStop);
+		}
+		
+		private function handleMouseEventMouseMove(event:MouseEvent):void{
+			if(_isPanning){			
+				isoView.panTo(_panOriginX - (event.stageX - _panX), _panOriginY - (event.stageY - _panY));
+			}
 		}
 		
 		public function makeGrid(cols:int, rows:int):void{
 			pathGrid = new Grid(cols, rows);
-			
-			for(var i:int = 0; i < 20; i++){
-				pathGrid.setWalkable(Math.floor(Math.random() * 8) + 2,
-					Math.floor(Math.random() * 8)+ 2,
-					false);
-			}
+
 			drawGrid();
 		}
 		
@@ -91,7 +141,10 @@ package la.diversion.levelView
 			isoScene.render();
 			
 			//Add the isoView to the stage
+			isoView.x = 3;
+			isoView.y = 3;
 			this.addChild(isoView);
+			isoView.panTo( int(pathGrid.numRows * cellSize / 2) ,int(pathGrid.numRows * cellSize / 2) );
 		}
 		
 		protected function onGridItemClick(event:ProxyEvent):void{
