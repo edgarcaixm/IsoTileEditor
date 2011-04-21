@@ -44,10 +44,14 @@ THE SOFTWARE.
 			import mx.controls.TextInput;
 			import mx.events.FlexEvent;
 			
+			public var levelComponent:LevelViewComponent;
+			public var assetComponent:AssetViewComponent;
+			public var propertyComponent:PropertyViewComponent;
+			
 			private function init():void {
-				var levelComponent:LevelViewComponent = new LevelViewComponent();
-				var assetComponent:AssetViewComponent = new AssetViewComponent();
-				var propertyComponent:PropertyViewComponent = new PropertyViewComponent();
+				levelComponent = new LevelViewComponent();
+				assetComponent = new AssetViewComponent();
+				propertyComponent = new PropertyViewComponent();
 				
 				scene.addChild(levelComponent);
 				assets.addChild(assetComponent);
@@ -61,10 +65,10 @@ THE SOFTWARE.
 				var value:int = event.target["text"];
 				switch (id) {
 					case "totalCellsWide":
-						//TODO: set grid width
+						levelComponent.rows = value;
 						break;
-					case "totalCellsHight":
-						//TODO: set grid height
+					case "totalCellsHigh":
+						levelComponent.cols = value;
 						break;
 				}
 			}

@@ -52,6 +52,14 @@ package la.diversion.levelView
 			this.addEventListener(MouseEvent.MOUSE_DOWN, handleMouseEventMouseDown);
 		}
 		
+		public function set rows(num:int):void {
+			makeGrid(pathGrid.numCols, num)
+		}
+		
+		public function set cols(num:int):void {
+			makeGrid(num, pathGrid.numRows);
+		}
+		
 		private function handleMouseEventMouseWheel(event:MouseEvent):void{
 			trace("MouseWheel delta=" + event.delta);
 			zoomFactor = zoomFactor + (event.delta / 10);
@@ -89,7 +97,16 @@ package la.diversion.levelView
 			}
 		}
 		
-		public function makeGrid(cols:int, rows:int):void{
+		public function makeGrid(cols:int, rows:int):void {
+			//TODO: Refactor this not to do full recreate
+			if (pathGrid && this.contains(isoView)) {
+				this.removeChild(isoView);
+				pathGrid = null;
+				isoView = null;
+				isoSprite = null;
+				isoScene = null;
+			}
+			
 			pathGrid = new Grid(cols, rows);
 
 			drawGrid();
