@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="utf-8"?>
+<s:Group xmlns:fx="http://ns.adobe.com/mxml/2009" 
+		 xmlns:s="library://ns.adobe.com/flex/spark" 
+		 xmlns:mx="library://ns.adobe.com/flex/mx" 
+		 xmlns:local="*"
+		 width="344" height="315">
+	<s:layout>
+		<s:BasicLayout/>
+	</s:layout>
+	<fx:Declarations>
+		<!-- Place non-visual elements (e.g., services, value objects) here -->
+	</fx:Declarations>
+	
+	
+	<s:List width="100%" height="276" id="list" itemRenderer="AssetItemRenderer" labelField="title">
+		<s:layout>
+			<s:VerticalLayout horizontalAlign="justify" gap="0" requestedRowCount="6" />
+		</s:layout>
+		<s:dataProvider>
+			<s:ArrayList>
+				<local:AssetItemView title="Grass01"/>
+				<local:AssetItemView title="Grass02"/>
+				<local:AssetItemView title="Grass02"/>
+				<local:AssetItemView title="Grass02"/>
+				<local:AssetItemView title="Grass02"/>
+				<local:AssetItemView title="Grass02"/>
+				<local:AssetItemView title="Grass02"/>
+				<local:AssetItemView title="Grass02"/>
+				<local:AssetItemView title="Grass01"/>
+				<local:AssetItemView title="Grass02"/>
+				<local:AssetItemView title="Grass02"/>
+				<local:AssetItemView title="Grass02"/>
+				<local:AssetItemView title="Grass02"/>
+				<local:AssetItemView title="Grass02"/>
+				<local:AssetItemView title="Grass02"/>
+				<local:AssetItemView title="Grass02"/>
+			</s:ArrayList>
+		</s:dataProvider>
+	</s:List>
+	<s:Button label="Load Assets" id="loadBtn" bottom="10" left="10"/>
+</s:Group>

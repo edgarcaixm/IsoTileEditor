@@ -54,8 +54,8 @@ THE SOFTWARE.
 				propertyComponent = new PropertyViewComponent();
 				
 				scene.addChild(levelComponent);
-				assets.addChild(assetComponent);
-			
+				//assets.addChild(assetComponent);
+				
 				sceneProperties.totalCellsWide.addEventListener(FlexEvent.VALUE_COMMIT, onCellsChanged, false, 0, true);
 				sceneProperties.totalCellsHigh.addEventListener(FlexEvent.VALUE_COMMIT, onCellsChanged, false, 0, true);
 			}
@@ -80,8 +80,9 @@ THE SOFTWARE.
 		</s:SpriteVisualElement>
 	</s:Panel>
 	<s:Panel x="784" y="10" width="345" height="351" title="Assets" id="assetsPanel">
-		<s:SpriteVisualElement id="assets">
-		</s:SpriteVisualElement>
+		<com:AssetListView id="sceneAssets">
+			
+		</com:AssetListView>
 	</s:Panel>
 	<s:Panel x="784" y="382" width="345" height="388" title="Properties" id="propertiesPanel">
 		<com:ScenePropertyView id="sceneProperties">
