@@ -6,7 +6,10 @@ package la.diversion.levelView
 	import as3isolib.display.primitive.IsoPrimitive;
 	import as3isolib.display.scene.IsoGrid;
 	import as3isolib.display.scene.IsoScene;
+	import as3isolib.geom.IsoMath;
+	import as3isolib.geom.Pt;
 	import as3isolib.graphics.SolidColorFill;
+	import as3isolib.graphics.Stroke;
 	
 	import caurina.transitions.Tweener;
 	
@@ -27,6 +30,8 @@ package la.diversion.levelView
 		protected var isoSprite:IsoSprite;
 		protected var isoView:IsoView;
 		protected var isoScene:IsoScene;
+		protected var isoGrid:IsoGrid;
+		protected var highlight:IsoBox;
 		protected var zoomFactor:Number = 1;
 		
 		private var _isPanning:Boolean = false;
@@ -61,20 +66,16 @@ package la.diversion.levelView
 		}
 		
 		private function handleMouseEventMouseWheel(event:MouseEvent):void{
-			trace("MouseWheel delta=" + event.delta);
 			zoomFactor = zoomFactor + (event.delta / 10);
 			if (zoomFactor < 0.3){
 				zoomFactor = 0.3;
 			}else if(zoomFactor > 2){
 				zoomFactor = 2;
 			}
-			trace("zoomFactor = " + zoomFactor);
 			isoView.zoom(zoomFactor);
 		}
 		
 		private function handleMouseEventMouseDown(event:MouseEvent):void{
-			trace("Mouse Down At x=" + event.stageX + ", y=" + event.stageY);
-			trace("Mouse Down At isoView.currentX=" +  isoView.currentX + ", isoView.currentY=" + isoView.currentY);
 			_panX = event.stageX;
 			_panY = event.stageY;
 			_panOriginX = isoView.currentX;
@@ -86,6 +87,7 @@ package la.diversion.levelView
 		}
 		
 		private function handleMouseEventMouseStop(event:MouseEvent):void{
+			_isPanning = false;
 			this.removeEventListener(MouseEvent.MOUSE_MOVE, handleMouseEventMouseMove);
 			this.removeEventListener(MouseEvent.MOUSE_UP, handleMouseEventMouseStop);
 			this.removeEventListener(MouseEvent.ROLL_OUT, handleMouseEventMouseStop);
@@ -95,12 +97,59 @@ package la.diversion.levelView
 			if(_isPanning){			
 				isoView.panTo(_panOriginX - (event.stageX - _panX), _panOriginY - (event.stageY - _panY));
 			}
+
+		}
+		
+		private function handleMouseEventMouseMoveOnGrid(e:ProxyEvent):void{
+			var event:MouseEvent = e.targetEvent as MouseEvent;
+			if (isoGrid){
+				var isoPt:Pt = IsoMath.screenToIso(new Pt(event.localX, event.localY));
+				var col:Number = Math.floor(isoPt.x / cellSize);
+				if (col < 0)
+				{
+					return;
+				}
+				var row:Number = Math.floor(isoPt.y / cellSize);
+				if (row < 0)
+				{
+					return;
+				}
+				
+				highlight.moveTo(col * cellSize,row * cellSize,0);
+				highlight.fills = [	new SolidColorFill(0x000000, .5) ];
+				isoScene.render();
+			}
+		}
+		
+		private function handleMouseEventMouseClickOnGrid(e:ProxyEvent):void{
+			var event:MouseEvent = e.targetEvent as MouseEvent;
+			var isoPt:Pt = IsoMath.screenToIso(new Pt(event.localX, event.localY));
+			var col:Number = Math.floor(isoPt.x / cellSize);
+			if (col < 0)
+			{
+				return;
+			}
+			var row:Number = Math.floor(isoPt.y / cellSize);
+			if (row < 0)
+			{
+				return;
+			}
+			
+			trace("CLICK AT row=" + row + ", col=" + col);
 		}
 		
 		public function makeGrid(cols:int, rows:int):void {
 			//TODO: Refactor this not to do full recreate
+			
 			if (pathGrid && this.contains(isoView)) {
+				if( isoView.getChildAt(1)){
+					isoView.removeChildAt(1);
+					highlight = null;
+				}
 				this.removeChild(isoView);
+				isoGrid.removeEventListener(MouseEvent.MOUSE_MOVE, handleMouseEventMouseMoveOnGrid);
+				isoGrid.removeEventListener(MouseEvent.CLICK, handleMouseEventMouseClickOnGrid);
+				
 				pathGrid = null;
 				isoView = null;
 				isoSprite = null;
@@ -117,31 +166,22 @@ package la.diversion.levelView
 			playerHelper	= new IsoPrimitive();
 			isoSprite 		= new IsoSprite();
 			isoView 		= new IsoView();
+			isoGrid 		= new IsoGrid();
+			highlight	    = new IsoBox();
 			
-			for(var i:int = 0; i < pathGrid.numCols; i++) {
-				for(var j:int = 0; j < pathGrid.numRows; j++) {
-					var node:Node = pathGrid.getNode(i, j);
-					var box:IsoBox = new IsoBox();
-					
-					if (node.walkable) {
-						box.setSize(cellSize, cellSize, 0);
-						box.addEventListener(MouseEvent.CLICK, onGridItemClick);
-						box.fills = [
-							new SolidColorFill(0x00ff00, .5)
-						];
-					}else{
-						box.setSize(cellSize, cellSize, 0);
-						box.addEventListener(MouseEvent.CLICK, onGridItemClick);
-						box.fills = [
-							new SolidColorFill(0xff0000, .5)
-						];
-					}
-					
-					box.moveTo(i * cellSize, j * cellSize, 0);
-					isoScene.addChild(box);
-				}
-			}
+			highlight.setSize(cellSize, cellSize, 0);
+			highlight.fills = [ ];
+			isoScene.addChildAt(highlight,1);
+			//.addChild(highlight);
 			
+			isoGrid.cellSize = cellSize;
+			isoGrid.setGridSize(pathGrid.numCols, pathGrid.numRows);
+			isoGrid.stroke = new Stroke(1, 0x000000,1);
+			isoGrid.showOrigin = false;
+			isoScene.addChild(isoGrid);
+			
+			isoGrid.addEventListener(MouseEvent.MOUSE_MOVE, handleMouseEventMouseMoveOnGrid);
+			isoGrid.addEventListener(MouseEvent.CLICK, handleMouseEventMouseClickOnGrid);
 			//Set properties for player helper
 			playerHelper.setSize(cellSize, cellSize, 10);
 			
