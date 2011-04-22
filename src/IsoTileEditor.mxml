@@ -37,6 +37,8 @@ THE SOFTWARE.
 		<![CDATA[
 			import flash.display.Sprite;
 			
+			import la.diversion.EventBus;
+			import la.diversion.assetView.AssetEvent;
 			import la.diversion.assetView.AssetViewComponent;
 			import la.diversion.levelView.LevelViewComponent;
 			import la.diversion.propertyView.PropertyViewComponent;
@@ -48,6 +50,13 @@ THE SOFTWARE.
 			public var assetComponent:AssetViewComponent;
 			public var propertyComponent:PropertyViewComponent;
 			
+			//dummy vars, remove me later
+			private var _isDragging:Boolean;
+			private var _dummyThumb:MovieClip;
+			private var _loader:Loader;
+			private var _dummyWorldObject1:Object;
+			private var _dummyWorldObject2:Object;
+			
 			private function init():void {
 				levelComponent = new LevelViewComponent();
 				assetComponent = new AssetViewComponent();
@@ -58,6 +67,85 @@ THE SOFTWARE.
 				
 				sceneProperties.totalCellsWide.addEventListener(FlexEvent.VALUE_COMMIT, onCellsChanged, false, 0, true);
 				sceneProperties.totalCellsHigh.addEventListener(FlexEvent.VALUE_COMMIT, onCellsChanged, false, 0, true);
+				
+				//TODO:Delete this code, will be replaced by assetview dragging
+				_loader = new Loader();
+				_loader.contentLoaderInfo.addEventListener(Event.INIT, handleLoaderInt);
+				_loader.contentLoaderInfo.addEventListener(Event.COMPLETE, handleLoaderComplete);
+				_loader.load(new URLRequest("Grass.swf"));
+				_isDragging = false;
+			}
+			
+			//move to assetview or just delete entirely
+			private function handleLoaderInt(e:Event):void{
+				
+				var grassClass:Class = _loader.contentLoaderInfo.applicationDomain.getDefinition("Grass") as Class;
+				_dummyWorldObject1 = new Object();
+				_dummyWorldObject1.id = 1;
+				_dummyWorldObject1.rows = 1;
+				_dummyWorldObject1.cols = 1;
+				_dummyWorldObject1.data = grassClass;
+				
+				var button1:Sprite = new Sprite();
+				button1.graphics.beginFill(0x00FFFF);
+				button1.graphics.drawRect(0,0,20,20);
+				button1.graphics.endFill();
+				button1.x = 10;
+				button1.y = 10;
+				dummy.addChild(button1);
+				button1.addEventListener(MouseEvent.MOUSE_DOWN, handleDummyMouseDown);
+			}
+			
+			//move to assetview or just delete entirely
+			private function handleLoaderComplete(e:Event):void{
+				_loader = new Loader();
+				_loader.contentLoaderInfo.addEventListener(Event.INIT, handleLoaderIntOneMoreTime);
+				_loader.load(new URLRequest("Liquor_store.swf"));
+			}
+			
+			//move to assetview or just delete entirely
+			private function handleLoaderIntOneMoreTime(e:Event):void{
+				
+				var liquorClass:Class = _loader.contentLoaderInfo.applicationDomain.getDefinition("Assets_Ghetto") as Class;
+				_dummyWorldObject2 = new Object();
+				_dummyWorldObject2.id = 2;
+				_dummyWorldObject2.rows = 1;
+				_dummyWorldObject2.cols = 2;
+				_dummyWorldObject2.data = liquorClass;
+				
+				var button1:Sprite = new Sprite();
+				button1.graphics.beginFill(0x00FFFF);
+				button1.graphics.drawRect(0,0,20,20);
+				button1.graphics.endFill();
+				button1.x = 40;
+				button1.y = 10;
+				dummy.addChild(button1);
+				button1.addEventListener(MouseEvent.MOUSE_DOWN, handleDummyMouseDown2);
+			}
+			
+			//move to assetview
+			private function handleDummyMouseDown(event:MouseEvent):void{
+				_isDragging = true;
+				
+				EventBus.dispatcher.dispatchEvent(new AssetEvent(AssetEvent.DRAG_OBJECT_START, _dummyWorldObject1));
+				stage.addEventListener(MouseEvent.MOUSE_UP, handleDummyMouseUp);
+			}
+			
+			//move to assetview
+			private function handleDummyMouseDown2(event:MouseEvent):void{
+				_isDragging = true;
+				
+				EventBus.dispatcher.dispatchEvent(new AssetEvent(AssetEvent.DRAG_OBJECT_START, _dummyWorldObject2));
+				stage.addEventListener(MouseEvent.MOUSE_UP, handleDummyMouseUp);
+			}
+			
+			//move to assetview
+			private function handleDummyMouseUp(event:MouseEvent):void{
+				if(_isDragging){
+					stage.removeEventListener(MouseEvent.MOUSE_UP, handleDummyMouseUp);
+					_isDragging = false;
+					EventBus.dispatcher.dispatchEvent(new AssetEvent(AssetEvent.DRAG_OBJECT_END));
+				}
 			}
 			
 			private function onCellsChanged(event:Event):void {
@@ -72,6 +160,7 @@ THE SOFTWARE.
 						break;
 				}
 			}
+			
 		]]>
 	</fx:Script>
 	
@@ -88,5 +177,10 @@ THE SOFTWARE.
 		<com:ScenePropertyView id="sceneProperties">
 			
 		</com:ScenePropertyView>
+	</s:Panel>
+	
+	<s:Panel x="784" y="10" width="345" height="351" title="dummy" id="dummyPanel">
+		<s:SpriteVisualElement id="dummy">
+		</s:SpriteVisualElement>
 	</s:Panel>
 </s:WindowedApplication>
