@@ -92,7 +92,7 @@ THE SOFTWARE.
 				button1.graphics.endFill();
 				button1.x = 10;
 				button1.y = 10;
-				dummy.addChild(button1);
+				//dummy.addChild(button1);
 				button1.addEventListener(MouseEvent.MOUSE_DOWN, handleDummyMouseDown);
 			}
 			
@@ -119,7 +119,7 @@ THE SOFTWARE.
 				button1.graphics.endFill();
 				button1.x = 40;
 				button1.y = 10;
-				dummy.addChild(button1);
+				//dummy.addChild(button1);
 				button1.addEventListener(MouseEvent.MOUSE_DOWN, handleDummyMouseDown2);
 			}
 			
@@ -177,9 +177,10 @@ THE SOFTWARE.
 			
 		</com:ScenePropertyView>
 	</s:Panel>
-	
+	<!--
 	<s:Panel x="784" y="10" width="345" height="351" title="dummy" id="dummyPanel">
 		<s:SpriteVisualElement id="dummy">
 		</s:SpriteVisualElement>
 	</s:Panel>
+	-->
 </s:WindowedApplication>
