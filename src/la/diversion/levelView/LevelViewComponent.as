@@ -16,6 +16,7 @@ package la.diversion.levelView
 	
 	import eDpLib.events.ProxyEvent;
 	
+	import flash.display.DisplayObject;
 	import flash.display.MovieClip;
 	import flash.display.SimpleButton;
 	import flash.display.Sprite;
@@ -26,6 +27,7 @@ package la.diversion.levelView
 	import flash.geom.Point;
 	
 	import la.diversion.EventBus;
+	import la.diversion.GameAsset;
 	import la.diversion.assetView.AssetEvent;
 	
 	public class LevelViewComponent extends Sprite {
@@ -44,13 +46,13 @@ package la.diversion.levelView
 		private var _panY:Number = 0;
 		private var _panOriginX:Number = 0;
 		private var _panOriginY:Number = 0;
-		private var _objectBeingDragged:*;
+		private var _objectBeingDragged:GameAsset;
 		private var _isMouseOverGrid:Boolean = false;
 		private var _mouseRow:Number;
 		private var _mouseCol:Number;
 		private var _foreGround:Sprite;
 		private var _isDragging:Boolean;
-		private var _dragThumb:MovieClip;
+		private var _dragThumb:Sprite;
 		
 		public var button1:SimpleButton;
 		
@@ -113,11 +115,11 @@ package la.diversion.levelView
 		
 		private function handleAssetEventDragObjectStart(event:AssetEvent):void{
 			_isDragging = true;
-			_objectBeingDragged = event.data;
+			_objectBeingDragged = event.data as GameAsset;
 			highlight.setSize(_objectBeingDragged.cols * cellSize, _objectBeingDragged.rows * cellSize, 0);
 			EventBus.dispatcher.addEventListener(AssetEvent.DRAG_OBJECT_END, handleAssetEventDragObjectEnd);
 			
-			_dragThumb = new _objectBeingDragged.data as MovieClip;
+			_dragThumb = new _objectBeingDragged.displayClass as Sprite;
 			_dragThumb.mouseEnabled = false;
 			_dragThumb.alpha = .5;
 			_dragThumb.scaleX = isoView.currentZoom;
@@ -139,7 +141,7 @@ package la.diversion.levelView
 			
 			if(_isMouseOverGrid){
 				var newSprite:IsoSprite = new IsoSprite();
-				newSprite.sprites = [_objectBeingDragged.data];
+				newSprite.sprites = [_objectBeingDragged.displayClass];
 				newSprite.setSize(_objectBeingDragged.cols * cellSize, _objectBeingDragged.rows * cellSize, 0);
 				newSprite.moveTo(_mouseCol * cellSize, _mouseRow * cellSize, 0);
 				isoScene.addChild(newSprite);

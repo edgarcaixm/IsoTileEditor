@@ -29,6 +29,9 @@ package la.diversion.assetView {
 	import flash.geom.Rectangle;
 	import flash.net.URLRequest;
 	
+	import la.diversion.GameAsset;
+	import la.diversion.AssetManager;
+	
 	import org.bytearray.explorer.SWFExplorer;
 	import org.bytearray.explorer.events.SWFExplorerEvent;
 
@@ -108,40 +111,11 @@ package la.diversion.assetView {
 				// asset info
 				var tLabel:String = swfDefs[i];
 				var tClass:Class = e.target.applicationDomain.getDefinition(tLabel) as Class;
-				var tAsset:DisplayObject = new tClass() as DisplayObject;
-				
-				var tItem:Sprite = new Sprite(); //list item
-				// item bg
-				tItem.graphics.lineStyle(.5, 0x000000);
-				tItem.graphics.beginFill(0xdddddd);
-				tItem.graphics.drawRect(0, 0, item_width, item_height);
-				tItem.graphics.endFill();
-				// generate thumbnail
-				var tBmd:BitmapData = new BitmapData(32, 32, true, 0x00000000);
-				// since image data can be off stage (positioned less than 0,0)
-				// we need to translate and then scale bitmaps using Matrix transforms
-				var imgArea:Rectangle = tAsset.getBounds(tAsset); // gets full extent of image even if off stage
-				var transform:Matrix = new Matrix(1,0,0,1, -imgArea.x, -imgArea.y);
-				// scale and constraint proportions
-				var tScaleX:Number = 32/imgArea.width;
-				var tScaleY:Number = 32/imgArea.height;
-				if (tScaleX > tScaleY) {
-					tScaleX = tScaleY;
-				} else {
-					tScaleY = tScaleX;
-				}
-				transform.scale(tScaleX, tScaleY);
-				
-				tBmd.draw(tAsset, transform, null, null, null, true);
-				var thumb:Bitmap = new Bitmap(tBmd);
-				thumb.name = "thumb";
-				thumb.x = thumb.y = 4;
-				tItem.addChild(thumb);
-				// title
-				var itemLabel:Label = new Label(tItem, 40, 5, tLabel);
-				itemLabel.name = "label";
-				tItem.y = tItem.height * i;
-				assetHolder.addChild(tItem);
+				var gameAsset:GameAsset = new GameAsset(swfDefs[i],tClass,1,1);
+				AssetManager.addAsset(gameAsset);
+				var listItem:AssetViewComponentListItem = new AssetViewComponentListItem(gameAsset, item_width, item_height, swfDefs[i]);
+				listItem.y = item_height * i;
+				assetHolder.addChild(listItem);
 			}
 			initScroller();
 		}
