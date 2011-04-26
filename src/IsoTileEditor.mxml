@@ -40,20 +40,31 @@ THE SOFTWARE.
 			import la.diversion.EventBus;
 			import la.diversion.assetView.AssetEvent;
 			import la.diversion.assetView.AssetViewComponent;
+			import la.diversion.controllers.MainMenuController;
 			import la.diversion.levelView.LevelViewComponent;
+			import la.diversion.models.Scene;
 			import la.diversion.propertyView.PropertyViewComponent;
+			import la.diversion.views.MainMenu;
 			
 			import mx.controls.TextInput;
 			import mx.events.FlexEvent;
+			
+			public var mainMenu:MainMenu;
+			public var mainMenuController:MainMenuController;
 			
 			public var levelComponent:LevelViewComponent;
 			public var assetComponent:AssetViewComponent;
 			public var propertyComponent:PropertyViewComponent;
 			
 			private function init():void {
+				mainMenu = new MainMenu();
+				this.addElement(mainMenu);
+				
 				levelComponent = new LevelViewComponent();
 				assetComponent = new AssetViewComponent();
 				propertyComponent = new PropertyViewComponent();
+				
+				mainMenuController = new MainMenuController(mainMenu, levelComponent, assetComponent);
 				
 				scene.addChild(levelComponent);
 				assets.addChild(assetComponent);
@@ -74,7 +85,6 @@ THE SOFTWARE.
 						break;
 				}
 			}
-			
 		]]>
 	</fx:Script>
 	
