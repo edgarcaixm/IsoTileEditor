@@ -138,18 +138,6 @@ package la.diversion.levelView
 			highlight.setSize(cellSize, cellSize, 0);
 			
 			if(_isMouseOverGrid){
-				trace("GOGOGO");
-				//if(!_objectBeingDragged.isoSprite){
-				//	var newSprite:IsoSprite = new IsoSprite();
-				//	_objectBeingDragged.isoSprite = newSprite;
-				//	newSprite.sprites = [_objectBeingDragged.displayClass];
-				//	newSprite.setSize(_objectBeingDragged.cols * cellSize, _objectBeingDragged.rows * cellSize, 0);
-				//}
-				//var newAsset:GameAsset = _objectBeingDragged.clone();
-				//var newSprite:IsoSprite = new IsoSprite();
-				//newAsset.isoSprite = newSprite;
-				//newSprite.sprites = [_objectBeingDragged.displayClass];
-				//newSprite.setSize(_objectBeingDragged.cols * cellSize, _objectBeingDragged.rows * cellSize, 0);
 				_objectBeingDragged.setSize(_objectBeingDragged.cols * cellSize, _objectBeingDragged.rows * cellSize, 0);
 				_objectBeingDragged.moveTo(_mouseCol * cellSize, _mouseRow * cellSize, 0);
 				isoScene.addChild(_objectBeingDragged);
@@ -269,7 +257,7 @@ package la.diversion.levelView
 		}
 		
 		private function handleIsoViewMouseEventClick(e:MouseEvent):void{
-			trace("CLICK MY FACE:" + e.target.parent);
+			//trace("CLICK:" + e.target.parent);
 		}
 		
 		/*

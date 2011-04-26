@@ -68,7 +68,6 @@ package la.diversion {
 		}
 		
 		private function handleMouseDown(event:ProxyEvent):void{
-			trace("mouse down:" + _displayClassId);
 			_stage.addEventListener(MouseEvent.MOUSE_UP, handleMouseUp);
 			EventBus.dispatcher.dispatchEvent(new AssetEvent(AssetEvent.DRAG_OBJECT_START, this));
 		}
