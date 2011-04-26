@@ -9,21 +9,25 @@
 
 package la.diversion {
 	import flash.utils.Dictionary;
-
-	public class AssetManager {
+	
+	public class StageManager {
 		
-		private static var _assetLibrary:Dictionary = new Dictionary();
+		private static var _stageLibrary:Dictionary = new Dictionary();
 		
-		public function AssetManager()
+		public function StageManager()
 		{
 		}
 		
 		public static function addAsset(asset:GameAsset):void{
-			_assetLibrary[asset.id] = asset;
+			_stageLibrary[asset.id] = asset;
 		}
 		
 		public static function getAsset(assetId:String):GameAsset{
-			return _assetLibrary[assetId];
+			return _stageLibrary[assetId];
+		}
+		
+		public static function removeAsset(assetId:String):void{
+			_stageLibrary[assetId] = null;
 		}
 	}
 }

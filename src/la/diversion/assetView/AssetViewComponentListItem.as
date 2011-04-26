@@ -71,7 +71,7 @@ package la.diversion.assetView {
 		}
 		
 		private function handleMouseDown(event:MouseEvent):void{
-			EventBus.dispatcher.dispatchEvent(new AssetEvent(AssetEvent.DRAG_OBJECT_START, _gameAsset));
+			EventBus.dispatcher.dispatchEvent(new AssetEvent(AssetEvent.DRAG_OBJECT_START, _gameAsset.clone()));
 			stage.addEventListener(MouseEvent.MOUSE_UP, handleMouseUp);
 		}
 		

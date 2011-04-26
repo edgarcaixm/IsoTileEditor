@@ -109,8 +109,7 @@ package la.diversion.assetView {
 			// populate panel content with items
 			for (var i:int=0; i<swfDefs.length; i++) {
 				// asset info
-				var tLabel:String = swfDefs[i];
-				var tClass:Class = e.target.applicationDomain.getDefinition(tLabel) as Class;
+				var tClass:Class = e.target.applicationDomain.getDefinition(swfDefs[i]) as Class;
 				var gameAsset:GameAsset = new GameAsset(swfDefs[i],tClass,1,1);
 				AssetManager.addAsset(gameAsset);
 				var listItem:AssetViewComponentListItem = new AssetViewComponentListItem(gameAsset, item_width, item_height, swfDefs[i]);

@@ -28,6 +28,7 @@ package la.diversion.levelView
 	
 	import la.diversion.EventBus;
 	import la.diversion.GameAsset;
+	import la.diversion.StageManager;
 	import la.diversion.assetView.AssetEvent;
 	
 	public class LevelViewComponent extends Sprite {
@@ -50,7 +51,7 @@ package la.diversion.levelView
 		private var _isMouseOverGrid:Boolean = false;
 		private var _mouseRow:Number;
 		private var _mouseCol:Number;
-		private var _foreGround:Sprite;
+		private var _bg:Sprite;
 		private var _isDragging:Boolean;
 		private var _dragThumb:Sprite;
 		
@@ -59,23 +60,16 @@ package la.diversion.levelView
 		public function LevelViewComponent(){
 			super();
 			
-			var bg:Sprite = new Sprite();
-			bg.graphics.beginFill(0x00FFFF);
-			bg.graphics.drawRect(0,0,760,760);
-			bg.graphics.endFill();
-			this.addChildAt(bg,0);
+			_bg = new Sprite();
+			_bg.graphics.beginFill(0x00FFFF);
+			_bg.graphics.drawRect(0,0,760,760);
+			_bg.graphics.endFill();
+			this.addChildAt(_bg,0);
 			
-			_foreGround = new Sprite();
-			_foreGround.graphics.beginFill(0x00FFFF);
-			_foreGround.graphics.drawRect(0,0,770,770);
-			_foreGround.graphics.endFill();
-			_foreGround.alpha = 0;
-			this.addChildAt(_foreGround,1);
-			
-			_foreGround.addEventListener(MouseEvent.MOUSE_WHEEL, handleMouseEventMouseWheel);
-			_foreGround.addEventListener(MouseEvent.MOUSE_DOWN, handleMouseEventMouseDown);
-			_foreGround.addEventListener(MouseEvent.MOUSE_MOVE, handleMouseEventMouseMove);
-			_foreGround.addEventListener(MouseEvent.MOUSE_OUT, handleMouseEventMouseOut);
+			_bg.addEventListener(MouseEvent.MOUSE_WHEEL, handleMouseEventMouseWheel);
+			_bg.addEventListener(MouseEvent.MOUSE_DOWN, handleMouseEventMouseDown);
+			_bg.addEventListener(MouseEvent.MOUSE_MOVE, handleMouseEventMouseMove);
+
 			EventBus.dispatcher.addEventListener(AssetEvent.DRAG_OBJECT_START, handleAssetEventDragObjectStart);
 
 			makeGrid(40,40);
@@ -116,6 +110,10 @@ package la.diversion.levelView
 		private function handleAssetEventDragObjectStart(event:AssetEvent):void{
 			_isDragging = true;
 			_objectBeingDragged = event.data as GameAsset;
+			if(StageManager.getAsset(_objectBeingDragged.id)){
+				isoScene.removeChild(_objectBeingDragged);
+				StageManager.removeAsset(_objectBeingDragged.id);
+			}
 			highlight.setSize(_objectBeingDragged.cols * cellSize, _objectBeingDragged.rows * cellSize, 0);
 			EventBus.dispatcher.addEventListener(AssetEvent.DRAG_OBJECT_END, handleAssetEventDragObjectEnd);
 			
@@ -140,12 +138,27 @@ package la.diversion.levelView
 			highlight.setSize(cellSize, cellSize, 0);
 			
 			if(_isMouseOverGrid){
-				var newSprite:IsoSprite = new IsoSprite();
-				newSprite.sprites = [_objectBeingDragged.displayClass];
-				newSprite.setSize(_objectBeingDragged.cols * cellSize, _objectBeingDragged.rows * cellSize, 0);
-				newSprite.moveTo(_mouseCol * cellSize, _mouseRow * cellSize, 0);
-				isoScene.addChild(newSprite);
+				trace("GOGOGO");
+				//if(!_objectBeingDragged.isoSprite){
+				//	var newSprite:IsoSprite = new IsoSprite();
+				//	_objectBeingDragged.isoSprite = newSprite;
+				//	newSprite.sprites = [_objectBeingDragged.displayClass];
+				//	newSprite.setSize(_objectBeingDragged.cols * cellSize, _objectBeingDragged.rows * cellSize, 0);
+				//}
+				//var newAsset:GameAsset = _objectBeingDragged.clone();
+				//var newSprite:IsoSprite = new IsoSprite();
+				//newAsset.isoSprite = newSprite;
+				//newSprite.sprites = [_objectBeingDragged.displayClass];
+				//newSprite.setSize(_objectBeingDragged.cols * cellSize, _objectBeingDragged.rows * cellSize, 0);
+				_objectBeingDragged.setSize(_objectBeingDragged.cols * cellSize, _objectBeingDragged.rows * cellSize, 0);
+				_objectBeingDragged.moveTo(_mouseCol * cellSize, _mouseRow * cellSize, 0);
+				isoScene.addChild(_objectBeingDragged);
+				StageManager.addAsset(_objectBeingDragged);
 				isoScene.render();
+			}else{
+				//cleanup the asset, it has landed off the stage
+				_objectBeingDragged.cleanup();
+				_objectBeingDragged = null;
 			}
 		}
 		
@@ -185,12 +198,14 @@ package la.diversion.levelView
 			_panOriginX = isoView.currentX;
 			_panOriginY = isoView.currentY;
 			_isPanning = true;
-			_foreGround.addEventListener(MouseEvent.MOUSE_UP, handleMouseEventMouseStop);
+			isoView.addEventListener(MouseEvent.MOUSE_UP, handleMouseEventMouseStop);
+			_bg.addEventListener(MouseEvent.MOUSE_UP, handleMouseEventMouseStop);
 		}
 		
 		private function handleMouseEventMouseStop(event:MouseEvent):void{
 			_isPanning = false;
-			_foreGround.removeEventListener(MouseEvent.MOUSE_UP, handleMouseEventMouseStop);
+			isoView.removeEventListener(MouseEvent.MOUSE_UP, handleMouseEventMouseStop);
+			_bg.removeEventListener(MouseEvent.MOUSE_UP, handleMouseEventMouseStop);
 		}
 		
 		public function makeGrid(cols:int, rows:int):void {
@@ -201,6 +216,11 @@ package la.diversion.levelView
 					isoView.removeChildAt(1);
 					highlight = null;
 				}
+				isoView.removeEventListener(MouseEvent.MOUSE_WHEEL, handleMouseEventMouseWheel);
+				isoView.removeEventListener(MouseEvent.MOUSE_DOWN, handleMouseEventMouseDown);
+				isoView.removeEventListener(MouseEvent.MOUSE_MOVE, handleMouseEventMouseMove);
+				isoView.removeEventListener(MouseEvent.MOUSE_OUT, handleMouseEventMouseOut);
+				isoView.removeEventListener(MouseEvent.CLICK, handleIsoViewMouseEventClick);
 				this.removeChild(isoView);
 				
 				pathGrid = null;
@@ -239,6 +259,17 @@ package la.diversion.levelView
 			//Add the isoView to the stage
 			this.addChildAt(isoView, 1);
 			isoView.panTo( int(pathGrid.numRows * cellSize / 2) ,int(pathGrid.numRows * cellSize / 2) );
+			
+			//isoView Listeners
+			isoView.addEventListener(MouseEvent.MOUSE_WHEEL, handleMouseEventMouseWheel);
+			isoView.addEventListener(MouseEvent.MOUSE_DOWN, handleMouseEventMouseDown);
+			isoView.addEventListener(MouseEvent.MOUSE_MOVE, handleMouseEventMouseMove);
+			isoView.addEventListener(MouseEvent.MOUSE_OUT, handleMouseEventMouseOut);
+			isoView.addEventListener(MouseEvent.CLICK, handleIsoViewMouseEventClick);
+		}
+		
+		private function handleIsoViewMouseEventClick(e:MouseEvent):void{
+			trace("CLICK MY FACE:" + e.target.parent);
 		}
 		
 		/*
