@@ -139,11 +139,15 @@ package la.diversion.models {
 			this._zoomLevel = zoomLevel;
 		}
 		
-		
+		// Creates the grid arrays and adds a Tile object
+		// to each one.
 		private function setGridSize(cols, rows) {
 			_grid = new Array(cols);
 			for (i:uint = 0; i++; i < _grid.length) {
 				_grid[i] = new Array(rows);
+				for (j:uint = 0; j++; j < _grid[i].length) {
+					_grid[i][j] = new Tile();
+				}
 			}
 		}
 		
