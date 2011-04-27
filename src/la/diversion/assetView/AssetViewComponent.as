@@ -29,8 +29,11 @@ package la.diversion.assetView {
 	import flash.geom.Rectangle;
 	import flash.net.URLRequest;
 	
-	import la.diversion.GameAsset;
 	import la.diversion.AssetManager;
+	import la.diversion.EventBus;
+	import la.diversion.GameAsset;
+	import la.diversion.levelView.LevelEvent;
+	import la.diversion.StageManager;
 	
 	import org.bytearray.explorer.SWFExplorer;
 	import org.bytearray.explorer.events.SWFExplorerEvent;
@@ -54,6 +57,7 @@ package la.diversion.assetView {
 		private var assetHolder:Panel;
 		private var scroller:ScrollBar;
 		private var browserBtn:PushButton;
+		private var walkableModeBtn:PushButton;
 		
 		public function AssetViewComponent() {
 			file = new File();
@@ -70,6 +74,23 @@ package la.diversion.assetView {
 			browserBtn.label = "Load Asset Library";
 			browserBtn.addEventListener(MouseEvent.CLICK, onBrowseFilesystem);
 			addChild(browserBtn);
+			
+			walkableModeBtn = new PushButton();
+			walkableModeBtn.x = 150;
+			walkableModeBtn.y = panel_height - 30;
+			walkableModeBtn.label = "Set Walkable";
+			walkableModeBtn.addEventListener(MouseEvent.CLICK, onWalkableModeBtnClick);
+			addChild(walkableModeBtn);
+		}
+		
+		private function onWalkableModeBtnClick(event:MouseEvent){
+			if(walkableModeBtn.label == "Set Walkable"){
+				walkableModeBtn.label = "Place Assets";
+				StageManager.viewMode = StageManager.VIEW_MODE_SET_WALKABLE_TILES;
+			}else{
+				walkableModeBtn.label = "Set Walkable";
+				StageManager.viewMode = StageManager.VIEW_MODE_PLACE_ASSETS;
+			}
 		}
 		
 		private function initScroller():void {

@@ -9,7 +9,7 @@ package la.diversion.levelView
 		private var _numCols:int;
 		private var _numRows:int;
 		
-		public function Grid(numCols:int, numRows:int){
+		public function Grid(numCols:int, numRows:int, cellSize:Number){
 			_numCols = numCols;
 			_numRows = numRows;
 			_nodes = new Array();
@@ -17,7 +17,7 @@ package la.diversion.levelView
 			for(var i:int = 0; i < _numCols; i++){
 				_nodes[i] = new Array();
 				for(var j:int = 0; j < _numRows; j++){
-					_nodes[i][j] = new Node(i, j);
+					_nodes[i][j] = new Node(i, j, cellSize);
 				}
 			}
 		}

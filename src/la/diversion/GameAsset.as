@@ -53,7 +53,7 @@ package la.diversion {
 			this.removeEventListener(Event.ADDED_TO_STAGE, handleEventAddedToStage);
 		}
 		
-		public function handleEventRemovedFromStage(event:Event):void{
+		private function handleEventRemovedFromStage(event:Event):void{
 			this.removeEventListener(MouseEvent.MOUSE_DOWN, handleMouseDown);
 			
 			this.addEventListener(Event.ADDED_TO_STAGE, handleEventAddedToStage);
@@ -68,8 +68,11 @@ package la.diversion {
 		}
 		
 		private function handleMouseDown(event:ProxyEvent):void{
-			_stage.addEventListener(MouseEvent.MOUSE_UP, handleMouseUp);
-			EventBus.dispatcher.dispatchEvent(new AssetEvent(AssetEvent.DRAG_OBJECT_START, this));
+			//trace("asset handleMouseDown");
+			if(StageManager.viewMode == StageManager.VIEW_MODE_PLACE_ASSETS){
+				_stage.addEventListener(MouseEvent.MOUSE_UP, handleMouseUp);
+				EventBus.dispatcher.dispatchEvent(new AssetEvent(AssetEvent.DRAG_OBJECT_START, this));
+			}
 		}
 		
 		private function handleMouseUp(event:MouseEvent):void{
@@ -78,13 +81,17 @@ package la.diversion {
 		}
 		
 		private function handleRollOver(event:ProxyEvent):void{
-			this.container.alpha = .75;
-			this.container.filters = [new GlowFilter(0xFF0000, 1, 5, 5, 6, 2, false, false)];
+			if(StageManager.viewMode == StageManager.VIEW_MODE_PLACE_ASSETS){
+				this.container.alpha = .75;
+				this.container.filters = [new GlowFilter(0xFF0000, 1, 5, 5, 6, 2, false, false)];
+			}
 		}
 		
 		private function handleRollOut(event:ProxyEvent):void{
-			this.container.alpha = 1;
-			this.container.filters = [];
+			if(StageManager.viewMode == StageManager.VIEW_MODE_PLACE_ASSETS){
+				this.container.alpha = 1;
+				this.container.filters = [];
+			}
 		}
 
 		public function get stageCol():int{

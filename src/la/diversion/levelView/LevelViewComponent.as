@@ -25,6 +25,7 @@ package la.diversion.levelView
 	import flash.events.Event;
 	import flash.events.MouseEvent;
 	import flash.geom.Point;
+	import flash.filters.GlowFilter;
 	
 	import la.diversion.EventBus;
 	import la.diversion.GameAsset;
@@ -33,7 +34,6 @@ package la.diversion.levelView
 	
 	public class LevelViewComponent extends Sprite {
 		protected var cellSize:int = 64;
-		protected var pathGrid:Grid;
 		protected var path:Array;
 		protected var isoSprite:IsoSprite;
 		protected var isoView:IsoView;
@@ -57,15 +57,10 @@ package la.diversion.levelView
 		private var _dragThumb:Sprite;
 		private var _viewMode:String;
 		
-		public static var VIEW_MODE_PLACE_ASSETS:String = "viewModePlaceAssets";
-		public static var VIEW_MODE_SET_WALKABLE_TILES:String = "viewModeSetWalkableTiles";
-		
 		public var button1:SimpleButton;
 		
 		public function LevelViewComponent(){
 			super();
-			
-			_viewMode = LevelViewComponent.VIEW_MODE_PLACE_ASSETS;
 			
 			_bg = new Sprite();
 			_bg.graphics.beginFill(0x00FFFF);
@@ -78,8 +73,33 @@ package la.diversion.levelView
 			this.addEventListener(MouseEvent.ROLL_OVER, handleThisMouseEventRollOver);
 
 			EventBus.dispatcher.addEventListener(AssetEvent.DRAG_OBJECT_START, handleAssetEventDragObjectStart);
+			EventBus.dispatcher.addEventListener(LevelEvent.SET_VIEW_MODE_PLACE_ASSETS, handleSetViewModePlaceAssets);
+			EventBus.dispatcher.addEventListener(LevelEvent.SET_VIEW_MODE_SET_WALKABLE_TILES, handleSetViewModeSetWalkableTiles);
 
 			makeGrid(40,40);
+			StageManager.viewMode = StageManager.VIEW_MODE_PLACE_ASSETS;
+		}
+		
+		private function handleSetViewModePlaceAssets(event:LevelEvent):void{
+			for(var i:int = 0; i < StageManager.grid.numCols; i++){
+				for(var j:int = 1; j < StageManager.grid.numRows; j++){
+					if(!StageManager.grid.getNode(i,j).walkable){
+						isoScene.removeChild(StageManager.grid.getNode(i,j).tile);
+					}
+				}
+			}
+			isoScene.render();
+		}
+		
+		private function handleSetViewModeSetWalkableTiles(event:LevelEvent):void{
+			for(var i:int = 0; i < StageManager.grid.numCols; i++){
+				for(var j:int = 1; j < StageManager.grid.numRows; j++){
+					if(!StageManager.grid.getNode(i,j).walkable){
+						isoScene.addChild(StageManager.grid.getNode(i,j).tile);
+					}
+				}
+			}
+			isoScene.render();
 		}
 		
 		private function handleThisAddedToStage(event:Event):void{
@@ -99,7 +119,16 @@ package la.diversion.levelView
 		}
 		
 		private function handleStageMouseEventClick(event:MouseEvent):void{
-			//trace("BG Mouse Click");
+			//trace("Stage Mouse Click target=" + event.target.toString());
+			if(_isMouseOverGrid && _isMouseOverThis && StageManager.viewMode == StageManager.VIEW_MODE_SET_WALKABLE_TILES){
+				if(StageManager.grid.getNode(_mouseCol,_mouseRow).walkable){
+					StageManager.grid.getNode(_mouseCol,_mouseRow).walkable = false;
+					isoScene.addChild(StageManager.grid.getNode(_mouseCol,_mouseRow).tile);
+				}else{
+					StageManager.grid.getNode(_mouseCol,_mouseRow).walkable = true;
+					isoScene.removeChild(StageManager.grid.getNode(_mouseCol,_mouseRow).tile);
+				}
+			}
 		}
 		
 		private function handleStageMouseMove(event:MouseEvent):void{
@@ -110,14 +139,14 @@ package la.diversion.levelView
 					isoView.panTo(_panOriginX - ((event.stageX - _panX)*scaleFactor), _panOriginY - ((event.stageY - _panY)*scaleFactor));
 				}
 				_mouseCol = Math.floor(isoPt.x / cellSize);
-				if (_mouseCol < 0 || _mouseCol >= pathGrid.numCols)
+				if (_mouseCol < 0 || _mouseCol >= StageManager.grid.numCols)
 				{
 					_isMouseOverGrid = false;
 					highlight.container.visible = false;
 					return;
 				}
 				_mouseRow = Math.floor(isoPt.y / cellSize);
-				if (_mouseRow < 0 || _mouseRow >= pathGrid.numRows)
+				if (_mouseRow < 0 || _mouseRow >= StageManager.grid.numRows)
 				{
 					_isMouseOverGrid = false;
 					highlight.container.visible = false;
@@ -162,13 +191,18 @@ package la.diversion.levelView
 			highlight.setSize(cellSize, cellSize, 0);
 			
 			if(_isMouseOverGrid && _isMouseOverThis){
-				_objectBeingDragged.setSize(_objectBeingDragged.cols * cellSize, _objectBeingDragged.rows * cellSize, 0);
+				
+				_objectBeingDragged.setSize(_objectBeingDragged.cols * cellSize, _objectBeingDragged.rows * cellSize, 64);
 				_objectBeingDragged.moveTo(_mouseCol * cellSize, _mouseRow * cellSize, 0);
+				if(StageManager.viewMode == StageManager.VIEW_MODE_SET_WALKABLE_TILES){
+					_objectBeingDragged.container.alpha = 0.5;
+				}
 				isoScene.addChild(_objectBeingDragged);
 				StageManager.addAsset(_objectBeingDragged);
 				isoScene.render();
 			}else{
 				//cleanup the asset, it has landed off the visible stage
+				StageManager.removeAsset(_objectBeingDragged.id);
 				_objectBeingDragged.cleanup();
 				_objectBeingDragged = null;
 			}
@@ -187,11 +221,11 @@ package la.diversion.levelView
 		}
 		
 		public function set rows(num:int):void {
-			makeGrid(pathGrid.numCols, num)
+			makeGrid(StageManager.grid.numCols, num)
 		}
 		
 		public function set cols(num:int):void {
-			makeGrid(num, pathGrid.numRows);
+			makeGrid(num, StageManager.grid.numRows);
 		}
 		
 		private function handleStageMouseEventMouseWheel(event:MouseEvent):void{
@@ -207,6 +241,7 @@ package la.diversion.levelView
 		}
 		
 		private function handleStageMouseEventMouseDown(event:MouseEvent):void{
+			//trace("handleStageMouseEventMouseDown");
 			if(_isMouseOverThis){
 				var isoPt:Pt = isoView.localToIso(new Pt(isoView.mouseX, isoView.mouseY));
 				_panX = event.stageX;
@@ -215,7 +250,6 @@ package la.diversion.levelView
 				_panOriginY = isoView.currentY;
 				_isPanning = true;
 				stage.addEventListener(MouseEvent.MOUSE_UP, handleStageMouseEventMouseUp);
-				trace("_panX=" + _panX);
 			}
 		}
 		
@@ -227,20 +261,19 @@ package la.diversion.levelView
 		public function makeGrid(cols:int, rows:int):void {
 			//TODO: Refactor this not to do full recreate
 			
-			if (pathGrid && this.contains(isoView)) {
+			if (isoView && this.contains(isoView)) {
 				if( isoView.getChildAt(1)){
 					isoView.removeChildAt(1);
 					highlight = null;
 				}
 				this.removeChild(isoView);
 				
-				pathGrid = null;
+				StageManager.grid = null;
 				isoView = null;
 				isoScene = null;
 			}
 			
-			pathGrid = new Grid(cols, rows);
-
+			StageManager.grid = new Grid(cols, rows, cellSize);
 			drawGrid();
 		}
 		
@@ -251,11 +284,12 @@ package la.diversion.levelView
 			highlight	    = new IsoRectangle();
 			
 			highlight.setSize(cellSize, cellSize, 0);
-			highlight.fills = [ new SolidColorFill(0xff0000, 1) ];
+			highlight.fills = [ new SolidColorFill(0x006600, 1) ];
+			highlight.container.filters = [new GlowFilter(0x00FF00, 1, 5, 5, 6, 2, false, false)];
 			isoScene.addChildAt(highlight,1);
 			
 			isoGrid.cellSize = cellSize;
-			isoGrid.setGridSize(pathGrid.numCols, pathGrid.numRows);
+			isoGrid.setGridSize(StageManager.grid.numCols, StageManager.grid.numRows);
 			isoGrid.stroke = new Stroke(1, 0x000000,1);
 			isoGrid.showOrigin = false;
 			isoScene.addChild(isoGrid);
@@ -269,7 +303,7 @@ package la.diversion.levelView
 			
 			//Add the isoView to the stage
 			this.addChildAt(isoView, 1);
-			isoView.panTo( int(pathGrid.numRows * cellSize / 2) ,int(pathGrid.numRows * cellSize / 2) );
+			isoView.panTo( int(StageManager.grid.numRows * cellSize / 2) ,int(StageManager.grid.numRows * cellSize / 2) );
 		}
 
 		
