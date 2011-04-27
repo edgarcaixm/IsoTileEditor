@@ -190,8 +190,20 @@ package la.diversion.levelView
 			makeGrid(pathGrid.numCols, num)
 		}
 		
+		public function get rows():int {
+			return pathGrid.numRows;
+		}
+		
 		public function set cols(num:int):void {
 			makeGrid(num, pathGrid.numRows);
+		}
+		
+		public function get cols():int {
+			return pathGrid.numCols;
+		}
+		
+		public function get grid():Grid {
+			return pathGrid;
 		}
 		
 		private function handleStageMouseEventMouseWheel(event:MouseEvent):void{
