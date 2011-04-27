@@ -19,6 +19,7 @@ package la.diversion.models {
 	 */
 	public class Scene {
 		
+		private var _cellSize:int = 64;
 		private var _numRows:int = 0;
 		private var _numCols:int = 0;
 		private var _position:Point = new Point(0, 0);
@@ -46,6 +47,7 @@ package la.diversion.models {
 		 */
 		public function fromJSON(json:String):void {
 			var obj:Object = JSON.decode(json);
+			this._cellSize = obj.cellSize;
 			this._numCols = obj.numCols;
 			this._numRows = obj.numRows;
 			this._zoomLevel = obj.zoomLevel;
@@ -85,6 +87,26 @@ package la.diversion.models {
 		 */
 		public function get numRows():int {
 			return _numRows;
+		}
+		
+		/**
+		 * Sets the size of all the grid cells.
+		 *
+		 * @param size Size of cell in pixels.
+		 *
+		 */
+		public function set cellSize(size:int):void {
+			this._cellSize = size;
+		}
+		
+		/**
+		 * Gets the cell size in pixels.
+		 *
+		 * @return Size of grid cells.
+		 *
+		 */
+		public function get cellSize():int {
+			return _cellSize;
 		}
 		
 		/**

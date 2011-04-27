@@ -32,7 +32,8 @@ package la.diversion.levelView
 	import la.diversion.assetView.AssetEvent;
 	
 	public class LevelViewComponent extends Sprite {
-		protected var cellSize:int = 64;
+		// TODO: Replace these with SceneModel
+		public var cellSize:int = 64;
 		protected var pathGrid:Grid;
 		protected var path:Array;
 		protected var isoSprite:IsoSprite;
@@ -204,6 +205,14 @@ package la.diversion.levelView
 		
 		public function get grid():Grid {
 			return pathGrid;
+		}
+		
+		public function get zoomLevel():Number {
+			return zoomFactor;
+		}
+		
+		public function get position():Point {
+			return new Point(isoView.x, isoView.y);
 		}
 		
 		private function handleStageMouseEventMouseWheel(event:MouseEvent):void{

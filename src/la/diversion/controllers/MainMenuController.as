@@ -56,6 +56,9 @@ package la.diversion.controllers {
 			var grid:Grid = levelComponent.grid;
 			
 			scene.setGridSize(levelComponent.cols, levelComponent.rows);
+			scene.zoomLevel = levelComponent.zoomLevel;
+			scene.position = levelComponent.position;
+			scene.cellSize = levelComponent.cellSize;
 			return scene;
 		}
 	}
