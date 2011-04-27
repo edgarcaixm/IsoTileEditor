@@ -9,7 +9,7 @@
 
 package la.diversion.models {
 	
-	import com.adobe.serialization.json;
+	import com.adobe.serialization.json.JSON;
 	
 	import flash.geom.Point;
 
@@ -19,12 +19,13 @@ package la.diversion.models {
 	 */
 	public class Scene {
 		
-		private _numRows:int = 0;
-		private _numCols:int = 0;
-		private _position:Point = new Point(0, 0);
-		private _zoomLevel:Number = 0;
+		private var _cellSize:int = 64;
+		private var _numRows:int = 0;
+		private var _numCols:int = 0;
+		private var _position:Point = new Point(0, 0);
+		private var _zoomLevel:Number = 0;
 		
-		private _grid:Array;
+		private var _grid:Array;
 		
 		public function Scene(json:String = null) {
 			super();
@@ -45,7 +46,26 @@ package la.diversion.models {
 		 * @see toJSON
 		 */
 		public function fromJSON(json:String):void {
+			var obj:Object = JSON.decode(json);
+			this._cellSize = obj.cellSize;
+			this._numCols = obj.numCols;
+			this._numRows = obj.numRows;
+			this._zoomLevel = obj.zoomLevel;
+			this.position = new Point(obj.position.x, obj.position.y);
 			
+			setGridSize(_numCols, _numRows);
+			
+			var jsonGrid:Array = obj.grid;
+			
+			var tile1:Tile;
+			var tile2:Object;
+			for (var i:int = 0; i < jsonGrid.length; i++) {
+				for (var j:int = 0; j < jsonGrid[i].length; j++) {
+					tile1 = _grid[i][j];
+					tile2 = jsonGrid[i][j];
+					_grid[i][j].isWalkable = jsonGrid[i][j].isWalkable;
+				}
+			}
 		}
 		
 		/**
@@ -56,7 +76,7 @@ package la.diversion.models {
 		 * @see fromJSON
 		 */
 		public function toJSON():String {
-			
+			return JSON.encode(this);
 		}
 		
 		/**
@@ -70,13 +90,33 @@ package la.diversion.models {
 		}
 		
 		/**
+		 * Sets the size of all the grid cells.
+		 *
+		 * @param size Size of cell in pixels.
+		 *
+		 */
+		public function set cellSize(size:int):void {
+			this._cellSize = size;
+		}
+		
+		/**
+		 * Gets the cell size in pixels.
+		 *
+		 * @return Size of grid cells.
+		 *
+		 */
+		public function get cellSize():int {
+			return _cellSize;
+		}
+		
+		/**
 		 * Sets the number of grid rows in the scene.
 		 *
 		 * @param numRows Number of rows.
 		 *
 		 */
 		public function set numRows(numRows:int):void {
-			this._numRows = numRows;
+			setGridSize(_numCols, numRows);
 		}
 		
 		/**
@@ -96,7 +136,7 @@ package la.diversion.models {
 		 *
 		 */
 		public function set numCols(numCols:int):void {
-			this._numCols = numCols;
+			setGridSize(numCols, _numRows);
 		}
 		
 		/**
@@ -139,13 +179,25 @@ package la.diversion.models {
 			this._zoomLevel = zoomLevel;
 		}
 		
+		/**
+		 * Gets the current grid array.
+		 *
+		 * @return Grid Array.
+		 *
+		 */
+		public function get grid():Array {
+			return _grid;
+		}
+		
 		// Creates the grid arrays and adds a Tile object
 		// to each one.
-		private function setGridSize(cols, rows) {
+		public function setGridSize(cols:int, rows:int):void {
+			_numCols = cols;
+			_numRows = rows;
 			_grid = new Array(cols);
-			for (i:uint = 0; i++; i < _grid.length) {
+			for (var i:int = 0; i < cols; i++) {
 				_grid[i] = new Array(rows);
-				for (j:uint = 0; j++; j < _grid[i].length) {
+				for (var j:int = 0; j < rows;  j++) {
 					_grid[i][j] = new Tile();
 				}
 			}
