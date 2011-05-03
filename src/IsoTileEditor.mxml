@@ -26,64 +26,44 @@ THE SOFTWARE.
 					   xmlns:s="library://ns.adobe.com/flex/spark" 
 					   xmlns:mx="library://ns.adobe.com/flex/mx" 
 					   xmlns:com="*" 
-					   width="1225" height="850" 
-					   creationComplete="init();">
+					   xmlns:local="la.diversion.*"
+					   width="1225" height="850">
 	
 	<fx:Declarations>
 		<!-- Place non-visual elements (e.g., services, value objects) here -->
+		<local:IsoTileEditorContext contextView="{this}"/>
 	</fx:Declarations>
 	
 	<fx:Script>
 		<![CDATA[
 			import flash.display.Sprite;
 			
-			import la.diversion.EventBus;
-			import la.diversion.assetView.AssetEvent;
-			import la.diversion.assetView.AssetViewComponent;
-			import la.diversion.controllers.MainMenuController;
-			import la.diversion.levelView.LevelViewComponent;
-			import la.diversion.models.Scene;
-			import la.diversion.propertyView.PropertyViewComponent;
-			import la.diversion.views.MainMenu;
+			import la.diversion.models.SceneModel;
+			import la.diversion.views.AssetView;
+			import la.diversion.views.IsoSceneView;
+			import la.diversion.views.MainMenuView;
+			import la.diversion.views.PropertyView;
 			
 			import mx.controls.TextInput;
 			import mx.events.FlexEvent;
 			
-			public var mainMenu:MainMenu;
-			public var mainMenuController:MainMenuController;
+			public var mainMenuView:MainMenuView;
+			public var isoLevelView:IsoSceneView;
+			public var assetView:AssetView;
+			public var propertyView:PropertyView;
 			
-			public var levelComponent:LevelViewComponent;
-			public var assetComponent:AssetViewComponent;
-			public var propertyComponent:PropertyViewComponent;
-			
-			private function init():void {
-				mainMenu = new MainMenu();
-				this.addElement(mainMenu);
+			public function init():void {
+				mainMenuView = new MainMenuView();
+				this.addElement(mainMenuView);
 				
-				levelComponent = new LevelViewComponent();
-				assetComponent = new AssetViewComponent();
-				propertyComponent = new PropertyViewComponent();
+				isoLevelView = new IsoSceneView();
+				assetView = new AssetView();
+				propertyView = new PropertyView();
 				
-				mainMenuController = new MainMenuController(mainMenu, levelComponent, assetComponent);
+				scene.addChild(isoLevelView);
+				assets.addChild(assetView);
+				properties.addChild(propertyView);
 				
-				scene.addChild(levelComponent);
-				assets.addChild(assetComponent);
-				
-				sceneProperties.totalCellsWide.addEventListener(FlexEvent.VALUE_COMMIT, onCellsChanged, false, 0, true);
-				sceneProperties.totalCellsHigh.addEventListener(FlexEvent.VALUE_COMMIT, onCellsChanged, false, 0, true);
-			}
-						
-			private function onCellsChanged(event:Event):void {
-				var id:String = event.target["id"];
-				var value:int = event.target["text"];
-				switch (id) {
-					case "totalCellsWide":
-						levelComponent.rows = value;
-						break;
-					case "totalCellsHigh":
-						levelComponent.cols = value;
-						break;
-				}
 			}
 		]]>
 	</fx:Script>
@@ -97,9 +77,8 @@ THE SOFTWARE.
 		</s:SpriteVisualElement>
 	</s:Panel>
 	<s:Panel x="784" y="382" width="345" height="388" title="Properties" id="propertiesPanel">
-		<com:ScenePropertyView id="sceneProperties">
-			
-		</com:ScenePropertyView>
+		<s:SpriteVisualElement id="properties">
+		</s:SpriteVisualElement>
 	</s:Panel>
 	<!--
 	<s:Panel x="784" y="10" width="345" height="351" title="dummy" id="dummyPanel">
