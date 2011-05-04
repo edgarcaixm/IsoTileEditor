@@ -11,6 +11,6 @@ package la.diversion.services {
 	import flash.filesystem.File;
 
 	public interface ILoadAssetLibrary {
-		function LoadAssetLibraryFile(file:File):void;
+		function LoadAssetLibraryFile(fileUrl:String):void;
 	}
 }

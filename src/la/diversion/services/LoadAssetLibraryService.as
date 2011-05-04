@@ -28,10 +28,11 @@ package la.diversion.services {
 			super();
 		}
 		
-		public function LoadAssetLibraryFile(file:File):void {
+		public function LoadAssetLibraryFile(fileUrl:String):void {
 			var swfLoader:Loader = new Loader();
 			swfLoader.contentLoaderInfo.addEventListener(Event.COMPLETE, onSWFLoadComplete);
-			swfLoader.load(new URLRequest(file.url));
+			swfLoader.load(new URLRequest(fileUrl));
+			trace(fileUrl);
 		}
 		
 		private function onSWFLoadComplete(e:Event):void {

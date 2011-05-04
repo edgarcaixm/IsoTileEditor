@@ -31,6 +31,7 @@ package la.diversion.models.components {
 		private var _stageCol:int;
 		private var _descriptor:Object;
 		private var _stage:DisplayObject;
+		private var _fileUrl:String;
 		
 		private var _addedToStage:NativeSignal;
 		public var mouseDown:NativeSignal;
