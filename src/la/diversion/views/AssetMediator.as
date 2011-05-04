@@ -9,13 +9,15 @@
 
 package la.diversion.views {
 	import flash.events.MouseEvent;
+	import flash.filesystem.File;
 	
-	import la.diversion.models.components.GameAsset;
 	import la.diversion.enums.IsoSceneViewModes;
 	import la.diversion.models.AssetModel;
+	import la.diversion.models.components.GameAsset;
 	import la.diversion.signals.AddNewLibraryAssetSignal;
 	import la.diversion.signals.AssetFinishedDraggingSignal;
 	import la.diversion.signals.AssetStartedDraggingSignal;
+	import la.diversion.signals.LoadAssetLibrarySignal;
 	import la.diversion.signals.NewLibraryAssetAddedSignal;
 	import la.diversion.signals.UpdateAssetViewModeSignal;
 	import la.diversion.views.components.AssetListItem;
@@ -45,6 +47,9 @@ package la.diversion.views {
 		[Inject]
 		public var assetFinishedDragging:AssetFinishedDraggingSignal;
 		
+		[Inject]
+		public var loadAssetLibrary:LoadAssetLibrarySignal;
+		
 		private var _listCount:int = 0;
 		private var _assetBeingDragged:GameAsset;
 		
@@ -70,8 +75,8 @@ package la.diversion.views {
 			
 		}
 		
-		private function handleViewAddNewAsset(asset:GameAsset):void{
-			addNewAsset.dispatch(asset);
+		private function handleViewAddNewAsset(file:File):void{
+			loadAssetLibrary.dispatch(file.url);
 		}
 		
 		private function handleListItemMouseDown(event:MouseEvent):void{

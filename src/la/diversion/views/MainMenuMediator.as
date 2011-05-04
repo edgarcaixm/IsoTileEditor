@@ -18,6 +18,7 @@ package la.diversion.views {
 	import flash.filesystem.FileStream;
 	
 	import la.diversion.models.SceneModel;
+	import la.diversion.signals.SaveMapSignal;
 	
 	import org.robotlegs.mvcs.SignalMediator;
 	
@@ -28,6 +29,9 @@ package la.diversion.views {
 		
 		[Inject]
 		public var sceneModel:SceneModel;
+		
+		[Inject]
+		public var saveMap:SaveMapSignal;
 		
 		override public function onRegister():void{
 			addToSignal(view.eventFileNew, handleFileNew);
@@ -46,13 +50,7 @@ package la.diversion.views {
 		
 		private function handleFileSave(file:File):void{
 			trace("MainMenuMediator handleFileSave");
-			
-			//TODO - Move me to a service!
-			//trace(sceneModel.toJSON());
-			var fileStream:FileStream = new FileStream();
-			fileStream.open(file, FileMode.WRITE);
-			fileStream.writeUTFBytes(sceneModel.toJSON());
-			fileStream.close();
+			saveMap.dispatch(file);
 		}
 		
 	}
