@@ -7,6 +7,7 @@ package la.diversion
 	import la.diversion.views.*;
 	import la.diversion.controllers.*;
 	import la.diversion.signals.*;
+	import la.diversion.services.*;
 	
 	import org.robotlegs.mvcs.SignalContext;
 	
@@ -35,6 +36,9 @@ package la.diversion
 			//models
 			injector.mapSingleton(SceneModel);
 			injector.mapSingleton(AssetModel);
+			
+			//services
+			injector.mapSingletonOf(ILoadAssetLibrary, LoadAssetLibraryService);
 			
 			//signal to command mappings
 			signalCommandMap.mapSignalClass(UpdateAssetViewModeSignal, UpdateAssetViewModeCommand);

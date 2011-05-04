@@ -123,29 +123,7 @@ package la.diversion.views {
 		}
 		
 		private function onFileSelected(e:Event):void {
-			swfLib = new SWFExplorer();
-			swfLib.addEventListener (SWFExplorerEvent.COMPLETE, onAssetsReady);
-			swfLib.load(new URLRequest(file.url));
-			
-		}
-		
-		private function onAssetsReady(e:SWFExplorerEvent):void {
-			swfDefs = e.target.getDefinitions();
-			var swfLoader:Loader = new Loader();
-			swfLoader.contentLoaderInfo.addEventListener(Event.COMPLETE, onSWFLoadComplete);
-			swfLoader.load(new URLRequest(file.url));
-		}
-		
-		private function onSWFLoadComplete(e:Event):void {
-			// populate panel content with items
-			
-			//TODO - Move this out of the view!			
-			for (var i:int=0; i<swfDefs.length; i++) {
-				// asset info
-				var tClass:Class = e.target.applicationDomain.getDefinition(swfDefs[i]) as Class;
-				var gameAsset:GameAsset = new GameAsset(swfDefs[i],tClass,1,1);
-				viewAddNewAsset.dispatch(gameAsset);
-			}
+			viewAddNewAsset.dispatch(file);
 		}
 		
 		private function onScroll(e:Event):void {
