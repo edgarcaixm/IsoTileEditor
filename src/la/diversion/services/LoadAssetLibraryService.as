@@ -37,7 +37,7 @@ package la.diversion.services {
 		private function onSWFLoadComplete(e:Event):void {
 			for each(var assetDef:Object in e.target.content.tiles){
 				var tClass:Class = e.target.applicationDomain.getDefinition(assetDef.classRef) as Class;
-				var gameAsset:GameAsset = new GameAsset(assetDef.tileID,tClass,assetDef.rows,assetDef.cols);
+				var gameAsset:GameAsset = new GameAsset(assetDef.tileID,tClass,assetDef.rows,assetDef.cols,assetDef.height);
 				addNewLibraryAsset.dispatch(gameAsset);
 			}
 		}

@@ -38,12 +38,13 @@ package la.diversion.models.components {
 		public var rollOver:NativeSignal;
 		public var rollOut:NativeSignal;
 		
-		public function GameAsset(displayClassId:String, displayClass:Class, rows:int, cols:int, descriptor:Object = null){
+		public function GameAsset(displayClassId:String, displayClass:Class, rows:int, cols:int, height:Number, descriptor:Object = null){
 			super(descriptor);
 			this._displayClassId = displayClassId;
 			this._displayClass = displayClass;
 			this._rows = rows;
 			this._cols = cols;
+			this.height = height;
 			this._descriptor = descriptor;
 			this.sprites = [displayClass];
 			
@@ -119,7 +120,7 @@ package la.diversion.models.components {
 		}
 		
 		override public function clone():*{
-			return new GameAsset(_displayClassId, _displayClass, _rows, _cols, _descriptor);
+			return new GameAsset(_displayClassId, _displayClass, _rows, _cols, height, _descriptor);
 		}
 	}
 }
