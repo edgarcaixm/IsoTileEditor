@@ -74,7 +74,7 @@ package com.adobe.serialization.json
 		 * @param value The value to convert.  Could be any
 		 *		type (object, number, array, etc)
 		 */
-		private function convertToString( value:* ):String
+		protected function convertToString( value:* ):String
 		{
 			// determine what value is and convert it based on it's type
 			if ( value is String )
@@ -113,7 +113,7 @@ package com.adobe.serialization.json
 		 * @return The string with escaped special characters
 		 * 		according to the JSON specification
 		 */
-		private function escapeString( str:String ):String
+		protected function escapeString( str:String ):String
 		{
 			// create a string to store the string's jsonstring value
 			var s:String = "";
@@ -196,7 +196,7 @@ package com.adobe.serialization.json
 		 * @param a The array to convert
 		 * @return The JSON string representation of <code>a</code>
 		 */
-		private function arrayToString( a:Array ):String
+		protected function arrayToString( a:Array ):String
 		{
 			// create a string to store the array's jsonstring value
 			var s:String = "";
@@ -244,7 +244,7 @@ package com.adobe.serialization.json
 		 * @param o The object to convert
 		 * @return The JSON string representation of <code>o</code>
 		 */
-		private function objectToString( o:Object ):String
+		protected function objectToString( o:Object ):String
 		{
 			// create a string to store the object's jsonstring value
 			var s:String = "";

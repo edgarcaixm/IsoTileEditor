@@ -33,6 +33,8 @@ package la.diversion.views {
 	import flash.events.MouseEvent;
 	import flash.filters.GlowFilter;
 	import flash.geom.Point;
+	import flash.text.TextField;
+	import flash.text.TextFormat;
 	
 	import la.diversion.models.components.GameAsset;
 	
@@ -47,6 +49,7 @@ package la.diversion.views {
 		public var isoGrid:IsoGrid;
 		public var highlight:IsoRectangle;
 		public var dragImage:Sprite;
+		public var colRowText:TextField;
 		
 		public var enterFrame:NativeSignal;
 		public var addedToStage:NativeSignal;
@@ -64,11 +67,30 @@ package la.diversion.views {
 		{
 			super();
 			
+			//background blue sprite
 			_bg = new Sprite();
 			_bg.graphics.beginFill(0x00FFFF);
 			_bg.graphics.drawRect(0,0,760,760);
 			_bg.graphics.endFill();
 			this.addChildAt(_bg,0);
+			
+			//row, col position
+			var colRowTextLabel:TextField = new TextField();
+			colRowTextLabel.mouseEnabled = false;
+			colRowTextLabel.x = 710;
+			colRowTextLabel.y = 1;
+			colRowTextLabel.multiline = true;
+			colRowTextLabel.defaultTextFormat = new TextFormat(null,14);
+			colRowTextLabel.text = "col:\nrow:"
+			this.addChildAt(colRowTextLabel, 1);
+			colRowText = new TextField();
+			colRowText.mouseEnabled = false;
+			colRowText.x = 740;
+			colRowText.y = 1;
+			colRowText.multiline = true;
+			colRowText.defaultTextFormat = new TextFormat(null,14);
+			this.addChildAt(colRowText, 1);
+			
 			
 			thisMouseEventRollOut = new NativeSignal(this, MouseEvent.ROLL_OUT, MouseEvent);
 			thisMouseEventRollOver = new NativeSignal(this, MouseEvent.ROLL_OVER, MouseEvent);

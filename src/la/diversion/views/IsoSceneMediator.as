@@ -30,7 +30,7 @@ package la.diversion.views {
 	import la.diversion.models.components.GameAsset;
 	import la.diversion.enums.IsoSceneViewModes;
 	import la.diversion.models.SceneModel;
-	import la.diversion.models.Tile;
+	import la.diversion.models.components.Tile;
 	import la.diversion.signals.AddAssetToSceneSignal;
 	import la.diversion.signals.AssetAddedToSceneSignal;
 	import la.diversion.signals.AssetFinishedDraggingSignal;
@@ -159,6 +159,7 @@ package la.diversion.views {
 		
 		private function handleThisMouseEventRollOut(event:MouseEvent):void{
 			_isMouseOverThis = false;
+			view.colRowText.text = "";
 		}
 		
 		private function handleThisMouseEventRollOver(event:MouseEvent):void{
@@ -177,6 +178,7 @@ package la.diversion.views {
 				{
 					_isMouseOverGrid = false;
 					view.highlight.container.visible = false;
+					view.colRowText.text = "";
 					return;
 				}
 				_mouseRow = Math.floor(isoPt.y / sceneModel.cellSize);
@@ -184,6 +186,7 @@ package la.diversion.views {
 				{
 					_isMouseOverGrid = false;
 					view.highlight.container.visible = false;
+					view.colRowText.text = "";
 					return;
 				}
 				
@@ -191,6 +194,7 @@ package la.diversion.views {
 				view.highlight.container.visible = true;
 				view.highlight.moveTo(_mouseCol * sceneModel.cellSize, _mouseRow * sceneModel.cellSize,0);
 				view.isoScene.render();
+				view.colRowText.text = String(_mouseCol) + "\n" + String(_mouseRow);
 			}
 		}
 		
@@ -230,16 +234,19 @@ package la.diversion.views {
 		}
 		
 		private function handleTileWalkableUpdated(tile:Tile):void{
-			trace("IsoSceneMediator handleTileWalkableUpdated");
-			if(tile.isWalkable){
+			//trace("IsoSceneMediator handleTileWalkableUpdated: " +tile.isoTile.id + ", " + tile.isWalkable + " " + tile.col + ", " + tile.row);
+			if(!view.isoScene.contains(tile.isoTile)){
 				view.isoScene.addChild(tile.isoTile);
+			}
+			if(tile.isWalkable || sceneModel.viewMode == IsoSceneViewModes.VIEW_MODE_PLACE_ASSETS){
+				tile.isoTile.container.visible = false;
 			}else{
-				view.isoScene.removeChild(tile.isoTile);
+				tile.isoTile.container.visible = true;
 			}
 		}
 		
 		private function handleStageMouseEventClick(event:MouseEvent):void{
-			trace("handleStageMouseEventClick");
+			//trace("handleStageMouseEventClick");
 			if(_isMouseOverGrid && _isMouseOverThis && sceneModel.viewMode == IsoSceneViewModes.VIEW_MODE_SET_WALKABLE_TILES){
 				var tile:Tile = sceneModel.getTile(_mouseCol, _mouseRow);
 				if(tile.isWalkable ){
@@ -316,6 +323,8 @@ package la.diversion.views {
 			if(_isMouseOverGrid && _isMouseOverThis){
 				asset.setSize(asset.cols * sceneModel.cellSize, asset.rows * sceneModel.cellSize, 64);
 				asset.moveTo(_mouseCol * sceneModel.cellSize, _mouseRow * sceneModel.cellSize, 0);
+				asset.stageCol = _mouseCol;
+				asset.stageRow = _mouseRow;
 				addAssetToScene.dispatch(asset);
 			}else{
 				//cleanup the asset, it has landed off the visible stage
@@ -329,18 +338,18 @@ package la.diversion.views {
 		}
 		
 		private function handleAssetRemovedFromScene(asset:GameAsset):void{
-			trace("handleAssetRemovedFromScene");
+			//trace("handleAssetRemovedFromScene");
 			view.isoScene.removeChild(asset);
 		}
 		
 		private function handleAssetViewModeUpdated(mode:String):void{
 			for(var i:int = 0; i < sceneModel.numCols; i++){
-				for(var j:int = 1; j < sceneModel.numRows; j++){
+				for(var j:int = 0; j < sceneModel.numRows; j++){
 					if(!sceneModel.getTile(i,j).isWalkable){
 						if(mode == IsoSceneViewModes.VIEW_MODE_PLACE_ASSETS){
-							view.isoScene.removeChild(sceneModel.getTile(i,j).isoTile);
+							sceneModel.getTile(i,j).isoTile.container.visible = false;
 						}else{
-							view.isoScene.addChild(sceneModel.getTile(i,j).isoTile);
+							sceneModel.getTile(i,j).isoTile.container.visible = true;
 						}
 					}
 				}

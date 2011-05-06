@@ -54,7 +54,7 @@ package la.diversion.views {
 		private var _assetBeingDragged:GameAsset;
 		
 		override public function onRegister():void{
-			trace("AssetViewMediator onRegister");
+			//trace("AssetViewMediator onRegister");
 			addToSignal(view.setWalkableModeClicked, handleSetWalkableModeClicked);
 			addToSignal(view.viewAddNewAsset, handleViewAddNewAsset);
 			//addToSignal(view.assetStartDragging, handleAssetStartDragging);
@@ -76,7 +76,7 @@ package la.diversion.views {
 		}
 		
 		private function handleViewAddNewAsset(file:File):void{
-			loadAssetLibrary.dispatch(file.url);
+			loadAssetLibrary.dispatch(new Array(file));
 		}
 		
 		private function handleListItemMouseDown(event:MouseEvent):void{

@@ -20,7 +20,6 @@ package la.diversion.controllers {
 		public var model:SceneModel;
 		
 		override public function execute():void{
-			trace("UpdateSceneGridSizeCommand:" + gridSize.cols + "," + gridSize.rows);
 			model.setGridSize(gridSize.cols, gridSize.rows);
 		}
 	}

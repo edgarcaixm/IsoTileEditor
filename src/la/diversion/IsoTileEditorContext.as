@@ -2,12 +2,12 @@ package la.diversion
 {
 	import flash.display.DisplayObjectContainer;
 	
-	import la.diversion.models.SceneModel;
-	import la.diversion.models.AssetModel;
-	import la.diversion.views.*;
 	import la.diversion.controllers.*;
-	import la.diversion.signals.*;
+	import la.diversion.models.AssetModel;
+	import la.diversion.models.SceneModel;
 	import la.diversion.services.*;
+	import la.diversion.signals.*;
+	import la.diversion.views.*;
 	
 	import org.robotlegs.mvcs.SignalContext;
 	
@@ -33,7 +33,9 @@ package la.diversion
 			injector.mapSingleton(UpdateSceneGridSizeSignal);
 			injector.mapSingleton(SceneGridSizeUpdatedSignal);
 			injector.mapSingleton(LoadAssetLibrarySignal);
+			injector.mapSingleton(LoadAssetLibraryCompleteSignal);
 			injector.mapSingleton(SaveMapSignal);
+			injector.mapSingleton(LoadMapSignal);
 			
 			//models
 			injector.mapSingleton(SceneModel);
@@ -42,6 +44,7 @@ package la.diversion
 			//services
 			injector.mapSingletonOf(ILoadAssetLibrary, LoadAssetLibraryService);
 			injector.mapSingletonOf(ISaveMap, SaveMapService);
+			injector.mapSingletonOf(ILoadMap, LoadMapService);
 			
 			//signal to command mappings
 			signalCommandMap.mapSignalClass(UpdateAssetViewModeSignal, UpdateAssetViewModeCommand);
@@ -52,6 +55,7 @@ package la.diversion
 			signalCommandMap.mapSignalClass(UpdateSceneGridSizeSignal, UpdateSceneGridSizeCommand);
 			signalCommandMap.mapSignalClass(LoadAssetLibrarySignal, LoadAssetLibraryCommand);
 			signalCommandMap.mapSignalClass(SaveMapSignal, SaveMapCommand);
+			signalCommandMap.mapSignalClass(LoadMapSignal, LoadMapCommand);
 			
 			//mediators
 			mediatorMap.mapView(IsoSceneView,IsoSceneMediator);
