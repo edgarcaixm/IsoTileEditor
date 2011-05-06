@@ -26,6 +26,7 @@ package la.diversion.views {
 		public var file:File;
 		
 		private var _eventFileSave:Signal;
+		private var _eventFileOpen:Signal;
 		private var _eventFileNew:Signal;
 		
 		public function MainMenuView()
@@ -38,12 +39,17 @@ package la.diversion.views {
 		
 		public function get eventFileNew():Signal
 		{
-			return _eventFileNew  ||= new Signal();
+			return _eventFileNew ||= new Signal();
 		}
 
 		public function get eventFileSave():Signal
 		{
-			return _eventFileSave  ||= new Signal();
+			return _eventFileSave ||= new Signal();
+		}
+
+		public function get eventFileOpen():Signal
+		{
+			return _eventFileOpen ||= new Signal();
 		}
 
 		public function init(e:Event = null):void {
@@ -98,6 +104,8 @@ package la.diversion.views {
 		public function createFileMenu(fileMenu:NativeMenuItem):void {
 			var newCommand:NativeMenuItem = fileMenu.submenu.addItem(new NativeMenuItem("New"));
 			newCommand.addEventListener(Event.SELECT, selectCommand);
+			var openCommand:NativeMenuItem = fileMenu.submenu.addItem(new NativeMenuItem("Open..."));
+			openCommand.addEventListener(Event.SELECT, selectCommand);
 			var saveCommand:NativeMenuItem = fileMenu.submenu.addItem(new NativeMenuItem("Save"));
 			saveCommand.addEventListener(Event.SELECT, selectCommand);
 		}
@@ -131,6 +139,10 @@ package la.diversion.views {
 					file.browseForSave("Save Scene");
 					//eventFileSave.dispatch();
 					break;
+				case "Open...":
+					file = new File();
+					file.addEventListener(Event.SELECT, onOpen);
+					file.browseForOpen("Open Scene");
 				case "New":
 					eventFileNew.dispatch();
 					break;
@@ -145,21 +157,27 @@ package la.diversion.views {
 			eventFileSave.dispatch(file);
 		}
 		
+		private function onOpen(event:Event):void{
+			file.removeEventListener(Event.SELECT, onOpen);
+			eventFileOpen.dispatch(file);
+		}
+		
 		//catch native menu command selections (copy, paste, etc)
+		//TODO - implement any of these that we want/need
 		private function selectCommandMenu(event:Event):void {
 			if (event.currentTarget.parent != null) {
 				var menuItem:NativeMenuItem =
 					findItemForMenu(NativeMenu(event.currentTarget));
 				if (menuItem != null) {
-					trace("Select event for \"" + 
-						event.target.label + 
-						"\" command handled by menu: " + 
-						menuItem.label);
+					//trace("Select event for \"" + 
+					//	event.target.label + 
+					//	"\" command handled by menu: " + 
+					//	menuItem.label);
 				}
 			} else {
-				trace("Select event for \"" + 
-					event.target.label + 
-					"\" command handled by root menu.");
+				//trace("Select event for \"" + 
+				//	event.target.label + 
+				//	"\" command handled by root menu.");
 			}
 		}
 		

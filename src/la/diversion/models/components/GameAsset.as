@@ -10,6 +10,8 @@
 package la.diversion.models.components {
 	import as3isolib.display.IsoSprite;
 	
+	import com.adobe.serialization.json.DiversionJSON;
+	
 	import eDpLib.events.ProxyEvent;
 	
 	import flash.display.DisplayObject;
@@ -39,15 +41,18 @@ package la.diversion.models.components {
 		public var rollOver:NativeSignal;
 		public var rollOut:NativeSignal;
 		
-		public function GameAsset(displayClassId:String, displayClass:Class, rows:int, cols:int, height:Number, descriptor:Object = null){
+		public function GameAsset(displayClassId:String, displayClass:Class, rows:int, cols:int, height:Number, fileUrl:String = "", stageRow:int = -1, stageCol:int = -1, descriptor:Object = null){
 			super(descriptor);
 			this._displayClassId = displayClassId;
 			this._displayClass = displayClass;
 			this._rows = rows;
 			this._cols = cols;
+			this._stageCol = stageCol;
+			this._stageRow = stageRow;
 			this.height = height;
 			this._descriptor = descriptor;
 			this.sprites = [displayClass];
+			this._fileUrl = fileUrl;
 			
 			_addedToStage = new NativeSignal(this, Event.ADDED_TO_STAGE, Event);
 			_addedToStage.add(handleAddedToStage);
@@ -120,8 +125,22 @@ package la.diversion.models.components {
 			_rows = value;
 		}
 		
+		public function toJSON():String{
+			var result:Object = new Object();
+			
+			result.rows = _rows;
+			result.cols = _cols;
+			result.height = height;
+			result.displayClassId = _displayClassId;
+			result.stageRow = _stageRow;
+			result.stageCol = _stageCol;
+			result.fileUrl = _fileUrl;
+			result.id = this.id;
+			return DiversionJSON.encode(result);
+		}
+		
 		override public function clone():*{
-			return new GameAsset(_displayClassId, _displayClass, _rows, _cols, height, _descriptor);
+			return new GameAsset(_displayClassId, _displayClass, _rows, _cols, height, _fileUrl, _stageRow, _stageCol, _descriptor);
 		}
 	}
 }

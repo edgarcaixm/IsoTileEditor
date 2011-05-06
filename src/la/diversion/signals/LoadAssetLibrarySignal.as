@@ -13,7 +13,7 @@ package la.diversion.signals {
 	public class LoadAssetLibrarySignal extends Signal {
 		public function LoadAssetLibrarySignal(...parameters)
 		{
-			super(String);
+			super(Array);
 		}
 	}
 }

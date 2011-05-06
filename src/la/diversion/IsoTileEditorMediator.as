@@ -16,7 +16,7 @@ package la.diversion {
 		public var view:IsoTileEditor;
 		
 		override public function onRegister():void{
-			trace("IsoTileEditorMediator onRegister");
+			//trace("IsoTileEditorMediator onRegister");
 			view.init();
 		}
 	}

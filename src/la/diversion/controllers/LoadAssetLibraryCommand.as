@@ -15,13 +15,13 @@ package la.diversion.controllers {
 	public class LoadAssetLibraryCommand extends SignalCommand {
 		
 		[Inject]
-		public var file:String;
+		public var files:Array;
 		
 		[Inject]
 		public var serviceLoadAssetLibrary:ILoadAssetLibrary;
 		
 		override public function execute():void{
-			serviceLoadAssetLibrary.LoadAssetLibraryFile(file);
+			serviceLoadAssetLibrary.LoadAssetLibraryFile(files);
 		}
 	}
 }
