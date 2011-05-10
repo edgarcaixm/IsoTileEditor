@@ -19,6 +19,8 @@ package la.diversion.models.components
 		
 		function get displayClassType():String;
 		
+		function get fileUrl():String;
+		
 		function clone():*;
 	}
 }

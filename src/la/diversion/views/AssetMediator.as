@@ -20,7 +20,6 @@ package la.diversion.views {
 	import la.diversion.signals.AssetFinishedDraggingSignal;
 	import la.diversion.signals.AssetStartedDraggingSignal;
 	import la.diversion.signals.AssetViewModeUpdatedSignal;
-	import la.diversion.signals.LoadAssetLibrarySignal;
 	import la.diversion.signals.NewLibraryAssetAddedSignal;
 	import la.diversion.signals.NewLibraryBackgroundAddedSignal;
 	import la.diversion.signals.UpdateIsoSceneBackgroundSignal;
@@ -50,9 +49,6 @@ package la.diversion.views {
 		public var assetFinishedDragging:AssetFinishedDraggingSignal;
 		
 		[Inject]
-		public var loadAssetLibrary:LoadAssetLibrarySignal;
-		
-		[Inject]
 		public var assetViewModeUpdated:AssetViewModeUpdatedSignal;
 		
 		[Inject]
@@ -67,7 +63,6 @@ package la.diversion.views {
 		
 		override public function onRegister():void{
 			//trace("AssetViewMediator onRegister");
-			addToSignal(view.viewAddNewAsset, handleViewAddNewAsset);
 			addToSignal(view.mouseEventMouseWheel, handleMouseEventMouseWheel);
 			
 			addToSignal(assetViewModeUpdated, handleAssetViewModeUpdated);
@@ -77,7 +72,7 @@ package la.diversion.views {
 		
 		private function handleNewBackgroundAdded(bg:Background):void{
 			//trace("handleNewBackgroundAdded:" + bg.id);
-			var listItem:AssetListItem = new AssetListItem(bg, view.item_width, view.item_height, bg.displayClassId);
+			var listItem:AssetListItem = new AssetListItem(bg, view.item_width, view.item_height);
 			listItem.y = view.item_height * _backgroundListCount;
 			view.backgroundHolder.addChild(listItem);
 			_backgroundListCount++;
@@ -126,10 +121,6 @@ package la.diversion.views {
 
 		}
 		
-		private function handleViewAddNewAsset(file:File):void{
-			loadAssetLibrary.dispatch(new Array(file));
-		}
-		
 		private function handleAssetListItemMouseDown(event:MouseEvent):void{
 			addOnceToSignal(AssetListItem(event.target).mouseUp, handleListItemMouseUp);
 			_assetBeingDragged = AssetListItem(event.target).gameAsset.clone();
@@ -141,7 +132,7 @@ package la.diversion.views {
 		}
 		
 		private function handleNewAssetAdded(asset:GameAsset):void{
-			var listItem:AssetListItem = new AssetListItem(asset, view.item_width, view.item_height, asset.displayClassId);
+			var listItem:AssetListItem = new AssetListItem(asset, view.item_width, view.item_height);
 			listItem.y = view.item_height * _assetListCount;
 			view.assetHolder.addChild(listItem);
 			_assetListCount++;

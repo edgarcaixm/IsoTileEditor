@@ -57,11 +57,8 @@ package la.diversion.views {
 		public var assetHolderScroller:ScrollBar;
 		public var backgroundHolder:Panel;
 		public var backgroundHolderScroller:ScrollBar;
-		public var browserBtn:PushButton;
 		
 		public var mouseEventMouseWheel:NativeSignal;
-		
-		protected var _viewAddNewAsset:Signal;
 		
 		private var listCount:int = 0;
 		private var _assetBeingDragged:GameAsset;
@@ -73,32 +70,21 @@ package la.diversion.views {
 			
 			assetHolder = new Panel();
 			assetHolder.width = panel_width;
-			assetHolder.height = panel_height - 40;
+			assetHolder.height = panel_height;
 			addChild(assetHolder);
 			
 			backgroundHolder = new Panel();
 			backgroundHolder.width = panel_width;
-			backgroundHolder.height = panel_height - 40;
+			backgroundHolder.height = panel_height;
 			backgroundHolder.visible = false;
 			addChild(backgroundHolder);
-			
-			browserBtn = new PushButton();
-			browserBtn.x = 10;
-			browserBtn.y = panel_height - 30;
-			browserBtn.label = "Load Asset Library";
-			browserBtn.addEventListener(MouseEvent.CLICK, onBrowseFilesystem);
-			addChild(browserBtn);
 			
 			mouseEventMouseWheel = new NativeSignal(this, MouseEvent.MOUSE_WHEEL, MouseEvent);
 		}
 		
-		public function get viewAddNewAsset():Signal{
-			return _viewAddNewAsset ||= new Signal();
-		}
-		
 		public function initScroller():void {
 			assetHolderScroller = new ScrollBar(Slider.VERTICAL, this, 0, 0, onScroll);
-			assetHolderScroller.height = panel_height - 40;
+			assetHolderScroller.height = panel_height;
 			assetHolderScroller.x = panel_width - assetHolderScroller.width;
 			assetHolderScroller.autoHide = true;
 			assetHolderScroller.setThumbPercent(assetHolder.height / assetHolder.content.height);
@@ -108,7 +94,7 @@ package la.diversion.views {
 			addChild(assetHolderScroller);
 			
 			backgroundHolderScroller = new ScrollBar(Slider.VERTICAL, this, 0, 0, onScroll);
-			backgroundHolderScroller.height = panel_height - 40;
+			backgroundHolderScroller.height = panel_height;
 			backgroundHolderScroller.x = panel_width - backgroundHolderScroller.width;
 			backgroundHolderScroller.autoHide = true;
 			backgroundHolderScroller.setThumbPercent(backgroundHolder.height / backgroundHolder.content.height);
@@ -116,15 +102,6 @@ package la.diversion.views {
 			backgroundHolderScroller.pageSize = backgroundHolder.height;
 			backgroundHolderScroller.lineSize = item_height;
 			addChild(backgroundHolderScroller);
-		}
-		
-		private function onBrowseFilesystem(e:MouseEvent):void {
-			file.addEventListener(Event.SELECT, onFileSelected);
-			file.browse();
-		}
-		
-		private function onFileSelected(e:Event):void {
-			viewAddNewAsset.dispatch(file);
 		}
 		
 		private function onScroll(e:Event):void {

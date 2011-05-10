@@ -38,6 +38,7 @@ package la.diversion.views {
 	import la.diversion.signals.AssetFinishedDraggingSignal;
 	import la.diversion.signals.AssetRemovedFromSceneSignal;
 	import la.diversion.signals.AssetStartedDraggingSignal;
+	import la.diversion.signals.IsoSceneBackgroundResetSignal;
 	import la.diversion.signals.IsoSceneBackgroundUpdatedSignal;
 	import la.diversion.signals.IsoSceneViewModeUpdatedSignal;
 	import la.diversion.signals.SceneGridSizeUpdatedSignal;
@@ -92,6 +93,9 @@ package la.diversion.views {
 		[Inject]
 		public var updateIsoSceneBackgroundPosition:UpdateIsoSceneBackgroundPositionSignal;
 		
+		[Inject]
+		public var isoSceneBackgroundReset:IsoSceneBackgroundResetSignal;
+		
 		private var _isPanning:Boolean = false;
 		private var _isMovingBackground:Boolean = false;
 		private var _panX:Number = 0;
@@ -115,6 +119,7 @@ package la.diversion.views {
 			addToSignal(tileWalkableUpdated, handleTileWalkableUpdated);
 			addToSignal(sceneGridSizedUpdated, handleSceneGridSizeUpdated);
 			addToSignal(isoSceneBackgroundUpdated, handleIsoSceneBackgroundUpdated);
+			addToSignal(isoSceneBackgroundReset, handleIsoSceneBackgroundReset);
 			
 			addToSignal(view.addedToStage, handleThisAddedToStage);
 			addToSignal(view.thisMouseEventRollOut, handleThisMouseEventRollOut);
@@ -166,8 +171,10 @@ package la.diversion.views {
 			view.isoView.backgroundContainer.addChild(bg);
 		}
 		
-		private function handleBackgroundMouseEventRollOver(event:MouseEvent):void{
-			trace("handleBackgroundMouseEventRollOver");
+		private function handleIsoSceneBackgroundReset():void{
+			while(view.isoView.backgroundContainer.numChildren){
+				view.isoView.backgroundContainer.removeChildAt(0);
+			}
 		}
 		
 		private function handleSceneGridSizeUpdated():void{

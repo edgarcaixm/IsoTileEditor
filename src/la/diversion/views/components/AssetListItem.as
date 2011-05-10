@@ -29,13 +29,14 @@ package la.diversion.views.components {
 	public class AssetListItem extends Sprite {
 		
 		private var _label:Label;
+		private var _fileUrl:Label;
 		private var _gameAsset:IAsset;
 		private var _addedToStage:NativeSignal;
 		
 		public var mouseDown:NativeSignal;
 		public var mouseUp:NativeSignal;
 		
-		public function AssetListItem(gameAsset:IAsset, item_width:Number, item_height:Number, labelTxt:String)
+		public function AssetListItem(gameAsset:IAsset, item_width:Number, item_height:Number)
 		{
 			super();
 			this._gameAsset = gameAsset;
@@ -74,15 +75,14 @@ package la.diversion.views.components {
 				tScaleY = tScaleX;
 			}
 			transform.scale(tScaleX, tScaleY);
-			
 			tBmd.draw(tAsset, transform, null, null, null, true);
 			var thumb:Bitmap = new Bitmap(tBmd);
-			thumb.name = "thumb";
 			thumb.x = thumb.y = 4;
 			this.addChild(thumb);
-			// title
-			_label = new Label(this, 40, 5, labelTxt);
-			_label.name = "label";
+			
+			// labels
+			_label = new Label(this, 40, 5, gameAsset.displayClassId);
+			_fileUrl = new Label(this, item_width - 120, 5, gameAsset.fileUrl);
 			
 			_addedToStage = new NativeSignal(this, Event.ADDED_TO_STAGE, Event);
 			_addedToStage.add(handleAddedToStage);

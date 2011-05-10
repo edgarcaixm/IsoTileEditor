@@ -16,6 +16,7 @@ package la.diversion.views {
 	import flash.filesystem.File;
 	
 	import la.diversion.enums.IsoSceneViewModes;
+	import la.diversion.models.components.Background;
 	
 	import mx.core.UIComponent;
 	
@@ -32,7 +33,9 @@ package la.diversion.views {
 		private var _eventFileSave:Signal;
 		private var _eventFileOpen:Signal;
 		private var _eventFileNew:Signal;
-		private var _eventUpdateIsoViewMode:Signal;
+		private var _eventLoadAssetLibrary:Signal;
+		private var _eventUpdateIsoSceneViewMode:Signal;
+		private var _eventResetIsoSceneBackground:Signal;
 		
 		//PRIVATE VARS
 		private var _isoViewModeCommands:Array = new Array();
@@ -59,10 +62,20 @@ package la.diversion.views {
 		{
 			return _eventFileOpen ||= new Signal();
 		}
-
-		public function get eventUpdateIsoViewMode():Signal
+		
+		public function get eventLoadAssetLibrary():Signal
 		{
-			return _eventUpdateIsoViewMode ||= new Signal();
+			return _eventLoadAssetLibrary ||= new Signal();
+		}
+
+		public function get eventUpdateIsoSceneViewMode():Signal
+		{
+			return _eventUpdateIsoSceneViewMode ||= new Signal();
+		}
+
+		public function get eventResetIsoSceneBackground():Signal
+		{
+			return _eventResetIsoSceneBackground ||= new Signal();
 		}
 
 		public function init(e:Event = null):void {
@@ -130,12 +143,18 @@ package la.diversion.views {
 		}
 		
 		public function createFileMenu(fileMenu:NativeMenuItem):void {
-			var newCommand:NativeMenuItem = fileMenu.submenu.addItem(new NativeMenuItem("New"));
-			newCommand.addEventListener(Event.SELECT, selectCommand);
-			var openCommand:NativeMenuItem = fileMenu.submenu.addItem(new NativeMenuItem("Open..."));
-			openCommand.addEventListener(Event.SELECT, selectCommand);
-			var saveCommand:NativeMenuItem = fileMenu.submenu.addItem(new NativeMenuItem("Save"));
-			saveCommand.addEventListener(Event.SELECT, selectCommand);
+			var command:NativeMenuItem = fileMenu.submenu.addItem(new NativeMenuItem("", true));
+			
+			//command = fileMenu.submenu.addItem(new NativeMenuItem("New Map"));
+			//command.addEventListener(Event.SELECT, selectCommand);
+			command = fileMenu.submenu.addItem(new NativeMenuItem("Open Map..."));
+			command.addEventListener(Event.SELECT, selectCommand);
+			command = fileMenu.submenu.addItem(new NativeMenuItem("Save Map"));
+			command.addEventListener(Event.SELECT, selectCommand);
+			
+			command = fileMenu.submenu.addItem(new NativeMenuItem("", true));
+			command = fileMenu.submenu.addItem(new NativeMenuItem("Load Asset Library"));
+			command.addEventListener(Event.SELECT, selectCommand);
 		}
 		
 		public function createEditMenu(editMenu:NativeMenuItem):void {
@@ -158,7 +177,7 @@ package la.diversion.views {
 		}
 		
 		public function createWindowMenu(menu:NativeMenuItem):void {
-			trace("createWindowMenu");
+			//trace("createWindowMenu");
 			var command:NativeMenuItem = menu.submenu.addItem(new NativeMenuItem("", true));
 			
 			command = menu.submenu.addItem(new NativeMenuItem("Mode: Asset Placement"));
@@ -173,46 +192,58 @@ package la.diversion.views {
 			command = menu.submenu.addItem(new NativeMenuItem("Mode: Move Background"));
 			command.addEventListener(Event.SELECT, selectCommand);
 			_isoViewModeCommands.push(command);
+			
+			command = menu.submenu.addItem(new NativeMenuItem("", true));
+			
+			command = menu.submenu.addItem(new NativeMenuItem("Reset Background Image"));
+			command.addEventListener(Event.SELECT, selectCommand);
 		}
 		
 		//catch custom menu items
 		private function selectCommand(event:Event):void {
 			trace("Selected command: " + event.target.label);
 			switch (event.target.label) {
-				case "Save":
+				case "Save Map":
 					file = new File();
 					file.addEventListener(Event.SELECT, onSave);
 					file.browseForSave("Save Scene");
 					//eventFileSave.dispatch();
 					break;
-				case "Open...":
+				case "Open Map...":
 					file = new File();
 					file.addEventListener(Event.SELECT, onOpen);
 					file.browseForOpen("Open Scene");
 				case "New":
 					eventFileNew.dispatch();
 					break;
+				case "Load Asset Library":
+					file = new File();
+					file.addEventListener(Event.SELECT, onLoadAssetLibrary);
+					file.browseForOpen("Open Scene");
+					break;
 				case "Mode: Asset Placement":
 					if(!event.target.checked){
 						uncheckAllIsoViewModes();
 						event.target.checked = true;
-						eventUpdateIsoViewMode.dispatch(IsoSceneViewModes.VIEW_MODE_PLACE_ASSETS);
+						eventUpdateIsoSceneViewMode.dispatch(IsoSceneViewModes.VIEW_MODE_PLACE_ASSETS);
 					}
 					break;
 				case "Mode: Set Walkable Tiles":
 					if(!event.target.checked){
 						uncheckAllIsoViewModes();
 						event.target.checked = true;
-						eventUpdateIsoViewMode.dispatch(IsoSceneViewModes.VIEW_MODE_SET_WALKABLE_TILES);
+						eventUpdateIsoSceneViewMode.dispatch(IsoSceneViewModes.VIEW_MODE_SET_WALKABLE_TILES);
 					}
 					break;
 				case "Mode: Move Background":
 					if(!event.target.checked){
 						uncheckAllIsoViewModes();
 						event.target.checked = true;
-						eventUpdateIsoViewMode.dispatch(IsoSceneViewModes.VIEW_MODE_BACKGROUND);
+						eventUpdateIsoSceneViewMode.dispatch(IsoSceneViewModes.VIEW_MODE_BACKGROUND);
 					}
 					break;
+				case "Reset Background Image":
+					eventResetIsoSceneBackground.dispatch();
 				default:
 					break;
 			}
@@ -233,6 +264,11 @@ package la.diversion.views {
 		private function onOpen(event:Event):void{
 			file.removeEventListener(Event.SELECT, onOpen);
 			eventFileOpen.dispatch(file);
+		}
+		
+		private function onLoadAssetLibrary(event:Event):void{
+			file.removeEventListener(Event.SELECT, onLoadAssetLibrary);
+			eventLoadAssetLibrary.dispatch(file);
 		}
 		
 		//catch native menu command selections (copy, paste, etc)

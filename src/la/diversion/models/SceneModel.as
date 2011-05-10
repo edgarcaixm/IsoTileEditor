@@ -23,6 +23,7 @@ package la.diversion.models {
 	import la.diversion.models.components.Tile;
 	import la.diversion.signals.AssetAddedToSceneSignal;
 	import la.diversion.signals.AssetRemovedFromSceneSignal;
+	import la.diversion.signals.IsoSceneBackgroundResetSignal;
 	import la.diversion.signals.IsoSceneBackgroundUpdatedSignal;
 	import la.diversion.signals.IsoSceneViewModeUpdatedSignal;
 	import la.diversion.signals.PropertiesViewModeUpdatedSignal;
@@ -64,6 +65,10 @@ package la.diversion.models {
 		[Transient]
 		[Inject]
 		public var propertiesViewModeUpdated:PropertiesViewModeUpdatedSignal;
+		
+		[Transient]
+		[Inject]
+		public var isoSceneBackgroundReset:IsoSceneBackgroundResetSignal;
 		
 		public static var DEFAULT_COLS:int = 40;
 		public static var DEFAULT_ROWS:int = 40;
@@ -110,7 +115,11 @@ package la.diversion.models {
 
 		public function set background(value:Background):void {
 			_background = value;
-			isoSceneBackgroundUpdated.dispatch(_background);
+			if(_background == null){
+				isoSceneBackgroundReset.dispatch();
+			}else{
+				isoSceneBackgroundUpdated.dispatch(_background);
+			}
 		}
 
 		[Transient]

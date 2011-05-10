@@ -67,6 +67,14 @@ package la.diversion.models.components {
 			rollOut = new NativeSignal(this, MouseEvent.ROLL_OUT, ProxyEvent);
 		}
 		
+		public function get fileUrl():String {
+			return _fileUrl;
+		}
+
+		public function set fileUrl(value:String):void {
+			_fileUrl = value;
+		}
+
 		public function get isInteractive():int {
 			return _isInteractive;
 		}

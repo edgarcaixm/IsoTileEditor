@@ -18,8 +18,12 @@ package la.diversion.views {
 	import flash.filesystem.FileStream;
 	
 	import la.diversion.models.SceneModel;
+	import la.diversion.models.components.Background;
+	import la.diversion.signals.LoadAssetLibrarySignal;
 	import la.diversion.signals.LoadMapSignal;
+	import la.diversion.signals.ResetIsoSceneBackgroundSignal;
 	import la.diversion.signals.SaveMapSignal;
+	import la.diversion.signals.UpdateIsoSceneBackgroundSignal;
 	import la.diversion.signals.UpdateIsoSceneViewModeSignal;
 	
 	import org.robotlegs.mvcs.SignalMediator;
@@ -39,13 +43,21 @@ package la.diversion.views {
 		public var loadMap:LoadMapSignal;
 		
 		[Inject]
+		public var loadAssetLibrary:LoadAssetLibrarySignal;
+		
+		[Inject]
 		public var updateIsoSceneViewMode:UpdateIsoSceneViewModeSignal;
+		
+		[Inject]
+		public var resetIsoSceneBackground:ResetIsoSceneBackgroundSignal;
 		
 		override public function onRegister():void{
 			addToSignal(view.eventFileNew, handleFileNew);
 			addToSignal(view.eventFileSave, handleFileSave);
 			addToSignal(view.eventFileOpen, handleFileOpen);
-			addToSignal(view.eventUpdateIsoViewMode, handleUpdateIsoViewMode);
+			addToSignal(view.eventLoadAssetLibrary, handleLoadAssetLibrary);
+			addToSignal(view.eventUpdateIsoSceneViewMode, handleUpdateIsoSceneViewMode);
+			addToSignal(view.eventResetIsoSceneBackground, hangleResetIsoSceneBackground);
 			
 			addOnceToSignal(view.eventAddedToStage, handleAddedToStage);
 		}
@@ -67,9 +79,16 @@ package la.diversion.views {
 			loadMap.dispatch(file);
 		}
 		
-		private function handleUpdateIsoViewMode(mode:String):void {
+		private function handleLoadAssetLibrary(file:File):void{
+			loadAssetLibrary.dispatch(new Array(file));
+		}
+		
+		private function handleUpdateIsoSceneViewMode(mode:String):void {
 			updateIsoSceneViewMode.dispatch(mode);
 		}
 		
+		private function hangleResetIsoSceneBackground():void {
+			resetIsoSceneBackground.dispatch();
+		}
 	}
 }
