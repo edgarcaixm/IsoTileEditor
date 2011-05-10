@@ -207,8 +207,8 @@ package la.diversion.models {
 					break;
 				case IsoSceneViewModes.VIEW_MODE_BACKGROUND:
 					_viewMode = value;
-					for each(var paAsset:GameAsset in this.assetManager.assets){
-						paAsset.container.alpha = 1;
+					for each(var paAsset2:GameAsset in this.assetManager.assets){
+						paAsset2.container.alpha = 1;
 					}
 					isoSceneViewModeUpdated.dispatch(_viewMode);
 					break;

@@ -47,8 +47,8 @@ THE SOFTWARE.
 	<name>IsoTileEditor</name>
 
 	<!-- An application version designator (such as "v1", "2.5", or "Alpha 1"). Required. -->
-	<version>v1</version>
-	<versionNumber>0.0.0</versionNumber>
+	<!-- <version>v1</version> -->
+	<versionNumber>1.0.0</versionNumber>
 
 	<!-- Description, displayed in the AIR application installer.
 	     May have multiple values for each language. See samples or xsd schema file. Optional. -->
@@ -67,7 +67,7 @@ THE SOFTWARE.
 		<content>[This value will be overwritten by Flash Builder in the output app.xml]</content>
 		
 		<!-- The title of the main window. Optional. -->
-		<title>Iso Tile Editor</title>
+		<title>Map Editor</title>
 
 		<!-- The type of system chrome to use (either "standard" or "none"). Optional. Default standard. -->
 		<!-- <systemChrome></systemChrome> -->
