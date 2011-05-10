@@ -3,25 +3,27 @@
  * Copyright (c) 2011 Diversion, Inc.
  *
  * Authors: jobelloyd
- * Created: Apr 29, 2011
+ * Created: May 6, 2011
  *
  */
 
-package la.diversion.controllers {
-	import la.diversion.models.SceneModel;
+package la.diversion.controllers
+{
+	import la.diversion.models.AssetModel;
+	import la.diversion.signals.UpdateAssetViewModeSignal;
 	
 	import org.robotlegs.mvcs.SignalCommand;
 	
-	public class UpdateAssetViewModeCommand extends SignalCommand {
+	public class UpdateAssetViewModeCommand extends SignalCommand
+	{
+		[Inject]
+		public var viewMode:String;
 		
 		[Inject]
-		public var assetMode:String;
-		
-		[Inject]
-		public var model:SceneModel;
-		
+		public var assetModel:AssetModel;
+
 		override public function execute():void{
-			model.viewMode = assetMode;
+			assetModel.viewMode = viewMode;
 		}
 	}
 }

@@ -50,6 +50,7 @@ package la.diversion.views {
 		public var highlight:IsoRectangle;
 		public var dragImage:Sprite;
 		public var colRowText:TextField;
+		public var bg:Sprite;
 		
 		public var enterFrame:NativeSignal;
 		public var addedToStage:NativeSignal;
@@ -61,18 +62,16 @@ package la.diversion.views {
 		public var thisMouseEventRollOut:NativeSignal;
 		public var thisMouseEventRollOver:NativeSignal;
 		
-		private var _bg:Sprite;
-		
 		public function IsoSceneView()
 		{
 			super();
 			
 			//background blue sprite
-			_bg = new Sprite();
-			_bg.graphics.beginFill(0x00FFFF);
-			_bg.graphics.drawRect(0,0,760,760);
-			_bg.graphics.endFill();
-			this.addChildAt(_bg,0);
+			bg = new Sprite();
+			bg.graphics.beginFill(0x00FFFF);
+			bg.graphics.drawRect(0,0,760,760);
+			bg.graphics.endFill();
+			this.addChildAt(bg,0);
 			
 			//row, col position
 			var colRowTextLabel:TextField = new TextField();

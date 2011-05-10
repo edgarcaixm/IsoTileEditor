@@ -11,15 +11,21 @@ package la.diversion.views {
 	import flash.events.MouseEvent;
 	import flash.filesystem.File;
 	
+	import la.diversion.enums.AssetViewModes;
 	import la.diversion.enums.IsoSceneViewModes;
+	import la.diversion.enums.PropertyViewModes;
 	import la.diversion.models.AssetModel;
+	import la.diversion.models.components.Background;
 	import la.diversion.models.components.GameAsset;
 	import la.diversion.signals.AddNewLibraryAssetSignal;
 	import la.diversion.signals.AssetFinishedDraggingSignal;
 	import la.diversion.signals.AssetStartedDraggingSignal;
+	import la.diversion.signals.AssetViewModeUpdatedSignal;
 	import la.diversion.signals.LoadAssetLibrarySignal;
 	import la.diversion.signals.NewLibraryAssetAddedSignal;
-	import la.diversion.signals.UpdateAssetViewModeSignal;
+	import la.diversion.signals.NewLibraryBackgroundAddedSignal;
+	import la.diversion.signals.UpdateIsoSceneBackgroundSignal;
+	import la.diversion.signals.UpdateIsoSceneViewModeSignal;
 	import la.diversion.views.components.AssetListItem;
 	
 	import org.robotlegs.mvcs.SignalMediator;
@@ -33,7 +39,7 @@ package la.diversion.views {
 		public var assetModel:AssetModel;
 		
 		[Inject]
-		public var updateWalkableMode:UpdateAssetViewModeSignal;
+		public var updateIsoSceneViewMode:UpdateIsoSceneViewModeSignal;
 		
 		[Inject]
 		public var addNewAsset:AddNewLibraryAssetSignal;
@@ -50,27 +56,94 @@ package la.diversion.views {
 		[Inject]
 		public var loadAssetLibrary:LoadAssetLibrarySignal;
 		
-		private var _listCount:int = 0;
+		[Inject]
+		public var assetViewModeUpdated:AssetViewModeUpdatedSignal;
+		
+		[Inject]
+		public var newBackgroundAdded:NewLibraryBackgroundAddedSignal;
+		
+		[Inject]
+		public var updateIsoSceneBackground:UpdateIsoSceneBackgroundSignal;
+		
+		private var _assetListCount:int = 0;
+		private var _backgroundListCount:int = 0;
 		private var _assetBeingDragged:GameAsset;
 		
 		override public function onRegister():void{
 			//trace("AssetViewMediator onRegister");
 			addToSignal(view.setWalkableModeClicked, handleSetWalkableModeClicked);
 			addToSignal(view.viewAddNewAsset, handleViewAddNewAsset);
-			//addToSignal(view.assetStartDragging, handleAssetStartDragging);
-			//addToSignal(view.assetFinishDragging, handleAssetFinishDragging);
+			addToSignal(view.mouseEventMouseWheel, handleMouseEventMouseWheel);
 			
-			newAssetAdded.add(handleNewAssetAdded);
+			addToSignal(assetViewModeUpdated, handleAssetViewModeUpdated);
+			addToSignal(newAssetAdded, handleNewAssetAdded);
+			addToSignal(newBackgroundAdded, handleNewBackgroundAdded);
+		}
+		
+		private function handleNewBackgroundAdded(bg:Background):void{
+			trace("handleNewBackgroundAdded:" + bg.id);
+			var listItem:AssetListItem = new AssetListItem(bg, view.item_width, view.item_height, bg.displayClassId);
+			listItem.y = view.item_height * _backgroundListCount;
+			view.backgroundHolder.addChild(listItem);
+			_backgroundListCount++;
+			
+			addToSignal(listItem.mouseDown, handleBackgroundListItemMouseDown);
+			view.initScroller();
+		}
+		
+		private function handleBackgroundListItemMouseDown(event:MouseEvent):void{
+			updateIsoSceneBackground.dispatch( AssetListItem(event.target).gameAsset.clone() );
+			
+			//_assetBeingDragged = AssetListItem(event.target).gameAsset.clone();
+			//assetStartDragging.dispatch(_assetBeingDragged);
+		}
+		
+		private function handleAssetViewModeUpdated(viewMode:String):void{
+			trace("handleAssetViewModeUpdated: " + viewMode);
+			switch(assetModel.viewMode) {
+				case AssetViewModes.VIEW_MODE_ASSETS:
+					trace("1");
+					view.assetHolder.visible = true;
+					view.backgroundHolder.visible = false;
+					break;
+				case AssetViewModes.VIEW_MODE_BACKGROUNDS:
+					trace("2");
+					view.assetHolder.visible = false;
+					view.backgroundHolder.visible = true;
+					break;
+				
+				default:
+					break;
+			}
+		}
+		
+		private function handleMouseEventMouseWheel(event:MouseEvent):void{
+			switch(assetModel.viewMode) {
+				case AssetViewModes.VIEW_MODE_ASSETS:
+					if (view.assetHolder.content.height > view.assetHolder.height) {
+						view.assetHolderScroller.value = view.assetHolderScroller.value - (event.delta * 4);
+					}
+					break;
+				case AssetViewModes.VIEW_MODE_BACKGROUNDS:
+					if (view.backgroundHolder.content.height > view.backgroundHolder.height) {
+						view.backgroundHolderScroller.value = view.backgroundHolderScroller.value - (event.delta * 4);
+					}
+					break;
+				
+				default:
+					break;
+			}
+
 		}
 		
 		private function handleSetWalkableModeClicked():void{
 			//TODO - move this to a listenter from the model?
 			if(view.walkableModeBtn.label == "Set Walkable"){
 				view.walkableModeBtn.label = "Place Assets";
-				updateWalkableMode.dispatch(IsoSceneViewModes.VIEW_MODE_SET_WALKABLE_TILES);
+				updateIsoSceneViewMode.dispatch(IsoSceneViewModes.VIEW_MODE_SET_WALKABLE_TILES);
 			}else{
 				view.walkableModeBtn.label = "Set Walkable";
-				updateWalkableMode.dispatch(IsoSceneViewModes.VIEW_MODE_PLACE_ASSETS);
+				updateIsoSceneViewMode.dispatch(IsoSceneViewModes.VIEW_MODE_PLACE_ASSETS);
 			}
 			
 		}
@@ -79,7 +152,7 @@ package la.diversion.views {
 			loadAssetLibrary.dispatch(new Array(file));
 		}
 		
-		private function handleListItemMouseDown(event:MouseEvent):void{
+		private function handleAssetListItemMouseDown(event:MouseEvent):void{
 			addOnceToSignal(AssetListItem(event.target).mouseUp, handleListItemMouseUp);
 			_assetBeingDragged = AssetListItem(event.target).gameAsset.clone();
 			assetStartDragging.dispatch(_assetBeingDragged);
@@ -91,20 +164,12 @@ package la.diversion.views {
 		
 		private function handleNewAssetAdded(asset:GameAsset):void{
 			var listItem:AssetListItem = new AssetListItem(asset, view.item_width, view.item_height, asset.displayClassId);
-			listItem.y = view.item_height * _listCount;
+			listItem.y = view.item_height * _assetListCount;
 			view.assetHolder.addChild(listItem);
-			_listCount++;
+			_assetListCount++;
 			
-			addToSignal(listItem.mouseDown, handleListItemMouseDown);
+			addToSignal(listItem.mouseDown, handleAssetListItemMouseDown);
 			view.initScroller();
-		}
-		
-		private function handleAssetStartDragging(asset:GameAsset):void{
-			assetStartDragging.dispatch(asset);
-		}
-		
-		private function handleAssetFinishDragging(asset:GameAsset, event:MouseEvent):void{
-			assetFinishedDragging.dispatch(asset, event);
 		}
 	}
 }

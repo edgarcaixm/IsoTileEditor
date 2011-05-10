@@ -21,7 +21,7 @@ package la.diversion
 			trace("startup");
 			
 			//signals
-			injector.mapSingleton(AssetViewModeUpdatedSignal);
+			injector.mapSingleton(IsoSceneViewModeUpdatedSignal);
 			injector.mapSingleton(AssetRemovedFromSceneSignal);
 			injector.mapSingleton(NewLibraryAssetAddedSignal);
 			injector.mapSingleton(AssetStartedDraggingSignal);
@@ -36,6 +36,15 @@ package la.diversion
 			injector.mapSingleton(LoadAssetLibraryCompleteSignal);
 			injector.mapSingleton(SaveMapSignal);
 			injector.mapSingleton(LoadMapSignal);
+			injector.mapSingleton(UpdateAssetViewModeSignal);
+			injector.mapSingleton(AssetViewModeUpdatedSignal);
+			injector.mapSingleton(AddNewLibraryBackgroundSignal);
+			injector.mapSingleton(NewLibraryBackgroundAddedSignal);
+			injector.mapSingleton(UpdateIsoSceneBackgroundSignal);
+			injector.mapSingleton(IsoSceneBackgroundUpdatedSignal);
+			injector.mapSingleton(UpdatePropertiesViewModeSignal);
+			injector.mapSingleton(PropertiesViewModeUpdatedSignal);
+			injector.mapSingleton(UpdateIsoSceneAssetPropertySignal);
 			
 			//models
 			injector.mapSingleton(SceneModel);
@@ -47,7 +56,7 @@ package la.diversion
 			injector.mapSingletonOf(ILoadMap, LoadMapService);
 			
 			//signal to command mappings
-			signalCommandMap.mapSignalClass(UpdateAssetViewModeSignal, UpdateAssetViewModeCommand);
+			signalCommandMap.mapSignalClass(UpdateIsoSceneViewModeSignal, UpdateIsoSceneViewModeCommand);
 			signalCommandMap.mapSignalClass(AddNewLibraryAssetSignal, AddNewLibraryAssetCommand);
 			signalCommandMap.mapSignalClass(AssetStartedDraggingSignal, AssetStartDraggingCommand);
 			signalCommandMap.mapSignalClass(AddAssetToSceneSignal, AddNewSceneAssetCommand);
@@ -56,12 +65,17 @@ package la.diversion
 			signalCommandMap.mapSignalClass(LoadAssetLibrarySignal, LoadAssetLibraryCommand);
 			signalCommandMap.mapSignalClass(SaveMapSignal, SaveMapCommand);
 			signalCommandMap.mapSignalClass(LoadMapSignal, LoadMapCommand);
+			signalCommandMap.mapSignalClass(UpdateAssetViewModeSignal, UpdateAssetViewModeCommand);
+			signalCommandMap.mapSignalClass(AddNewLibraryBackgroundSignal, AddNewLibraryBackgroundCommand);
+			signalCommandMap.mapSignalClass(UpdateIsoSceneBackgroundSignal, UpdateIsoSceneBackgroundCommand);
+			signalCommandMap.mapSignalClass(UpdatePropertiesViewModeSignal, UpdatePropertiesViewModeCommand);
+			signalCommandMap.mapSignalClass(UpdateIsoSceneAssetPropertySignal, UpdateIsoSceneAssetPropertyCommand);
 			
 			//mediators
 			mediatorMap.mapView(IsoSceneView,IsoSceneMediator);
 			mediatorMap.mapView(AssetView, AssetMediator);
-			mediatorMap.mapView(PropertyView, PropertyMediator);
 			mediatorMap.mapView(MainMenuView, MainMenuMediator);
+			mediatorMap.mapView(PropertiesView, PropertiesMediator);
 			
 			//last, this will call init on the IsoTileEditor
 			mediatorMap.mapView(IsoTileEditor,IsoTileEditorMediator);

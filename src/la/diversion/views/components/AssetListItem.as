@@ -19,7 +19,9 @@ package la.diversion.views.components {
 	import flash.geom.Matrix;
 	import flash.geom.Rectangle;
 	
+	import la.diversion.enums.AssetTypes;
 	import la.diversion.models.components.GameAsset;
+	import la.diversion.models.components.IAsset;
 	
 	import org.osflash.signals.Signal;
 	import org.osflash.signals.natives.NativeSignal;
@@ -27,13 +29,13 @@ package la.diversion.views.components {
 	public class AssetListItem extends Sprite {
 		
 		private var _label:Label;
-		private var _gameAsset:GameAsset;
+		private var _gameAsset:IAsset;
 		private var _addedToStage:NativeSignal;
 		
 		public var mouseDown:NativeSignal;
 		public var mouseUp:NativeSignal;
 		
-		public function AssetListItem(gameAsset:GameAsset, item_width:Number, item_height:Number, labelTxt:String)
+		public function AssetListItem(gameAsset:IAsset, item_width:Number, item_height:Number, labelTxt:String)
 		{
 			super();
 			this._gameAsset = gameAsset;
@@ -49,7 +51,16 @@ package la.diversion.views.components {
 			
 			// generate thumbnail
 			var tBmd:BitmapData = new BitmapData(32, 32, true, 0x00000000);
-			var tAsset:Sprite = new gameAsset.displayClass as Sprite;
+			var tAsset:Sprite;
+			if(gameAsset.displayClassType == AssetTypes.SPRITE){
+				tAsset = new gameAsset.displayClass as Sprite;
+			}else if(gameAsset.displayClassType == AssetTypes.BITMAP){
+				tAsset = new Sprite();
+				var tBitmap:Bitmap = new Bitmap(new gameAsset.displayClass as BitmapData);
+				tAsset.addChild(tBitmap);
+			}else{
+				tAsset = new Sprite();
+			}
 			// since image data can be off stage (positioned less than 0,0)
 			// we need to translate and then scale bitmaps using Matrix transforms
 			var imgArea:Rectangle = tAsset.getBounds(tAsset); // gets full extent of image even if off stage
@@ -82,11 +93,11 @@ package la.diversion.views.components {
 			mouseUp = new NativeSignal(stage,MouseEvent.MOUSE_UP, MouseEvent);
 		}
 		
-		public function get gameAsset():GameAsset{
+		public function get gameAsset():IAsset{
 			return _gameAsset;
 		}
 
-		public function set gameAsset(value:GameAsset):void{
+		public function set gameAsset(value:IAsset):void{
 			_gameAsset = value;
 		}
 		

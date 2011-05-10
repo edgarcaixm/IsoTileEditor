@@ -10,9 +10,13 @@
 package la.diversion.models {
 	import flash.utils.Dictionary;
 	
+	import la.diversion.enums.AssetViewModes;
 	import la.diversion.models.components.AssetManager;
+	import la.diversion.models.components.Background;
 	import la.diversion.models.components.GameAsset;
+	import la.diversion.signals.AssetViewModeUpdatedSignal;
 	import la.diversion.signals.NewLibraryAssetAddedSignal;
+	import la.diversion.signals.NewLibraryBackgroundAddedSignal;
 	
 	import org.robotlegs.mvcs.Actor;
 	
@@ -22,8 +26,17 @@ package la.diversion.models {
 		[Inject]
 		public var newAssetAdded:NewLibraryAssetAddedSignal;
 		
-		private var _assetLibrary:Dictionary = new Dictionary();
+		[Transient]
+		[Inject]
+		public var newBackgroundAdded:NewLibraryBackgroundAddedSignal;
+
+		[Transient]
+		[Inject]
+		public var assetViewModeUpdated:AssetViewModeUpdatedSignal;
+		
 		private var _assetManager:AssetManager = new AssetManager();
+		private var _backgroundManager:AssetManager = new AssetManager();
+		private var _viewMode:String = AssetViewModes.VIEW_MODE_ASSETS;
 		
 		public function AssetModel()
 		{
@@ -83,5 +96,81 @@ package la.diversion.models {
 			return _assetManager;
 		}
 		
+		/**
+		 * Add an background 
+		 * 
+		 * @param Background
+		 * 
+		 */
+		public function addBackground(bg:Background):void{
+			_backgroundManager.addAsset(bg);
+			newBackgroundAdded.dispatch(bg);
+		}
+		
+		/**
+		 * Retreive an background by assetId
+		 * 
+		 * @param backgroundId String
+		 * @return Background
+		 * 
+		 */
+		public function getBackground(backgroundId:String):GameAsset{
+			return _backgroundManager.getAsset(backgroundId);
+		}
+		
+		public function getBackgroundByDisplayClass(displayClass:String):Background{
+			for each(var bg:Background in _backgroundManager.assets){
+				if(bg.displayClassId == displayClass){
+					return bg;
+				}
+			}
+			return null;
+		}
+		
+		/**
+		 * Delete an background
+		 * 
+		 * @param backgroundId String
+		 * 
+		 */
+		public function removeBackground(backgroundId:String):void{
+			if(_backgroundManager.getAsset(backgroundId)){
+				_backgroundManager.removeAsset(backgroundId);
+			}
+		}
+		
+		/**
+		 * Returns the dictionary of all game backgrounds
+		 * 
+		 * @return Dictionary of game backgrounds
+		 * 
+		 */
+		public function get backgroundManager():AssetManager{
+			return _backgroundManager;
+		}
+		
+		/**
+		 * Returns the current viewMode
+		 * 
+		 * @return view mode String
+		 * 
+		 */
+		[Transient]
+		public function get viewMode():String
+		{
+			return _viewMode;
+		}
+		
+		/**
+		 * Sets the current view mode and dispatches a signal
+		 * 
+		 * @param view mode
+		 *
+		 */
+		public function set viewMode(value:String):void
+		{
+			_viewMode = value;
+			assetViewModeUpdated.dispatch(value);
+		}
 	}
 }

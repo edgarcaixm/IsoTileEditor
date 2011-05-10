@@ -14,7 +14,7 @@ package la.diversion.models.components
 		{
 		}
 		
-		public function addAsset(asset:GameAsset):void{
+		public function addAsset(asset:*):void{
 			_dic[asset.id] = asset;
 		}
 		
@@ -32,7 +32,7 @@ package la.diversion.models.components
 		
 		public function toJSON():String{
 			var assetArray:Array = new Array();
-			for each(var ga:GameAsset in _dic){
+			for each(var ga:* in _dic){
 				assetArray.push(ga);
 			}
 			

@@ -22,13 +22,14 @@ package la.diversion.services
 	
 	import la.diversion.models.AssetModel;
 	import la.diversion.models.SceneModel;
+	import la.diversion.models.components.Background;
 	import la.diversion.models.components.GameAsset;
 	import la.diversion.signals.LoadAssetLibraryCompleteSignal;
 	import la.diversion.signals.LoadAssetLibrarySignal;
 	
-	import org.robotlegs.mvcs.Actor;
-	
 	import mx.controls.Alert;
+	
+	import org.robotlegs.mvcs.Actor;
 	
 	public class LoadMapService extends Actor implements ILoadMap
 	{
@@ -69,9 +70,9 @@ package la.diversion.services
 				Alert.show(e.toString(),"Error Loading Map File",Alert.OK);
 			}
 			_assetFiles = new Array();
+			var loadedFiles:Dictionary = new Dictionary();
 			if(_map.assetModel && _map.assetModel.assetManager){
 				//load assets
-				var loadedFiles:Dictionary = new Dictionary();
 				for each(var asset:Object in _map.assetModel.assetManager){
 					if(!loadedFiles[asset.fileUrl]){
 						var f:File = new File(_file.parent.nativePath + "/" + asset.fileUrl);
@@ -80,6 +81,17 @@ package la.diversion.services
 					}
 				}
 			}
+			if(_map.assetModel && _map.assetModel.backgroundManager){
+				//load backgrounds
+				for each(var bg:Object in _map.assetModel.backgroundManager){
+					if(!loadedFiles[bg.fileUrl]){
+						var f2:File = new File(_file.parent.nativePath + "/" + bg.fileUrl);
+						_assetFiles.push(f2);
+						loadedFiles[bg.fileUrl] = true;
+					}
+				}
+			}
+			
 			if(_assetFiles.length > 0){
 				//load files and wait for finished loading response
 				loadAssetLibraryComplete.add(loadMapAssetsComplete);
@@ -135,6 +147,16 @@ package la.diversion.services
 						}else{
 							trace("error loading asset: " + savedAsset.displayClassId);
 						}
+					}
+				}
+				
+				if(_map.sceneModel.background && _map.sceneModel.background.displayClassId){
+					var bg:Background = assetModel.getBackgroundByDisplayClass(_map.sceneModel.background.displayClassId);
+					if (bg){
+						bg = bg.clone();
+						bg.x = _map.sceneModel.background.x;
+						bg.y = _map.sceneModel.background.y;
+						sceneModel.background = bg;
 					}
 				}
 			}

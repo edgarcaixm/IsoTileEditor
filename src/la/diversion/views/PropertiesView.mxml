@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="utf-8"?>
+<s:Panel xmlns:fx="http://ns.adobe.com/mxml/2009" 
+			xmlns:s="library://ns.adobe.com/flex/spark" 
+			xmlns:mx="library://ns.adobe.com/flex/mx">
+	<fx:Declarations>
+		<!-- Place non-visual elements (e.g., services, value objects) here -->
+	</fx:Declarations>
+	<fx:Script> 
+		<![CDATA[ 
+			import mx.collections.ArrayCollection;
+			
+			import org.osflash.signals.Signal;
+			
+			import spark.events.GridItemEditorEvent;
+			import spark.skins.spark.DefaultGridItemRenderer;
+			
+			public var gridItemEditorSessionSave:Signal = new Signal();
+			public var gridItemEditorSessionStarting:Signal = new Signal();
+			
+			import mx.core.ClassFactory;
+			
+			import la.diversion.views.components.PropertyGridItemNotEditableItemRenderer;
+			
+			[Bindable]
+			private var myDP:ArrayCollection = new ArrayCollection([]); 
+			
+			private function product_itemRendererFunction(item:Object, column:GridColumn):ClassFactory {
+				if(!item || item.canEdit) 
+					return new ClassFactory(DefaultGridItemRenderer);
+				else
+					return new ClassFactory(PropertyGridItemNotEditableItemRenderer);
+			}
+			
+			private function handleGridItemEditorSessionSave(event:GridItemEditorEvent):void{
+				gridItemEditorSessionSave.dispatch(event);
+			}
+			
+			private function handleGridItemEditorSessionStarting(event:GridItemEditorEvent):void{
+				gridItemEditorSessionStarting.dispatch(event);
+			}
+
+		]]> 
+	</fx:Script>
+	<s:DataGrid id="propertyGrid" 
+				width="100%" 
+				editable="true"
+				gridItemEditorSessionSave="handleGridItemEditorSessionSave(event)" 
+				gridItemEditorSessionStarting="handleGridItemEditorSessionStarting(event)"
+				selectionColor="haloGreen">
+		<s:columns>
+			<s:ArrayList>
+				<s:GridColumn dataField="property" headerText="Property" editable="false" itemRendererFunction="product_itemRendererFunction"/>
+				<s:GridColumn dataField="value"  headerText="Value" editable="true" itemRendererFunction="product_itemRendererFunction"/>
+			</s:ArrayList> 
+		</s:columns >
+	</s:DataGrid>
+</s:Panel>

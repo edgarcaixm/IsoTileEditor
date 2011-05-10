@@ -27,18 +27,22 @@ package la.diversion.views {
 	import flash.filters.GlowFilter;
 	import flash.geom.Point;
 	
-	import la.diversion.models.components.GameAsset;
 	import la.diversion.enums.IsoSceneViewModes;
+	import la.diversion.enums.PropertyViewModes;
 	import la.diversion.models.SceneModel;
+	import la.diversion.models.components.Background;
+	import la.diversion.models.components.GameAsset;
 	import la.diversion.models.components.Tile;
 	import la.diversion.signals.AddAssetToSceneSignal;
 	import la.diversion.signals.AssetAddedToSceneSignal;
 	import la.diversion.signals.AssetFinishedDraggingSignal;
 	import la.diversion.signals.AssetRemovedFromSceneSignal;
 	import la.diversion.signals.AssetStartedDraggingSignal;
-	import la.diversion.signals.AssetViewModeUpdatedSignal;
+	import la.diversion.signals.IsoSceneBackgroundUpdatedSignal;
+	import la.diversion.signals.IsoSceneViewModeUpdatedSignal;
 	import la.diversion.signals.SceneGridSizeUpdatedSignal;
 	import la.diversion.signals.TileWalkableUpdatedSignal;
+	import la.diversion.signals.UpdatePropertiesViewModeSignal;
 	import la.diversion.signals.UpdateTileWalkableSignal;
 	
 	import org.robotlegs.mvcs.SignalMediator;
@@ -52,7 +56,7 @@ package la.diversion.views {
 		public var sceneModel:SceneModel;
 		
 		[Inject]
-		public var assetViewModeUpdated:AssetViewModeUpdatedSignal;
+		public var isoSceneViewModeUpdated:IsoSceneViewModeUpdatedSignal;
 		
 		[Inject]
 		public var assetRemovedFromScene:AssetRemovedFromSceneSignal;
@@ -78,6 +82,12 @@ package la.diversion.views {
 		[Inject]
 		public var sceneGridSizedUpdated:SceneGridSizeUpdatedSignal;
 		
+		[Inject]
+		public var isoSceneBackgroundUpdated:IsoSceneBackgroundUpdatedSignal;
+		
+		[Inject]
+		public var updatePropertiesViewMode:UpdatePropertiesViewModeSignal;
+		
 		private var _isPanning:Boolean = false;
 		private var _panX:Number = 0;
 		private var _panY:Number = 0;
@@ -93,13 +103,14 @@ package la.diversion.views {
 			//sceneModel.setGridSize(40,40);
 			makeGrid();
 			
-			addToSignal(assetViewModeUpdated, handleAssetViewModeUpdated);
+			addToSignal(isoSceneViewModeUpdated, handleIsoSceneViewModeUpdated);
 			addToSignal(assetRemovedFromScene, handleAssetRemovedFromScene);
 			addToSignal(assetAddedToScene, handleAssetAddedToScene);
 			addToSignal(assetStartedDragging, handleAssetStartedDragging);
 			addToSignal(assetFinishedDragging, handleAssetFinishedDragging);
 			addToSignal(tileWalkableUpdated, handleTileWalkableUpdated);
 			addToSignal(sceneGridSizedUpdated, handleSceneGridSizeUpdated);
+			addToSignal(isoSceneBackgroundUpdated, handleIsoSceneBackgroundUpdated);
 			
 			addToSignal(view.addedToStage, handleThisAddedToStage);
 			addToSignal(view.thisMouseEventRollOut, handleThisMouseEventRollOut);
@@ -107,24 +118,15 @@ package la.diversion.views {
 		}
 		
 		public function makeGrid():void {
-			//TODO: Refactor this not to do full recreate
-			
 			if (view.isoView && view.contains(view.isoView)) {
-				if( view.isoView.getChildAt(1)){
-					view.isoView.removeChildAt(1);
-					view.highlight = null;
-				}
-				view.isoScene.removeAllChildren();
-				view.removeChild(view.isoView);
-				
-				view.isoView = null;
-				view.isoScene = null;
+				view.isoGrid.setGridSize(sceneModel.numCols, sceneModel.numRows);
+				view.isoScene.render();
+			}else{
+				initializeGrid();
 			}
-			
-			drawGrid();
 		}
 		
-		protected function drawGrid():void {
+		protected function initializeGrid():void {
 			view.isoScene 		= new IsoScene();
 			view.isoView 		= new IsoView();
 			view.isoGrid 		= new IsoGrid();
@@ -151,6 +153,13 @@ package la.diversion.views {
 			//Add the isoView to the stage
 			view.addChildAt(view.isoView, 1);
 			view.isoView.panTo( int(sceneModel.numRows * sceneModel.cellSize / 2) ,int(sceneModel.numRows * sceneModel.cellSize / 2) );
+		}
+		
+		private function handleIsoSceneBackgroundUpdated(bg:Background):void{
+			while(view.isoView.backgroundContainer.numChildren){
+				view.isoView.backgroundContainer.removeChildAt(0);
+			}
+			view.isoView.backgroundContainer.addChild(bg);
 		}
 		
 		private function handleSceneGridSizeUpdated():void{
@@ -194,7 +203,11 @@ package la.diversion.views {
 				view.highlight.container.visible = true;
 				view.highlight.moveTo(_mouseCol * sceneModel.cellSize, _mouseRow * sceneModel.cellSize,0);
 				view.isoScene.render();
-				view.colRowText.text = String(_mouseCol) + "\n" + String(_mouseRow);
+				if(_isMouseOverThis){
+					view.colRowText.text = String(_mouseCol) + "\n" + String(_mouseRow);
+				}else{
+					view.colRowText.text = "";
+				}
 			}
 		}
 		
@@ -254,6 +267,10 @@ package la.diversion.views {
 				}else{
 					updateTileWalkable.dispatch(tile, true);
 				}
+			}else if(!_isMouseOverGrid && _isMouseOverThis){
+				//click outside the grid, set properties panel to map
+				var dummyAsset:GameAsset = new GameAsset("dummyAsset", GameAsset,"dummyAsset",0,0,0);
+				updatePropertiesViewMode.dispatch(PropertyViewModes.VIEW_MODE_MAP, dummyAsset);
 			}
 		}
 		
@@ -269,11 +286,13 @@ package la.diversion.views {
 			if(sceneModel.viewMode == IsoSceneViewModes.VIEW_MODE_PLACE_ASSETS){
 				addOnceToSignal( GameAsset(event.target).mouseUp, handleAssetMouseUp);
 				assetStartedDragging.dispatch(event.target);
+				//updatePropertiesViewMode.dispatch(PropertyViewModes.VIEW_MODE_ASSET, event.target);
 			}
 		}
 		
 		private function handleAssetMouseUp(event:MouseEvent):void{
 			assetFinishedDragging.dispatch(sceneModel.assetBeingDragged, event);
+			//updatePropertiesViewMode.dispatch(PropertyViewModes.VIEW_MODE_ASSET, sceneModel.assetBeingDragged);
 		}
 		
 		private function handleAssetRollOver(event:ProxyEvent):void{
@@ -293,6 +312,7 @@ package la.diversion.views {
 		private function handleAssetStartedDragging(asset:GameAsset):void{
 			
 			view.highlight.setSize(asset.cols * sceneModel.cellSize, asset.rows * sceneModel.cellSize, 0);
+			view.isoScene.render();
 			
 			view.dragImage = new asset.displayClass as Sprite;
 			view.dragImage.mouseEnabled = false;
@@ -305,6 +325,7 @@ package la.diversion.views {
 			view.stage.addChild(view.dragImage);
 			
 			addToSignal(view.enterFrame, handleAssetDraggingEnterFrame);
+			updatePropertiesViewMode.dispatch(PropertyViewModes.VIEW_MODE_ASSET, asset);
 		}
 		
 		private function handleAssetDraggingEnterFrame(event:Event):void{
@@ -326,13 +347,16 @@ package la.diversion.views {
 				asset.stageCol = _mouseCol;
 				asset.stageRow = _mouseRow;
 				addAssetToScene.dispatch(asset);
+				updatePropertiesViewMode.dispatch(PropertyViewModes.VIEW_MODE_ASSET, asset);
 			}else{
 				//cleanup the asset, it has landed off the visible stage
 				asset.cleanup();
 				sceneModel.assetBeingDragged = null;
+				updatePropertiesViewMode.dispatch(PropertyViewModes.VIEW_MODE_MAP, asset);
 			}
 			
 			view.highlight.setSize(sceneModel.cellSize,sceneModel.cellSize,0);
+			view.isoScene.render();
 			view.stage.removeChild(view.dragImage);
 			view.enterFrame.remove(handleAssetDraggingEnterFrame);
 		}
@@ -342,7 +366,7 @@ package la.diversion.views {
 			view.isoScene.removeChild(asset);
 		}
 		
-		private function handleAssetViewModeUpdated(mode:String):void{
+		private function handleIsoSceneViewModeUpdated(mode:String):void{
 			for(var i:int = 0; i < sceneModel.numCols; i++){
 				for(var j:int = 0; j < sceneModel.numRows; j++){
 					if(!sceneModel.getTile(i,j).isWalkable){

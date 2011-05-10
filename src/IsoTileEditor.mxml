@@ -27,7 +27,8 @@ THE SOFTWARE.
 					   xmlns:mx="library://ns.adobe.com/flex/mx" 
 					   xmlns:com="*" 
 					   xmlns:local="la.diversion.*"
-					   width="1225" height="850">
+					   width="1225" height="850" 
+					   xmlns:views="la.diversion.views.*">
 	
 	<fx:Declarations>
 		<!-- Place non-visual elements (e.g., services, value objects) here -->
@@ -42,15 +43,16 @@ THE SOFTWARE.
 			import la.diversion.views.AssetView;
 			import la.diversion.views.IsoSceneView;
 			import la.diversion.views.MainMenuView;
-			import la.diversion.views.PropertyView;
-			
-			import mx.controls.TextInput;
-			import mx.events.FlexEvent;
 			
 			public var mainMenuView:MainMenuView;
 			public var isoLevelView:IsoSceneView;
 			public var assetView:AssetView;
-			public var propertyView:PropertyView;
+			
+			[Bindable]
+			public var STATE_ARRAY:Array = [
+				{label:"Assets", data:"assets"},
+				{label:"Backgrounds", data:"backgorunds"}
+			];
 			
 			public function init():void {
 				mainMenuView = new MainMenuView();
@@ -58,12 +60,9 @@ THE SOFTWARE.
 				
 				isoLevelView = new IsoSceneView();
 				assetView = new AssetView();
-				propertyView = new PropertyView();
 				
 				scene.addChild(isoLevelView);
 				assets.addChild(assetView);
-				properties.addChild(propertyView);
-				
 			}
 		]]>
 	</fx:Script>
@@ -72,18 +71,14 @@ THE SOFTWARE.
 		<s:SpriteVisualElement id="scene">
 		</s:SpriteVisualElement>
 	</s:Panel>
-	<s:Panel x="784" y="10" width="345" height="351" title="Assets" id="assetsPanel">
+	<mx:TabBar x="784" y="10" width="345" height="33" id="tabBar">
+		<mx:dataProvider>{STATE_ARRAY}</mx:dataProvider>
+	</mx:TabBar>
+	<s:Panel id="assetsPanel" x="784" y="41" width="345" height="370" dropShadowVisible="true"
+			 skinClass="NoTitlePanelSkin">
 		<s:SpriteVisualElement id="assets">
 		</s:SpriteVisualElement>
 	</s:Panel>
-	<s:Panel x="784" y="382" width="345" height="388" title="Properties" id="propertiesPanel">
-		<s:SpriteVisualElement id="properties">
-		</s:SpriteVisualElement>
-	</s:Panel>
-	<!--
-	<s:Panel x="784" y="10" width="345" height="351" title="dummy" id="dummyPanel">
-		<s:SpriteVisualElement id="dummy">
-		</s:SpriteVisualElement>
-	</s:Panel>
-	-->
+	<views:PropertiesView x="784" y="423" width="345" height="388" title="Map Properties" id="propertiesPanel">
+	</views:PropertiesView>
 </s:WindowedApplication>

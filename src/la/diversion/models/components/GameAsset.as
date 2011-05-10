@@ -19,21 +19,25 @@ package la.diversion.models.components {
 	import flash.events.MouseEvent;
 	import flash.filters.GlowFilter;
 	
+	import mx.collections.ArrayCollection;
 	import mx.managers.SystemManager;
 	
 	import org.osflash.signals.natives.NativeSignal;
 	
-	public class GameAsset extends IsoSprite{
+	public class GameAsset extends IsoSprite implements IAsset{
 		
 		private var _rows:int;
 		private var _cols:int;
 		private var _displayClass:Class;
 		private var _displayClassId:String;
+		private var _displayClassType:String;
 		private var _stageRow:int;
 		private var _stageCol:int;
 		private var _descriptor:Object;
 		private var _stage:DisplayObject;
 		private var _fileUrl:String;
+		private var _isInteractive:int;
+		private var _editProperitiesList:ArrayCollection;
 		
 		private var _addedToStage:NativeSignal;
 		public var mouseDown:NativeSignal;
@@ -41,10 +45,11 @@ package la.diversion.models.components {
 		public var rollOver:NativeSignal;
 		public var rollOut:NativeSignal;
 		
-		public function GameAsset(displayClassId:String, displayClass:Class, rows:int, cols:int, height:Number, fileUrl:String = "", stageRow:int = -1, stageCol:int = -1, descriptor:Object = null){
+		public function GameAsset(displayClassId:String, displayClass:Class, displayClassType:String, rows:int, cols:int, height:Number, fileUrl:String = "", stageRow:int = -1, stageCol:int = -1, descriptor:Object = null){
 			super(descriptor);
 			this._displayClassId = displayClassId;
 			this._displayClass = displayClass;
+			this._displayClassType = displayClassType;
 			this._rows = rows;
 			this._cols = cols;
 			this._stageCol = stageCol;
@@ -53,6 +58,7 @@ package la.diversion.models.components {
 			this._descriptor = descriptor;
 			this.sprites = [displayClass];
 			this._fileUrl = fileUrl;
+			this._isInteractive = 0;
 			
 			_addedToStage = new NativeSignal(this, Event.ADDED_TO_STAGE, Event);
 			_addedToStage.add(handleAddedToStage);
@@ -61,6 +67,35 @@ package la.diversion.models.components {
 			rollOut = new NativeSignal(this, MouseEvent.ROLL_OUT, ProxyEvent);
 		}
 		
+		public function get isInteractive():int {
+			return _isInteractive;
+		}
+
+		public function set isInteractive(value:int):void {
+			_isInteractive = value;
+		}
+
+		public function get editProperitiesList():ArrayCollection {
+			_editProperitiesList = new ArrayCollection([
+				{property:"Id", value:this.id, canEdit:false, editProperty:""},
+				{property:"Cols", value:this.cols, canEdit:true, editProperty:"cols"},
+				{property:"Rows", value:this.rows, canEdit:true, editProperty:"rows"},
+				{property:"Height", value:this.height, canEdit:true, editProperty:"height"},
+				{property:"Stage Col", value:this.stageCol, canEdit:false, editProperty:"stageCol"},
+				{property:"Stage Row", value:this.stageRow, canEdit:false, editProperty:"stageRow"},
+				{property:"Is Interactive", value:this.isInteractive, canEdit:true, editProperty:"isInteractive"}				
+			]); 
+			return _editProperitiesList;
+		}
+
+		public function get displayClassType():String {
+			return _displayClassType;
+		}
+
+		public function set displayClassType(value:String):void {
+			_displayClassType = value;
+		}
+
 		private function handleAddedToStage(event:Event):void{
 			mouseUp = new NativeSignal(this.container.stage,MouseEvent.MOUSE_UP, MouseEvent);
 			_stage = this.container.stage;
@@ -136,11 +171,12 @@ package la.diversion.models.components {
 			result.stageCol = _stageCol;
 			result.fileUrl = _fileUrl;
 			result.id = this.id;
+			result.isInteractive = this.isInteractive;
 			return DiversionJSON.encode(result);
 		}
 		
 		override public function clone():*{
-			return new GameAsset(_displayClassId, _displayClass, _rows, _cols, height, _fileUrl, _stageRow, _stageCol, _descriptor);
+			return new GameAsset(_displayClassId, _displayClass, _displayClassType, _rows, _cols, height, _fileUrl, _stageRow, _stageCol, _descriptor);
 		}
 	}
 }

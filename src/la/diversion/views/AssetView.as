@@ -35,13 +35,14 @@ package la.diversion.views {
 	import org.bytearray.explorer.SWFExplorer;
 	import org.bytearray.explorer.events.SWFExplorerEvent;
 	import org.osflash.signals.Signal;
+	import org.osflash.signals.natives.NativeSignal;
 	
 	public class AssetView extends Sprite {
 		
 		private static const IDEAL_RESIZE_PERCENT:Number = .5;
 		
 		public const panel_width:int = 343;
-		public const panel_height:int = 320;
+		public const panel_height:int = 370;
 		
 		public const item_width:int = 343;
 		public const item_height:int = 40;
@@ -53,9 +54,13 @@ package la.diversion.views {
 		private var swfDefs:Array = new Array();
 		
 		public var assetHolder:Panel;
-		public var scroller:ScrollBar;
+		public var assetHolderScroller:ScrollBar;
+		public var backgroundHolder:Panel;
+		public var backgroundHolderScroller:ScrollBar;
 		public var browserBtn:PushButton;
 		public var walkableModeBtn:PushButton;
+		
+		public var mouseEventMouseWheel:NativeSignal;
 		
 		protected var _viewAddNewAsset:Signal;
 		protected var _setWalkableModeClicked:Signal;
@@ -73,6 +78,12 @@ package la.diversion.views {
 			assetHolder.height = panel_height - 40;
 			addChild(assetHolder);
 			
+			backgroundHolder = new Panel();
+			backgroundHolder.width = panel_width;
+			backgroundHolder.height = panel_height - 40;
+			backgroundHolder.visible = false;
+			addChild(backgroundHolder);
+			
 			browserBtn = new PushButton();
 			browserBtn.x = 10;
 			browserBtn.y = panel_height - 30;
@@ -86,6 +97,8 @@ package la.diversion.views {
 			walkableModeBtn.label = "Set Walkable";
 			walkableModeBtn.addEventListener(MouseEvent.CLICK, onWalkableModeBtnClick);
 			addChild(walkableModeBtn);
+			
+			mouseEventMouseWheel = new NativeSignal(this, MouseEvent.MOUSE_WHEEL, MouseEvent);
 		}
 		
 		public function get viewAddNewAsset():Signal{
@@ -101,20 +114,25 @@ package la.diversion.views {
 		}
 		
 		public function initScroller():void {
-			if(scroller){
-				removeEventListener(MouseEvent.MOUSE_WHEEL, onMouseWheel);
-			}
-			scroller = new ScrollBar(Slider.VERTICAL, this, 0, 0, onScroll);
-			scroller.height = panel_height - 40;
-			scroller.x = panel_width - scroller.width;
-			scroller.autoHide = true;
-			scroller.setThumbPercent(assetHolder.height / assetHolder.content.height);
-			scroller.maximum = assetHolder.content.height - assetHolder.height;
-			scroller.pageSize = assetHolder.height;
-			scroller.lineSize = item_height;
-			addChild(scroller);
+			assetHolderScroller = new ScrollBar(Slider.VERTICAL, this, 0, 0, onScroll);
+			assetHolderScroller.height = panel_height - 40;
+			assetHolderScroller.x = panel_width - assetHolderScroller.width;
+			assetHolderScroller.autoHide = true;
+			assetHolderScroller.setThumbPercent(assetHolder.height / assetHolder.content.height);
+			assetHolderScroller.maximum = assetHolder.content.height - assetHolder.height;
+			assetHolderScroller.pageSize = assetHolder.height;
+			assetHolderScroller.lineSize = item_height;
+			addChild(assetHolderScroller);
 			
-			addEventListener(MouseEvent.MOUSE_WHEEL, onMouseWheel);
+			backgroundHolderScroller = new ScrollBar(Slider.VERTICAL, this, 0, 0, onScroll);
+			backgroundHolderScroller.height = panel_height - 40;
+			backgroundHolderScroller.x = panel_width - backgroundHolderScroller.width;
+			backgroundHolderScroller.autoHide = true;
+			backgroundHolderScroller.setThumbPercent(backgroundHolder.height / backgroundHolder.content.height);
+			backgroundHolderScroller.maximum = backgroundHolder.content.height - backgroundHolder.height;
+			backgroundHolderScroller.pageSize = backgroundHolder.height;
+			backgroundHolderScroller.lineSize = item_height;
+			addChild(backgroundHolderScroller);
 		}
 		
 		private function onBrowseFilesystem(e:MouseEvent):void {
@@ -127,13 +145,7 @@ package la.diversion.views {
 		}
 		
 		private function onScroll(e:Event):void {
-			assetHolder.content.y = -scroller.value;
-		}
-		
-		private function onMouseWheel(e:MouseEvent):void {
-			if (assetHolder.content.height > assetHolder.height) {
-				scroller.value = scroller.value - (e.delta * 4);
-			}
+			assetHolder.content.y = -assetHolderScroller.value;
 		}
 	}
 }

@@ -16,12 +16,16 @@ package la.diversion.models {
 	import flash.utils.Dictionary;
 	
 	import la.diversion.enums.IsoSceneViewModes;
+	import la.diversion.enums.PropertyViewModes;
 	import la.diversion.models.components.AssetManager;
+	import la.diversion.models.components.Background;
 	import la.diversion.models.components.GameAsset;
 	import la.diversion.models.components.Tile;
 	import la.diversion.signals.AssetAddedToSceneSignal;
 	import la.diversion.signals.AssetRemovedFromSceneSignal;
-	import la.diversion.signals.AssetViewModeUpdatedSignal;
+	import la.diversion.signals.IsoSceneBackgroundUpdatedSignal;
+	import la.diversion.signals.IsoSceneViewModeUpdatedSignal;
+	import la.diversion.signals.PropertiesViewModeUpdatedSignal;
 	import la.diversion.signals.SceneGridSizeUpdatedSignal;
 	import la.diversion.signals.TileWalkableUpdatedSignal;
 	
@@ -35,7 +39,7 @@ package la.diversion.models {
 		
 		[Transient]
 		[Inject]
-		public var assetViewModeUpdated:AssetViewModeUpdatedSignal;
+		public var assetViewModeUpdated:IsoSceneViewModeUpdatedSignal;
 		
 		[Transient]
 		[Inject]
@@ -53,6 +57,17 @@ package la.diversion.models {
 		[Inject]
 		public var sceneGridSizeUpdated:SceneGridSizeUpdatedSignal;
 		
+		[Transient]
+		[Inject]
+		public var isoSceneBackgroundUpdated:IsoSceneBackgroundUpdatedSignal;
+		
+		[Transient]
+		[Inject]
+		public var propertiesViewModeUpdated:PropertiesViewModeUpdatedSignal;
+		
+		public static var DEFAULT_COLS:int = 40;
+		public static var DEFAULT_ROWS:int = 40;
+		
 		private var _cellSize:int = 64;
 		private var _numRows:int = 0;
 		private var _numCols:int = 0;
@@ -61,7 +76,9 @@ package la.diversion.models {
 		private var _assetBeingDragged:GameAsset;
 		private var _assetManager:AssetManager = new AssetManager();
 		private var _viewMode:String;
+		private var _viewModeProperties:String;
 		private var _grid:Array;
+		private var _background:Background;
 		
 		public function SceneModel(json:String = null) {
 			super();
@@ -71,12 +88,31 @@ package la.diversion.models {
 			
 			// Default Mode
 			_viewMode = IsoSceneViewModes.VIEW_MODE_PLACE_ASSETS;
+			_viewModeProperties = PropertyViewModes.VIEW_MODE_MAP;
 			
 			if (json) {
 				this.fromJSON(json);
 			}
 		}
 		
+		public function get viewModeProperties():String {
+			return _viewModeProperties;
+		}
+
+		public function setViewModeProperties(value:String, asset:GameAsset):void {
+			_viewModeProperties = value;
+			propertiesViewModeUpdated.dispatch(value, asset);
+		}
+
+		public function get background():Background {
+			return _background;
+		}
+
+		public function set background(value:Background):void {
+			_background = value;
+			isoSceneBackgroundUpdated.dispatch(_background);
+		}
+
 		[Transient]
 		public function get assetBeingDragged():GameAsset
 		{
@@ -88,6 +124,12 @@ package la.diversion.models {
 			_assetBeingDragged = value;
 		}
 
+		public function updateSceneAssetProperty(assetId:String, assetProperty:String, assetValue:*):void{
+			var asset:GameAsset = getAsset(assetId);
+			if(asset != null){
+				asset[assetProperty] = assetValue;
+			}
+		}
 		/**
 		 * loads data from a JSON formated representation.
 		 *
