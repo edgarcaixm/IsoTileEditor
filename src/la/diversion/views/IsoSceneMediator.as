@@ -42,6 +42,7 @@ package la.diversion.views {
 	import la.diversion.signals.IsoSceneViewModeUpdatedSignal;
 	import la.diversion.signals.SceneGridSizeUpdatedSignal;
 	import la.diversion.signals.TileWalkableUpdatedSignal;
+	import la.diversion.signals.UpdateIsoSceneBackgroundPositionSignal;
 	import la.diversion.signals.UpdatePropertiesViewModeSignal;
 	import la.diversion.signals.UpdateTileWalkableSignal;
 	
@@ -87,6 +88,9 @@ package la.diversion.views {
 		
 		[Inject]
 		public var updatePropertiesViewMode:UpdatePropertiesViewModeSignal;
+		
+		[Inject]
+		public var updateIsoSceneBackgroundPosition:UpdateIsoSceneBackgroundPositionSignal;
 		
 		private var _isPanning:Boolean = false;
 		private var _isMovingBackground:Boolean = false;
@@ -187,8 +191,10 @@ package la.diversion.views {
 					view.isoView.panTo(_panOriginX - ((event.stageX - _panX)*scaleFactor), _panOriginY - ((event.stageY - _panY)*scaleFactor));
 				}else if(_isMovingBackground){
 					var scaleFactor2:Number = 1 / view.isoView.currentZoom;
-					sceneModel.background.x = _panOriginX - ((_panX - event.stageX)*scaleFactor2);
-					sceneModel.background.y = _panOriginY - ((_panY - event.stageY)*scaleFactor2);
+					var positionUpdate:Object = new Object();
+					positionUpdate.x = _panOriginX - ((_panX - event.stageX)*scaleFactor2);
+					positionUpdate.y = _panOriginY - ((_panY - event.stageY)*scaleFactor2);
+					updateIsoSceneBackgroundPosition.dispatch(positionUpdate);
 				}
 				_mouseCol = Math.floor(isoPt.x / sceneModel.cellSize);
 				if (_mouseCol < 0 || _mouseCol >= sceneModel.numCols)
