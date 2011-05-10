@@ -13,6 +13,10 @@ package la.diversion.models.components
 	
 	import flash.display.Bitmap;
 	import flash.display.BitmapData;
+	import flash.events.MouseEvent;
+	
+	import org.osflash.signals.Signal;
+	import org.osflash.signals.natives.NativeSignal;
 	
 	public class Background extends Bitmap implements IAsset
 	{

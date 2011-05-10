@@ -12,7 +12,6 @@ package la.diversion.views {
 	import flash.filesystem.File;
 	
 	import la.diversion.enums.AssetViewModes;
-	import la.diversion.enums.IsoSceneViewModes;
 	import la.diversion.enums.PropertyViewModes;
 	import la.diversion.models.AssetModel;
 	import la.diversion.models.components.Background;
@@ -37,9 +36,6 @@ package la.diversion.views {
 		
 		[Inject]
 		public var assetModel:AssetModel;
-		
-		[Inject]
-		public var updateIsoSceneViewMode:UpdateIsoSceneViewModeSignal;
 		
 		[Inject]
 		public var addNewAsset:AddNewLibraryAssetSignal;
@@ -71,7 +67,6 @@ package la.diversion.views {
 		
 		override public function onRegister():void{
 			//trace("AssetViewMediator onRegister");
-			addToSignal(view.setWalkableModeClicked, handleSetWalkableModeClicked);
 			addToSignal(view.viewAddNewAsset, handleViewAddNewAsset);
 			addToSignal(view.mouseEventMouseWheel, handleMouseEventMouseWheel);
 			
@@ -81,7 +76,7 @@ package la.diversion.views {
 		}
 		
 		private function handleNewBackgroundAdded(bg:Background):void{
-			trace("handleNewBackgroundAdded:" + bg.id);
+			//trace("handleNewBackgroundAdded:" + bg.id);
 			var listItem:AssetListItem = new AssetListItem(bg, view.item_width, view.item_height, bg.displayClassId);
 			listItem.y = view.item_height * _backgroundListCount;
 			view.backgroundHolder.addChild(listItem);
@@ -93,21 +88,16 @@ package la.diversion.views {
 		
 		private function handleBackgroundListItemMouseDown(event:MouseEvent):void{
 			updateIsoSceneBackground.dispatch( AssetListItem(event.target).gameAsset.clone() );
-			
-			//_assetBeingDragged = AssetListItem(event.target).gameAsset.clone();
-			//assetStartDragging.dispatch(_assetBeingDragged);
 		}
 		
 		private function handleAssetViewModeUpdated(viewMode:String):void{
-			trace("handleAssetViewModeUpdated: " + viewMode);
+			//trace("handleAssetViewModeUpdated: " + viewMode);
 			switch(assetModel.viewMode) {
 				case AssetViewModes.VIEW_MODE_ASSETS:
-					trace("1");
 					view.assetHolder.visible = true;
 					view.backgroundHolder.visible = false;
 					break;
 				case AssetViewModes.VIEW_MODE_BACKGROUNDS:
-					trace("2");
 					view.assetHolder.visible = false;
 					view.backgroundHolder.visible = true;
 					break;
@@ -134,18 +124,6 @@ package la.diversion.views {
 					break;
 			}
 
-		}
-		
-		private function handleSetWalkableModeClicked():void{
-			//TODO - move this to a listenter from the model?
-			if(view.walkableModeBtn.label == "Set Walkable"){
-				view.walkableModeBtn.label = "Place Assets";
-				updateIsoSceneViewMode.dispatch(IsoSceneViewModes.VIEW_MODE_SET_WALKABLE_TILES);
-			}else{
-				view.walkableModeBtn.label = "Set Walkable";
-				updateIsoSceneViewMode.dispatch(IsoSceneViewModes.VIEW_MODE_PLACE_ASSETS);
-			}
-			
 		}
 		
 		private function handleViewAddNewAsset(file:File):void{

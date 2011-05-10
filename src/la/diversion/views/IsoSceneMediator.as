@@ -89,6 +89,7 @@ package la.diversion.views {
 		public var updatePropertiesViewMode:UpdatePropertiesViewModeSignal;
 		
 		private var _isPanning:Boolean = false;
+		private var _isMovingBackground:Boolean = false;
 		private var _panX:Number = 0;
 		private var _panY:Number = 0;
 		private var _panOriginX:Number = 0;
@@ -100,7 +101,6 @@ package la.diversion.views {
 		private var _zoomFactor:Number = 1;
 		
 		override public function onRegister():void{
-			//sceneModel.setGridSize(40,40);
 			makeGrid();
 			
 			addToSignal(isoSceneViewModeUpdated, handleIsoSceneViewModeUpdated);
@@ -162,6 +162,10 @@ package la.diversion.views {
 			view.isoView.backgroundContainer.addChild(bg);
 		}
 		
+		private function handleBackgroundMouseEventRollOver(event:MouseEvent):void{
+			trace("handleBackgroundMouseEventRollOver");
+		}
+		
 		private function handleSceneGridSizeUpdated():void{
 			makeGrid();
 		}
@@ -181,6 +185,10 @@ package la.diversion.views {
 				if(_isPanning){		
 					var scaleFactor:Number = 1 / view.isoView.currentZoom;
 					view.isoView.panTo(_panOriginX - ((event.stageX - _panX)*scaleFactor), _panOriginY - ((event.stageY - _panY)*scaleFactor));
+				}else if(_isMovingBackground){
+					var scaleFactor2:Number = 1 / view.isoView.currentZoom;
+					sceneModel.background.x = _panOriginX - ((_panX - event.stageX)*scaleFactor2);
+					sceneModel.background.y = _panOriginY - ((_panY - event.stageY)*scaleFactor2);
 				}
 				_mouseCol = Math.floor(isoPt.x / sceneModel.cellSize);
 				if (_mouseCol < 0 || _mouseCol >= sceneModel.numCols)
@@ -213,18 +221,27 @@ package la.diversion.views {
 		
 		private function handleStageMouseEventMouseDown(event:MouseEvent):void{
 			if(_isMouseOverThis){
+				if(sceneModel.viewMode == IsoSceneViewModes.VIEW_MODE_BACKGROUND && sceneModel.background != null){
+					_isMovingBackground = true;
+					_panOriginX = sceneModel.background.x;
+					_panOriginY = sceneModel.background.y;
+				}else{
+					_isPanning = true;
+					_panOriginX = view.isoView.currentX;
+					_panOriginY = view.isoView.currentY;
+				}
+				
 				var isoPt:Pt = view.isoView.localToIso(new Pt(view.isoView.mouseX, view.isoView.mouseY));
 				_panX = event.stageX;
 				_panY = event.stageY;
-				_panOriginX = view.isoView.currentX;
-				_panOriginY = view.isoView.currentY;
-				_isPanning = true;
 				view.stageMouseEventMouseUp.addOnce(handleStageMouseEventMouseUp);
+				
 			}
 		}
 		
 		private function handleStageMouseEventMouseUp(event:MouseEvent):void{
 			_isPanning = false;
+			_isMovingBackground = false;
 		}
 		
 		private function handleStageMouseEventMouseWheel(event:MouseEvent):void{
@@ -367,6 +384,7 @@ package la.diversion.views {
 		}
 		
 		private function handleIsoSceneViewModeUpdated(mode:String):void{
+			//trace("handleIsoSceneViewModeUpdated:" + mode);
 			for(var i:int = 0; i < sceneModel.numCols; i++){
 				for(var j:int = 0; j < sceneModel.numRows; j++){
 					if(!sceneModel.getTile(i,j).isWalkable){

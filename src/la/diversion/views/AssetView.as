@@ -58,12 +58,10 @@ package la.diversion.views {
 		public var backgroundHolder:Panel;
 		public var backgroundHolderScroller:ScrollBar;
 		public var browserBtn:PushButton;
-		public var walkableModeBtn:PushButton;
 		
 		public var mouseEventMouseWheel:NativeSignal;
 		
 		protected var _viewAddNewAsset:Signal;
-		protected var _setWalkableModeClicked:Signal;
 		
 		private var listCount:int = 0;
 		private var _assetBeingDragged:GameAsset;
@@ -91,26 +89,11 @@ package la.diversion.views {
 			browserBtn.addEventListener(MouseEvent.CLICK, onBrowseFilesystem);
 			addChild(browserBtn);
 			
-			walkableModeBtn = new PushButton();
-			walkableModeBtn.x = 150;
-			walkableModeBtn.y = panel_height - 30;
-			walkableModeBtn.label = "Set Walkable";
-			walkableModeBtn.addEventListener(MouseEvent.CLICK, onWalkableModeBtnClick);
-			addChild(walkableModeBtn);
-			
 			mouseEventMouseWheel = new NativeSignal(this, MouseEvent.MOUSE_WHEEL, MouseEvent);
 		}
 		
 		public function get viewAddNewAsset():Signal{
 			return _viewAddNewAsset ||= new Signal();
-		}
-		
-		public function get setWalkableModeClicked():Signal{
-			return _setWalkableModeClicked ||= new Signal();
-		}
-		
-		private function onWalkableModeBtnClick(event:MouseEvent):void{
-			setWalkableModeClicked.dispatch();
 		}
 		
 		public function initScroller():void {

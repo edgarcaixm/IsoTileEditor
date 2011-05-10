@@ -20,6 +20,7 @@ package la.diversion.views {
 	import la.diversion.models.SceneModel;
 	import la.diversion.signals.LoadMapSignal;
 	import la.diversion.signals.SaveMapSignal;
+	import la.diversion.signals.UpdateIsoSceneViewModeSignal;
 	
 	import org.robotlegs.mvcs.SignalMediator;
 	
@@ -37,10 +38,14 @@ package la.diversion.views {
 		[Inject]
 		public var loadMap:LoadMapSignal;
 		
+		[Inject]
+		public var updateIsoSceneViewMode:UpdateIsoSceneViewModeSignal;
+		
 		override public function onRegister():void{
 			addToSignal(view.eventFileNew, handleFileNew);
 			addToSignal(view.eventFileSave, handleFileSave);
 			addToSignal(view.eventFileOpen, handleFileOpen);
+			addToSignal(view.eventUpdateIsoViewMode, handleUpdateIsoViewMode);
 			
 			addOnceToSignal(view.eventAddedToStage, handleAddedToStage);
 		}
@@ -60,6 +65,10 @@ package la.diversion.views {
 		
 		private function handleFileOpen(file:File):void{
 			loadMap.dispatch(file);
+		}
+		
+		private function handleUpdateIsoViewMode(mode:String):void {
+			updateIsoSceneViewMode.dispatch(mode);
 		}
 		
 	}

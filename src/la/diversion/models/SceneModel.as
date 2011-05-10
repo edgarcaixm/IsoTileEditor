@@ -39,7 +39,7 @@ package la.diversion.models {
 		
 		[Transient]
 		[Inject]
-		public var assetViewModeUpdated:IsoSceneViewModeUpdatedSignal;
+		public var isoSceneViewModeUpdated:IsoSceneViewModeUpdatedSignal;
 		
 		[Transient]
 		[Inject]
@@ -78,7 +78,7 @@ package la.diversion.models {
 		private var _viewMode:String;
 		private var _viewModeProperties:String;
 		private var _grid:Array;
-		private var _background:Background;
+		private var _background:Background = null;
 		
 		public function SceneModel(json:String = null) {
 			super();
@@ -187,14 +187,21 @@ package la.diversion.models {
 					for each(var paAsset:GameAsset in this.assetManager.assets){
 						paAsset.container.alpha = 1;
 					}
-					assetViewModeUpdated.dispatch(_viewMode);
+					isoSceneViewModeUpdated.dispatch(_viewMode);
 					break;
 				case IsoSceneViewModes.VIEW_MODE_SET_WALKABLE_TILES:
 					_viewMode = value;
 					for each(var swtAsset:GameAsset in this.assetManager.assets){
 						swtAsset.container.alpha = 0.5;
 					}
-					assetViewModeUpdated.dispatch(_viewMode);
+					isoSceneViewModeUpdated.dispatch(_viewMode);
+					break;
+				case IsoSceneViewModes.VIEW_MODE_BACKGROUND:
+					_viewMode = value;
+					for each(var paAsset:GameAsset in this.assetManager.assets){
+						paAsset.container.alpha = 1;
+					}
+					isoSceneViewModeUpdated.dispatch(_viewMode);
 					break;
 			}
 		}

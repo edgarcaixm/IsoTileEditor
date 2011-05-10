@@ -15,6 +15,8 @@ package la.diversion.views {
 	import flash.events.Event;
 	import flash.filesystem.File;
 	
+	import la.diversion.enums.IsoSceneViewModes;
+	
 	import mx.core.UIComponent;
 	
 	import org.osflash.signals.Signal;
@@ -22,12 +24,18 @@ package la.diversion.views {
 	
 	public class MainMenuView extends UIComponent {
 		
+		//PUBLIC VARS
 		public var eventAddedToStage:NativeSignal;
 		public var file:File;
 		
+		//SIGNALS
 		private var _eventFileSave:Signal;
 		private var _eventFileOpen:Signal;
 		private var _eventFileNew:Signal;
+		private var _eventUpdateIsoViewMode:Signal;
+		
+		//PRIVATE VARS
+		private var _isoViewModeCommands:Array = new Array();
 		
 		public function MainMenuView()
 		{
@@ -52,10 +60,16 @@ package la.diversion.views {
 			return _eventFileOpen ||= new Signal();
 		}
 
+		public function get eventUpdateIsoViewMode():Signal
+		{
+			return _eventUpdateIsoViewMode ||= new Signal();
+		}
+
 		public function init(e:Event = null):void {
 			removeEventListener(Event.ADDED_TO_STAGE, init);
 			var fileMenu:NativeMenuItem;
 			var editMenu:NativeMenuItem;
+			var windowMenu:NativeMenuItem;
 			
 			//windows support
 			if (NativeWindow.supportsMenu) {
@@ -72,6 +86,12 @@ package la.diversion.views {
 					editMenu = stage.nativeWindow.menu.addItem(new NativeMenuItem("Edit"));
 				}
 				createEditMenu(editMenu);
+				
+				windowMenu = getMenuItemByLabel(stage.nativeWindow.menu, "Window");
+				if (windowMenu == null){
+					windowMenu = stage.nativeWindow.menu.addItem(new NativeMenuItem("Edit"));
+				}
+				createWindowMenu(windowMenu);
 			}
 			
 			//mac support
@@ -89,6 +109,14 @@ package la.diversion.views {
 					editMenu = NativeApplication.nativeApplication.menu.addItem(new NativeMenuItem("Edit"));
 				}
 				createEditMenu(editMenu);
+				
+				windowMenu = getMenuItemByLabel(NativeApplication.nativeApplication.menu, "Window");
+				if (windowMenu == null){
+					windowMenu = NativeApplication.nativeApplication.menu.addItem(new NativeMenuItem("Window"));
+				}
+				createWindowMenu(windowMenu);
+				
+				
 			}
 		}
 		
@@ -129,6 +157,24 @@ package la.diversion.views {
 			
 		}
 		
+		public function createWindowMenu(menu:NativeMenuItem):void {
+			trace("createWindowMenu");
+			var command:NativeMenuItem = menu.submenu.addItem(new NativeMenuItem("", true));
+			
+			command = menu.submenu.addItem(new NativeMenuItem("Mode: Asset Placement"));
+			command.addEventListener(Event.SELECT, selectCommand);
+			command.checked = true;
+			_isoViewModeCommands.push(command);
+			
+			command = menu.submenu.addItem(new NativeMenuItem("Mode: Set Walkable Tiles"));
+			command.addEventListener(Event.SELECT, selectCommand);
+			_isoViewModeCommands.push(command);
+			
+			command = menu.submenu.addItem(new NativeMenuItem("Mode: Move Background"));
+			command.addEventListener(Event.SELECT, selectCommand);
+			_isoViewModeCommands.push(command);
+		}
+		
 		//catch custom menu items
 		private function selectCommand(event:Event):void {
 			trace("Selected command: " + event.target.label);
@@ -146,10 +192,37 @@ package la.diversion.views {
 				case "New":
 					eventFileNew.dispatch();
 					break;
+				case "Mode: Asset Placement":
+					if(!event.target.checked){
+						uncheckAllIsoViewModes();
+						event.target.checked = true;
+						eventUpdateIsoViewMode.dispatch(IsoSceneViewModes.VIEW_MODE_PLACE_ASSETS);
+					}
+					break;
+				case "Mode: Set Walkable Tiles":
+					if(!event.target.checked){
+						uncheckAllIsoViewModes();
+						event.target.checked = true;
+						eventUpdateIsoViewMode.dispatch(IsoSceneViewModes.VIEW_MODE_SET_WALKABLE_TILES);
+					}
+					break;
+				case "Mode: Move Background":
+					if(!event.target.checked){
+						uncheckAllIsoViewModes();
+						event.target.checked = true;
+						eventUpdateIsoViewMode.dispatch(IsoSceneViewModes.VIEW_MODE_BACKGROUND);
+					}
+					break;
 				default:
 					break;
 			}
 			
+		}
+		
+		private function uncheckAllIsoViewModes():void{
+			for each(var command:NativeMenuItem in _isoViewModeCommands){
+				command.checked = false;
+			}
 		}
 		
 		private function onSave(event:Event):void{
