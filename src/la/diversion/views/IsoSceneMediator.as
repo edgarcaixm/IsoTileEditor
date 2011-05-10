@@ -148,7 +148,7 @@ package la.diversion.views {
 			
 			view.isoGrid.cellSize = sceneModel.cellSize;
 			view.isoGrid.setGridSize(sceneModel.numCols, sceneModel.numRows);
-			view.isoGrid.stroke = new Stroke(1, 0x000000,1);
+			view.isoGrid.stroke = new Stroke(0.1, 0xAAAAAA,1);
 			view.isoGrid.showOrigin = false;
 			view.isoScene.addChild(view.isoGrid);
 			

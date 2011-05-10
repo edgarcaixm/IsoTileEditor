@@ -143,6 +143,7 @@ package la.diversion.services
 							newAsset.moveTo(savedAsset.stageCol * sceneModel.cellSize, savedAsset.stageRow * sceneModel.cellSize, 0);
 							newAsset.stageCol = savedAsset.stageCol;
 							newAsset.stageRow = savedAsset.stageRow;
+							newAsset.actorId = savedAsset.actorId;
 							sceneModel.addAsset(newAsset);
 						}else{
 							trace("error loading asset: " + savedAsset.displayClassId);

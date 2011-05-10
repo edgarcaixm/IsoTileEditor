@@ -38,6 +38,7 @@ package la.diversion.models.components {
 		private var _fileUrl:String;
 		private var _isInteractive:int;
 		private var _editProperitiesList:ArrayCollection;
+		private var _actorId:String;
 		
 		private var _addedToStage:NativeSignal;
 		public var mouseDown:NativeSignal;
@@ -48,6 +49,7 @@ package la.diversion.models.components {
 		public function GameAsset(displayClassId:String, displayClass:Class, displayClassType:String, rows:int, cols:int, height:Number, fileUrl:String = "", stageRow:int = -1, stageCol:int = -1, descriptor:Object = null){
 			super(descriptor);
 			this._displayClassId = displayClassId;
+			this._actorId = id;
 			this._displayClass = displayClass;
 			this._displayClassType = displayClassType;
 			this._rows = rows;
@@ -67,6 +69,14 @@ package la.diversion.models.components {
 			rollOut = new NativeSignal(this, MouseEvent.ROLL_OUT, ProxyEvent);
 		}
 		
+		public function get actorId():String {
+			return _actorId;
+		}
+
+		public function set actorId(value:String):void {
+			_actorId = value;
+		}
+
 		public function get fileUrl():String {
 			return _fileUrl;
 		}
@@ -91,7 +101,8 @@ package la.diversion.models.components {
 				{property:"Height", value:this.height, canEdit:true, editProperty:"height"},
 				{property:"Stage Col", value:this.stageCol, canEdit:false, editProperty:"stageCol"},
 				{property:"Stage Row", value:this.stageRow, canEdit:false, editProperty:"stageRow"},
-				{property:"Is Interactive", value:this.isInteractive, canEdit:true, editProperty:"isInteractive"}				
+				{property:"Is Interactive", value:this.isInteractive, canEdit:true, editProperty:"isInteractive"},			
+				{property:"Actor Id", value:this.actorId, canEdit:true, editProperty:"actorId"}				
 			]); 
 			return _editProperitiesList;
 		}
@@ -180,6 +191,7 @@ package la.diversion.models.components {
 			result.fileUrl = _fileUrl;
 			result.id = this.id;
 			result.isInteractive = this.isInteractive;
+			result.actorId = this.actorId;
 			return DiversionJSON.encode(result);
 		}
 		
