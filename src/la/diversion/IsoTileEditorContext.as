@@ -48,6 +48,7 @@ package la.diversion
 			injector.mapSingleton(UpdateIsoSceneBackgroundPositionSignal);
 			injector.mapSingleton(ResetIsoSceneBackgroundSignal);
 			injector.mapSingleton(IsoSceneBackgroundResetSignal);
+			injector.mapSingleton(UpdateApplicationWindowResizeSignal);
 			
 			//models
 			injector.mapSingleton(SceneModel);

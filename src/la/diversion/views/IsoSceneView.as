@@ -50,6 +50,7 @@ package la.diversion.views {
 		public var highlight:IsoRectangle;
 		public var dragImage:Sprite;
 		public var colRowText:TextField;
+		public var colRowTextLabel:TextField;
 		public var bg:Sprite;
 		
 		public var enterFrame:NativeSignal;
@@ -74,7 +75,7 @@ package la.diversion.views {
 			this.addChildAt(bg,0);
 			
 			//row, col position
-			var colRowTextLabel:TextField = new TextField();
+			colRowTextLabel = new TextField();
 			colRowTextLabel.mouseEnabled = false;
 			colRowTextLabel.x = 710;
 			colRowTextLabel.y = 1;

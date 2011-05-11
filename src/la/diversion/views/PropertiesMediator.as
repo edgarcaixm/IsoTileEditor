@@ -15,10 +15,12 @@ package la.diversion.views
 	import la.diversion.models.SceneModel;
 	import la.diversion.models.components.GameAsset;
 	import la.diversion.signals.PropertiesViewModeUpdatedSignal;
+	import la.diversion.signals.UpdateApplicationWindowResizeSignal;
 	import la.diversion.signals.UpdateIsoSceneAssetPropertySignal;
 	import la.diversion.signals.UpdateSceneGridSizeSignal;
 	
 	import mx.collections.ArrayCollection;
+	import mx.events.FlexNativeWindowBoundsEvent;
 	
 	import org.robotlegs.mvcs.SignalMediator;
 	
@@ -41,6 +43,9 @@ package la.diversion.views
 		[Inject]
 		public var updateIsoSceneAssetProperty:UpdateIsoSceneAssetPropertySignal;
 		
+		[Inject]
+		public var updateApplicationWindowResize:UpdateApplicationWindowResizeSignal;
+		
 		private var _dataProvider:ArrayCollection
 		private var _asset:GameAsset;
 		
@@ -57,11 +62,16 @@ package la.diversion.views
 			addToSignal(view.gridItemEditorSessionSave, handleGridItemEditorSessionSave);
 			addToSignal(view.gridItemEditorSessionStarting, handleGridItemEditorSessionStarting);
 			addToSignal(propertiesViewModeUpdated, handlePropertiesViewModeUpdated);
+			addToSignal(updateApplicationWindowResize, handleUpdateApplicationWindowResize);
 			
 			var gridSize:Object = new Object();
 			gridSize.cols = SceneModel.DEFAULT_COLS;
 			gridSize.rows = SceneModel.DEFAULT_ROWS;
 			updateSceneGridSize.dispatch(gridSize);
+		}
+		
+		private function handleUpdateApplicationWindowResize(event:FlexNativeWindowBoundsEvent):void{
+			view.x = event.afterBounds.width - view.width - 5;
 		}
 		
 		private function handleGridItemEditorSessionSave(event:GridItemEditorEvent):void {

@@ -43,9 +43,12 @@ package la.diversion.views {
 	import la.diversion.signals.IsoSceneViewModeUpdatedSignal;
 	import la.diversion.signals.SceneGridSizeUpdatedSignal;
 	import la.diversion.signals.TileWalkableUpdatedSignal;
+	import la.diversion.signals.UpdateApplicationWindowResizeSignal;
 	import la.diversion.signals.UpdateIsoSceneBackgroundPositionSignal;
 	import la.diversion.signals.UpdatePropertiesViewModeSignal;
 	import la.diversion.signals.UpdateTileWalkableSignal;
+	
+	import mx.events.FlexNativeWindowBoundsEvent;
 	
 	import org.robotlegs.mvcs.SignalMediator;
 	
@@ -96,6 +99,9 @@ package la.diversion.views {
 		[Inject]
 		public var isoSceneBackgroundReset:IsoSceneBackgroundResetSignal;
 		
+		[Inject]
+		public var updateApplicationWindowResize:UpdateApplicationWindowResizeSignal;
+		
 		private var _isPanning:Boolean = false;
 		private var _isMovingBackground:Boolean = false;
 		private var _panX:Number = 0;
@@ -120,10 +126,23 @@ package la.diversion.views {
 			addToSignal(sceneGridSizedUpdated, handleSceneGridSizeUpdated);
 			addToSignal(isoSceneBackgroundUpdated, handleIsoSceneBackgroundUpdated);
 			addToSignal(isoSceneBackgroundReset, handleIsoSceneBackgroundReset);
+			addToSignal(updateApplicationWindowResize, handleUpdateApplicationWindowResize);	
 			
 			addToSignal(view.addedToStage, handleThisAddedToStage);
 			addToSignal(view.thisMouseEventRollOut, handleThisMouseEventRollOut);
 			addToSignal(view.thisMouseEventRollOver, handleThisMouseEventRollOver);
+		}
+		
+		private function handleUpdateApplicationWindowResize(event:FlexNativeWindowBoundsEvent):void{
+			view.isoView.setSize(event.afterBounds.width - 370, event.afterBounds.height - 95);
+			
+			view.bg.graphics.clear();
+			view.bg.graphics.beginFill(0x00FFFF);
+			view.bg.graphics.drawRect(0,0,event.afterBounds.width - 370,event.afterBounds.height - 95);
+			view.bg.graphics.endFill();
+			
+			view.colRowTextLabel.x = event.afterBounds.width - 415 ;
+			view.colRowText.x = event.afterBounds.width - 385;
 		}
 		
 		public function makeGrid():void {
@@ -260,10 +279,10 @@ package la.diversion.views {
 		private function handleStageMouseEventMouseWheel(event:MouseEvent):void{
 			if(_isMouseOverThis){
 				_zoomFactor = _zoomFactor + (event.delta / 10);
-				if (_zoomFactor < 0.3){
-					_zoomFactor = 0.3;
-				}else if(_zoomFactor > 2){
-					_zoomFactor = 2;
+				if (_zoomFactor < 0.1){
+					_zoomFactor = 0.1;
+				}else if(_zoomFactor > 3){
+					_zoomFactor = 3;
 				}
 				view.isoView.zoom(_zoomFactor);
 			}

@@ -44,9 +44,15 @@ THE SOFTWARE.
 			import la.diversion.views.IsoSceneView;
 			import la.diversion.views.MainMenuView;
 			
+			import org.osflash.signals.natives.NativeSignal;
+			
+			import mx.events.FlexNativeWindowBoundsEvent;
+			
 			public var mainMenuView:MainMenuView;
 			public var isoLevelView:IsoSceneView;
 			public var assetView:AssetView;
+			
+			public var signalFlexNativeWindowBoundsEventWindowResize:NativeSignal;
 			
 			[Bindable]
 			public var STATE_ARRAY:Array = [
@@ -63,6 +69,8 @@ THE SOFTWARE.
 				
 				scene.addChild(isoLevelView);
 				assets.addChild(assetView);
+				
+				signalFlexNativeWindowBoundsEventWindowResize = new NativeSignal(this, FlexNativeWindowBoundsEvent.WINDOW_RESIZE, FlexNativeWindowBoundsEvent);
 			}
 		]]>
 	</fx:Script>
