@@ -25,8 +25,9 @@ package la.diversion.models.components
 		private var _displayClass:Class;
 		private var _displayClassType:String;
 		private var _fileUrl:String;
+		private var _classRef:String;
 		
-		public function Background(id:String, displayClassId:String, displayClass:Class, displayClassType:String, fileUrl:String, bitmapData:BitmapData=null, pixelSnapping:String="auto", smoothing:Boolean=false)
+		public function Background(id:String, displayClassId:String, displayClass:Class, displayClassType:String, fileUrl:String, classRef:String, bitmapData:BitmapData=null, pixelSnapping:String="auto", smoothing:Boolean=false)
 		{
 			super(bitmapData, pixelSnapping, smoothing);
 			_id = id;
@@ -34,8 +35,17 @@ package la.diversion.models.components
 			_displayClass = displayClass;
 			_displayClassType = displayClassType;
 			_fileUrl = fileUrl;
+			_classRef = classRef;
 		}
 		
+		public function get classRef():String {
+			return _classRef;
+		}
+
+		public function set classRef(value:String):void {
+			_classRef = value;
+		}
+
 		public function get fileUrl():String {
 			return _fileUrl;
 		}
@@ -84,11 +94,12 @@ package la.diversion.models.components
 			result.fileUrl = _fileUrl;
 			result.x = this.x;
 			result.y = this.y;
+			result.classRef = _classRef;
 			return DiversionJSON.encode(result);
 		}
 		
 		public function clone():*{
-			return new Background(_id, _displayClassId, _displayClass, _displayClassType, _fileUrl, this.bitmapData, this.pixelSnapping, this.smoothing);
+			return new Background(_id, _displayClassId, _displayClass, _displayClassType, _fileUrl, _classRef, this.bitmapData, this.pixelSnapping, this.smoothing);
 		}
 	}
 }

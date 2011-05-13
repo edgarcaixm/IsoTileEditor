@@ -77,7 +77,7 @@ package la.diversion.services {
 				}
 				for each(var bgDef:Object in assetSWF.backgrounds){
 					var tClass2:Class = assetSWF.loaderInfo.applicationDomain.getDefinition(bgDef.classRef) as Class;
-					var bg:Background = new Background(bgDef.backgroundID, bgDef.classRef, tClass2, AssetTypes.BITMAP, file.name, new tClass2() as BitmapData);
+					var bg:Background = new Background(bgDef.backgroundID, bgDef.classRef, tClass2, AssetTypes.BITMAP, file.name, bgDef.classRef, new tClass2() as BitmapData);
 					addNewLibraryBackground.dispatch(bg);
 				}
 			}
