@@ -39,6 +39,7 @@ package la.diversion.models.components {
 		private var _isInteractive:int;
 		private var _editProperitiesList:ArrayCollection;
 		private var _actorId:String;
+		private var _classRef:String;
 		
 		private var _addedToStage:NativeSignal;
 		public var mouseDown:NativeSignal;
@@ -46,7 +47,7 @@ package la.diversion.models.components {
 		public var rollOver:NativeSignal;
 		public var rollOut:NativeSignal;
 		
-		public function GameAsset(displayClassId:String, displayClass:Class, displayClassType:String, rows:int, cols:int, height:Number, fileUrl:String = "", stageRow:int = -1, stageCol:int = -1, descriptor:Object = null){
+		public function GameAsset(displayClassId:String, displayClass:Class, displayClassType:String, rows:int, cols:int, height:Number, fileUrl:String = "", stageRow:int = -1, stageCol:int = -1, isInteractive:int = 0, classRef:String = "", descriptor:Object = null){
 			super(descriptor);
 			this._displayClassId = displayClassId;
 			this._actorId = id;
@@ -60,7 +61,8 @@ package la.diversion.models.components {
 			this._descriptor = descriptor;
 			this.sprites = [displayClass];
 			this._fileUrl = fileUrl;
-			this._isInteractive = 0;
+			this._isInteractive = isInteractive;
+			this._classRef = classRef;
 			
 			_addedToStage = new NativeSignal(this, Event.ADDED_TO_STAGE, Event);
 			_addedToStage.add(handleAddedToStage);
@@ -69,6 +71,14 @@ package la.diversion.models.components {
 			rollOut = new NativeSignal(this, MouseEvent.ROLL_OUT, ProxyEvent);
 		}
 		
+		public function get classRef():String {
+			return _classRef;
+		}
+
+		public function set classRef(value:String):void {
+			_classRef = value;
+		}
+
 		public function get actorId():String {
 			return _actorId;
 		}
@@ -190,13 +200,14 @@ package la.diversion.models.components {
 			result.stageCol = _stageCol;
 			result.fileUrl = _fileUrl;
 			result.id = this.id;
-			result.isInteractive = this.isInteractive;
-			result.actorId = this.actorId;
+			result.isInteractive = _isInteractive;
+			result.actorId = _actorId;
+			result.classRef = _classRef;
 			return DiversionJSON.encode(result);
 		}
 		
 		override public function clone():*{
-			return new GameAsset(_displayClassId, _displayClass, _displayClassType, _rows, _cols, height, _fileUrl, _stageRow, _stageCol, _descriptor);
+			return new GameAsset(_displayClassId, _displayClass, _displayClassType, _rows, _cols, height, _fileUrl, _stageRow, _stageCol, _isInteractive, _classRef, _descriptor);
 		}
 	}
 }
