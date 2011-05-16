@@ -42,8 +42,6 @@ package la.diversion.views {
 	
 	public class IsoSceneView extends Sprite {
 		
-		public var cellSize:int = 64;
-		
 		public var isoView:IsoView;
 		public var isoScene:IsoScene;
 		public var isoGrid:IsoGrid;

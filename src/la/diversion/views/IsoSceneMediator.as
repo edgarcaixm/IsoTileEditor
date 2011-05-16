@@ -347,7 +347,7 @@ package la.diversion.views {
 		private function handleAssetRollOver(event:ProxyEvent):void{
 			if(sceneModel.viewMode == IsoSceneViewModes.VIEW_MODE_PLACE_ASSETS){
 				GameAsset(event.target).container.alpha = .75;
-				GameAsset(event.target).container.filters = [new GlowFilter(0xFF0000, 1, 5, 5, 6, 2, false, false)];
+				GameAsset(event.target).container.filters = [new GlowFilter(0xFFFFFF, 1, 2, 2, 12, 3, false, false)];
 			}
 		}
 		

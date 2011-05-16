@@ -163,6 +163,7 @@ package la.diversion.models.components {
 
 		public function set displayClassId(value:String):void{
 			_displayClassId = value;
+			this.sprites = [value];
 		}
 		
 		public function get displayClass():Class{

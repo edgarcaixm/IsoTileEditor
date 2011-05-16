@@ -73,7 +73,7 @@ package la.diversion.models {
 		public static var DEFAULT_COLS:int = 40;
 		public static var DEFAULT_ROWS:int = 40;
 		
-		private var _cellSize:int = 64;
+		private var _cellSize:int = 32;
 		private var _numRows:int = 0;
 		private var _numCols:int = 0;
 		private var _position:Point = new Point(0, 0);
