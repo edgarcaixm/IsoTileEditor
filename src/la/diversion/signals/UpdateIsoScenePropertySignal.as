@@ -3,7 +3,7 @@
  * Copyright (c) 2011 Diversion, Inc.
  *
  * Authors: jobelloyd
- * Created: May 9, 2011
+ * Created: May 17, 2011
  *
  */
 
@@ -13,9 +13,9 @@ package la.diversion.signals
 	
 	import la.diversion.models.components.PropertyUpdate;
 	
-	public class UpdateIsoSceneAssetPropertySignal extends Signal
+	public class UpdateIsoScenePropertySignal extends Signal
 	{
-		public function UpdateIsoSceneAssetPropertySignal(...parameters)
+		public function UpdateIsoScenePropertySignal(...parameters)
 		{
 			super(PropertyUpdate);
 		}

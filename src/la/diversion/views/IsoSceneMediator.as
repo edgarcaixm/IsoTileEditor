@@ -40,6 +40,7 @@ package la.diversion.views {
 	import la.diversion.signals.AssetStartedDraggingSignal;
 	import la.diversion.signals.IsoSceneBackgroundResetSignal;
 	import la.diversion.signals.IsoSceneBackgroundUpdatedSignal;
+	import la.diversion.signals.IsoSceneStageColorUpdatedSignal;
 	import la.diversion.signals.IsoSceneViewModeUpdatedSignal;
 	import la.diversion.signals.SceneGridSizeUpdatedSignal;
 	import la.diversion.signals.TileWalkableUpdatedSignal;
@@ -102,6 +103,9 @@ package la.diversion.views {
 		[Inject]
 		public var updateApplicationWindowResize:UpdateApplicationWindowResizeSignal;
 		
+		[Inject]
+		public var isoSceneStageColorUpdated:IsoSceneStageColorUpdatedSignal;
+		
 		private var _isPanning:Boolean = false;
 		private var _isMovingBackground:Boolean = false;
 		private var _panX:Number = 0;
@@ -126,18 +130,29 @@ package la.diversion.views {
 			addToSignal(sceneGridSizedUpdated, handleSceneGridSizeUpdated);
 			addToSignal(isoSceneBackgroundUpdated, handleIsoSceneBackgroundUpdated);
 			addToSignal(isoSceneBackgroundReset, handleIsoSceneBackgroundReset);
-			addToSignal(updateApplicationWindowResize, handleUpdateApplicationWindowResize);	
+			addToSignal(updateApplicationWindowResize, handleUpdateApplicationWindowResize);
+			addToSignal(isoSceneStageColorUpdated, handleIsoSceneStageColorUpdated);
 			
 			addToSignal(view.addedToStage, handleThisAddedToStage);
 			addToSignal(view.thisMouseEventRollOut, handleThisMouseEventRollOut);
 			addToSignal(view.thisMouseEventRollOver, handleThisMouseEventRollOver);
 		}
 		
+		private function handleIsoSceneStageColorUpdated(newColor:uint):void{
+			trace("handleIsoSceneStageColorUpdated");
+			var w:Number = view.bg.width;
+			var h:Number = view.bg.height;
+			view.bg.graphics.clear();
+			view.bg.graphics.beginFill(sceneModel.stageColor);
+			view.bg.graphics.drawRect(0,0,w,h);
+			view.bg.graphics.endFill();
+		}
+		
 		private function handleUpdateApplicationWindowResize(event:FlexNativeWindowBoundsEvent):void{
 			view.isoView.setSize(event.afterBounds.width - 370, event.afterBounds.height - 95);
 			
 			view.bg.graphics.clear();
-			view.bg.graphics.beginFill(0x00FFFF);
+			view.bg.graphics.beginFill(sceneModel.stageColor);
 			view.bg.graphics.drawRect(0,0,event.afterBounds.width - 370,event.afterBounds.height - 95);
 			view.bg.graphics.endFill();
 			
@@ -180,7 +195,13 @@ package la.diversion.views {
 			
 			//Add the isoView to the stage
 			view.addChildAt(view.isoView, 1);
-			view.isoView.panTo( int(sceneModel.numRows * sceneModel.cellSize / 2) ,int(sceneModel.numRows * sceneModel.cellSize / 2) );
+			view.isoView.panTo( 0 ,int(sceneModel.numRows * sceneModel.cellSize / 2) );
+			
+			//
+			view.bg.graphics.clear();
+			view.bg.graphics.beginFill(sceneModel.stageColor);
+			view.bg.graphics.drawRect(0,0,760,760);
+			view.bg.graphics.endFill();
 		}
 		
 		private function handleIsoSceneBackgroundUpdated(bg:Background):void{

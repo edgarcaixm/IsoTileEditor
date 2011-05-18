@@ -49,6 +49,8 @@ package la.diversion
 			injector.mapSingleton(ResetIsoSceneBackgroundSignal);
 			injector.mapSingleton(IsoSceneBackgroundResetSignal);
 			injector.mapSingleton(UpdateApplicationWindowResizeSignal);
+			injector.mapSingleton(UpdateIsoScenePropertySignal);
+			injector.mapSingleton(IsoSceneStageColorUpdatedSignal);
 			
 			//models
 			injector.mapSingleton(SceneModel);
@@ -76,6 +78,7 @@ package la.diversion
 			signalCommandMap.mapSignalClass(UpdateIsoSceneAssetPropertySignal, UpdateIsoSceneAssetPropertyCommand);
 			signalCommandMap.mapSignalClass(UpdateIsoSceneBackgroundPositionSignal, UpdateIsoSceneBackgroundPositionCommand);
 			signalCommandMap.mapSignalClass(ResetIsoSceneBackgroundSignal, ResetIsoSceneBackgroundCommand);
+			signalCommandMap.mapSignalClass(UpdateIsoScenePropertySignal, UpdateIsoScenePropertyCommand);
 			
 			//mediators
 			mediatorMap.mapView(IsoSceneView,IsoSceneMediator);

@@ -25,10 +25,13 @@ package la.diversion.models {
 	import la.diversion.signals.AssetRemovedFromSceneSignal;
 	import la.diversion.signals.IsoSceneBackgroundResetSignal;
 	import la.diversion.signals.IsoSceneBackgroundUpdatedSignal;
+	import la.diversion.signals.IsoSceneStageColorUpdatedSignal;
 	import la.diversion.signals.IsoSceneViewModeUpdatedSignal;
 	import la.diversion.signals.PropertiesViewModeUpdatedSignal;
 	import la.diversion.signals.SceneGridSizeUpdatedSignal;
 	import la.diversion.signals.TileWalkableUpdatedSignal;
+	
+	import mx.collections.ArrayCollection;
 	
 	import org.robotlegs.mvcs.Actor;
 
@@ -70,12 +73,16 @@ package la.diversion.models {
 		[Inject]
 		public var isoSceneBackgroundReset:IsoSceneBackgroundResetSignal;
 		
+		[Transient]
+		[Inject]
+		public var isoSceneStageColorUpdated:IsoSceneStageColorUpdatedSignal;
+		
 		public static var DEFAULT_COLS:int = 40;
 		public static var DEFAULT_ROWS:int = 40;
 		
 		private var _cellSize:int = 32;
-		private var _numRows:int = 0;
-		private var _numCols:int = 0;
+		private var _numRows:int = DEFAULT_ROWS;
+		private var _numCols:int = DEFAULT_COLS;
 		private var _position:Point = new Point(0, 0);
 		private var _zoomLevel:Number = 0;
 		private var _assetBeingDragged:GameAsset;
@@ -84,21 +91,60 @@ package la.diversion.models {
 		private var _viewModeProperties:String;
 		private var _grid:Array;
 		private var _background:Background = null;
+		private var _stageColor:uint = 0x000000;
+		private var _editProperitiesList:ArrayCollection;
 		
-		public function SceneModel(json:String = null) {
+		public function SceneModel() {
 			super();
-			
-			// Default Grid Size
-			//setGridSize(40, 40);
 			
 			// Default Mode
 			_viewMode = IsoSceneViewModes.VIEW_MODE_PLACE_ASSETS;
 			_viewModeProperties = PropertyViewModes.VIEW_MODE_MAP;
 			
-			if (json) {
-				this.fromJSON(json);
+			//default grid
+			_grid = new Array(DEFAULT_COLS);
+			for (var i:int = 0; i < DEFAULT_COLS; i++) {
+				_grid[i] = new Array(DEFAULT_ROWS);
+				for (var j:int = 0; j < DEFAULT_ROWS;  j++) {
+					var newTile:Tile = new Tile(i,j,_cellSize);
+					newTile.walkableUpdated.add(handleTileWalkableUpdated);
+					_grid[i][j] = newTile;
+				}
 			}
 		}
+		
+		public function get stageColor():uint {
+			return _stageColor;
+		}
+
+		public function set stageColor(value:uint):void {
+			_stageColor = value;
+			isoSceneStageColorUpdated.dispatch(value);
+		}
+
+		[Transient]
+		public function get editProperitiesList():ArrayCollection {
+			_editProperitiesList = new ArrayCollection([
+				{property:"Cols", value:this.numCols, canEdit:true, editProperty:"numCols"},
+				{property:"Rows", value:this.numRows, canEdit:true, editProperty:"numRows"},
+				{property:"Stage Color", value:getNumberAsHexString(this.stageColor, 6), canEdit:true, editProperty:"stageColor"}			
+			]); 
+			return _editProperitiesList;
+		}
+		
+		public function getNumberAsHexString(number:uint, minimumLength:uint = 1):String {
+			// The string that will be output at the end of the function.
+			var string:String = number.toString(0x10).toUpperCase();
+			
+			// While the minimumLength argument is higher than the length of the string, add a leading zero.
+			while (minimumLength > string.length) {
+				string = "0" + string;
+			}
+			
+			// Return the result with a “0x” in front of the result.
+			return "0x" + string;
+		}
+		
 		
 		public function get viewModeProperties():String {
 			return _viewModeProperties;
@@ -139,34 +185,9 @@ package la.diversion.models {
 				asset[assetProperty] = assetValue;
 			}
 		}
-		/**
-		 * loads data from a JSON formated representation.
-		 *
-		 * @param1 json A JSON formated string.
-		 *
-		 * @see toJSON
-		 */
-		public function fromJSON(json:String):void {
-			var obj:Object = JSON.decode(json);
-			this._cellSize = obj.map.cellSize;
-			this._numCols = obj.map.numCols;
-			this._numRows = obj.map.numRows;
-			this._zoomLevel = obj.zoomLevel;
-			this.position = new Point(obj.position.x, obj.position.y);
-			
-			setGridSize(_numCols, _numRows);
-			
-			var jsonGrid:Array = obj.grid;
-			
-			var tile1:Tile;
-			var tile2:Object;
-			for (var i:int = 0; i < jsonGrid.length; i++) {
-				for (var j:int = 0; j < jsonGrid[i].length; j++) {
-					tile1 = _grid[i][j];
-					tile2 = jsonGrid[i][j];
-					_grid[i][j].isWalkable = jsonGrid[i][j].isWalkable;
-				}
-			}
+		
+		public function updateSceneProperty(property:String, value:*):void{
+			this[property] = value;
 		}
 		
 		/**
@@ -410,6 +431,14 @@ package la.diversion.models {
 		// Creates the grid arrays and adds a Tile object
 		// to each one.
 		public function setGridSize(cols:int, rows:int):void {
+			//remove old listeners
+			for (var k:int = 0; k < _numCols; k++) {
+				for (var i2:int = 0; i2 < _numRows; i2++) {
+					Tile(_grid[k][i2]).walkableUpdated.removeAll();
+				}
+			}
+			
+			
 			_numCols = cols;
 			_numRows = rows;
 			_grid = new Array(cols);
