@@ -3,8 +3,7 @@ package la.diversion
 	import flash.display.DisplayObjectContainer;
 	
 	import la.diversion.controllers.*;
-	import la.diversion.models.AssetModel;
-	import la.diversion.models.SceneModel;
+	import la.diversion.models.*
 	import la.diversion.services.*;
 	import la.diversion.signals.*;
 	import la.diversion.views.*;
@@ -51,10 +50,15 @@ package la.diversion
 			injector.mapSingleton(UpdateApplicationWindowResizeSignal);
 			injector.mapSingleton(UpdateIsoScenePropertySignal);
 			injector.mapSingleton(IsoSceneStageColorUpdatedSignal);
+			injector.mapSingleton(UpdateLibraryAssetPropertySignal);
+			injector.mapSingleton(UpdateIsoSceneAutoSetWalkableSignal);
+			injector.mapSingleton(UpdateApplicationCurrentFileSignal);
+			injector.mapSingleton(ApplicationCurrentFileUpdatedSignal);
 			
 			//models
 			injector.mapSingleton(SceneModel);
 			injector.mapSingleton(AssetModel);
+			injector.mapSingleton(ApplicationModel);
 			
 			//services
 			injector.mapSingletonOf(ILoadAssetLibrary, LoadAssetLibraryService);
@@ -79,6 +83,9 @@ package la.diversion
 			signalCommandMap.mapSignalClass(UpdateIsoSceneBackgroundPositionSignal, UpdateIsoSceneBackgroundPositionCommand);
 			signalCommandMap.mapSignalClass(ResetIsoSceneBackgroundSignal, ResetIsoSceneBackgroundCommand);
 			signalCommandMap.mapSignalClass(UpdateIsoScenePropertySignal, UpdateIsoScenePropertyCommand);
+			signalCommandMap.mapSignalClass(UpdateLibraryAssetPropertySignal, UpdateLibraryAssetPropertyCommand);
+			signalCommandMap.mapSignalClass(UpdateIsoSceneAutoSetWalkableSignal, UpdateIsoSceneAutoSetWalkableCommand);
+			signalCommandMap.mapSignalClass(UpdateApplicationCurrentFileSignal, UpdateApplicaitonCurrentFileCommand);
 			
 			//mediators
 			mediatorMap.mapView(IsoSceneView,IsoSceneMediator);

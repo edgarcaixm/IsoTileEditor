@@ -29,6 +29,7 @@ package la.diversion.views {
 	
 	import la.diversion.enums.IsoSceneViewModes;
 	import la.diversion.enums.PropertyViewModes;
+	import la.diversion.enums.AutoSetWalkableModes;
 	import la.diversion.models.SceneModel;
 	import la.diversion.models.components.Background;
 	import la.diversion.models.components.GameAsset;
@@ -356,13 +357,13 @@ package la.diversion.views {
 			if(sceneModel.viewMode == IsoSceneViewModes.VIEW_MODE_PLACE_ASSETS){
 				addOnceToSignal( GameAsset(event.target).mouseUp, handleAssetMouseUp);
 				assetStartedDragging.dispatch(event.target);
-				//updatePropertiesViewMode.dispatch(PropertyViewModes.VIEW_MODE_ASSET, event.target);
+				//updatePropertiesViewMode.dispatch(PropertyViewModes.VIEW_MODE_ISOVIEW_ASSET, event.target);
 			}
 		}
 		
 		private function handleAssetMouseUp(event:MouseEvent):void{
 			assetFinishedDragging.dispatch(sceneModel.assetBeingDragged, event);
-			//updatePropertiesViewMode.dispatch(PropertyViewModes.VIEW_MODE_ASSET, sceneModel.assetBeingDragged);
+			//updatePropertiesViewMode.dispatch(PropertyViewModes.VIEW_MODE_ISOVIEW_ASSET, sceneModel.assetBeingDragged);
 		}
 		
 		private function handleAssetRollOver(event:ProxyEvent):void{
@@ -381,7 +382,23 @@ package la.diversion.views {
 		
 		private function handleAssetStartedDragging(asset:GameAsset):void{
 			
+			if(asset.stageCol >= 0 && asset.stageRow >=0  && sceneModel.autoSetWalkable == AutoSetWalkableModes.AUTO_SET){
+				for (var i:int = asset.stageCol; i < (asset.stageCol + asset.cols); i++) {
+					for (var j:int = asset.stageRow ; j < (asset.stageRow + asset.rows); j++) {
+						var tile:Tile = sceneModel.getTile(i,j);
+						updateTileWalkable.dispatch(tile, true);
+					}
+				}
+			}
+			
 			view.highlight.setSize(asset.cols * sceneModel.cellSize, asset.rows * sceneModel.cellSize, 0);
+			if(asset.isInteractive == 1){
+				var interactiveTile:IsoRectangle = new IsoRectangle();
+				interactiveTile.setSize(sceneModel.cellSize, sceneModel.cellSize, 0);
+				interactiveTile.fills = [ new SolidColorFill(0xFFFF00, 1) ];
+				interactiveTile.moveTo(asset.interactiveCol * sceneModel.cellSize, asset.interactiveRow * sceneModel.cellSize,0);
+				view.highlight.addChild(interactiveTile);
+			}
 			view.isoScene.render();
 			
 			view.dragImage = new asset.displayClass as Sprite;
@@ -395,7 +412,7 @@ package la.diversion.views {
 			view.stage.addChild(view.dragImage);
 			
 			addToSignal(view.enterFrame, handleAssetDraggingEnterFrame);
-			updatePropertiesViewMode.dispatch(PropertyViewModes.VIEW_MODE_ASSET, asset);
+			updatePropertiesViewMode.dispatch(PropertyViewModes.VIEW_MODE_ISOVIEW_ASSET, asset);
 		}
 		
 		private function handleAssetDraggingEnterFrame(event:Event):void{
@@ -411,13 +428,26 @@ package la.diversion.views {
 		}
 		
 		private function handleAssetFinishedDragging(asset:GameAsset, event:MouseEvent):void{
+			if(asset.isInteractive == 1){
+				view.highlight.removeAllChildren();
+			}
+			
 			if(_isMouseOverGrid && _isMouseOverThis){
 				asset.setSize(asset.cols * sceneModel.cellSize, asset.rows * sceneModel.cellSize, 64);
 				asset.moveTo(_mouseCol * sceneModel.cellSize, _mouseRow * sceneModel.cellSize, 0);
 				asset.stageCol = _mouseCol;
 				asset.stageRow = _mouseRow;
 				addAssetToScene.dispatch(asset);
-				updatePropertiesViewMode.dispatch(PropertyViewModes.VIEW_MODE_ASSET, asset);
+				updatePropertiesViewMode.dispatch(PropertyViewModes.VIEW_MODE_ISOVIEW_ASSET, asset);
+				
+				if(asset.stageCol >= 0 && asset.stageRow >=0 && sceneModel.autoSetWalkable == AutoSetWalkableModes.AUTO_SET){
+					for (var i:int = asset.stageCol; i < (asset.stageCol + asset.cols); i++) {
+						for (var j:int = asset.stageRow ; j < (asset.stageRow + asset.rows); j++) {
+							var tile:Tile = sceneModel.getTile(i,j);
+							updateTileWalkable.dispatch(tile, false);
+						}
+					}
+				}
 			}else{
 				//cleanup the asset, it has landed off the visible stage
 				asset.cleanup();

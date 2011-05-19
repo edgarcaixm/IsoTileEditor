@@ -12,7 +12,8 @@ package la.diversion.enums
 	public class PropertyViewModes
 	{
 		public static var VIEW_MODE_MAP:String = "viewModeMap";
-		public static var VIEW_MODE_ASSET:String = "viewModeAsset";
+		public static var VIEW_MODE_ISOVIEW_ASSET:String = "viewModeIsoViewAsset";
+		public static var VIEW_MODE_LIBRARY_ASSET:String = "viewModeLibraryAsset";
 		
 		public function PropertyViewModes()
 		{

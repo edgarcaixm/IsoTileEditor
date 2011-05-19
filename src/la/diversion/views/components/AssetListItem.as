@@ -35,6 +35,7 @@ package la.diversion.views.components {
 		
 		public var mouseDown:NativeSignal;
 		public var mouseUp:NativeSignal;
+		public var mouseRollOut:NativeSignal;
 		
 		public function AssetListItem(gameAsset:IAsset, item_width:Number, item_height:Number)
 		{
@@ -91,6 +92,7 @@ package la.diversion.views.components {
 		private function handleAddedToStage(event:Event):void{
 			mouseDown = new NativeSignal(this, MouseEvent.MOUSE_DOWN, MouseEvent);
 			mouseUp = new NativeSignal(stage,MouseEvent.MOUSE_UP, MouseEvent);
+			mouseRollOut = new NativeSignal(this, MouseEvent.ROLL_OUT, MouseEvent);
 		}
 		
 		public function get gameAsset():IAsset{

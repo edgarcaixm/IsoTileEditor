@@ -17,12 +17,16 @@ package la.diversion.views {
 	import flash.filesystem.FileMode;
 	import flash.filesystem.FileStream;
 	
+	import la.diversion.models.ApplicationModel;
 	import la.diversion.models.SceneModel;
 	import la.diversion.models.components.Background;
+	import la.diversion.signals.ApplicationCurrentFileUpdatedSignal;
 	import la.diversion.signals.LoadAssetLibrarySignal;
 	import la.diversion.signals.LoadMapSignal;
 	import la.diversion.signals.ResetIsoSceneBackgroundSignal;
 	import la.diversion.signals.SaveMapSignal;
+	import la.diversion.signals.UpdateApplicationCurrentFileSignal;
+	import la.diversion.signals.UpdateIsoSceneAutoSetWalkableSignal;
 	import la.diversion.signals.UpdateIsoSceneBackgroundSignal;
 	import la.diversion.signals.UpdateIsoSceneViewModeSignal;
 	
@@ -35,6 +39,9 @@ package la.diversion.views {
 		
 		[Inject]
 		public var sceneModel:SceneModel;
+		
+		[Inject]
+		public var applicationModel:ApplicationModel;
 		
 		[Inject]
 		public var saveMap:SaveMapSignal;
@@ -51,15 +58,36 @@ package la.diversion.views {
 		[Inject]
 		public var resetIsoSceneBackground:ResetIsoSceneBackgroundSignal;
 		
+		[Inject]
+		public var updateIsoSceneAutoSetWalkable:UpdateIsoSceneAutoSetWalkableSignal;
+		
+		[Inject]
+		public var updateApplicationCurrentFile:UpdateApplicationCurrentFileSignal;
+		
+		[Inject]
+		public var applicationCurrentFileUpdated:ApplicationCurrentFileUpdatedSignal;
+		
 		override public function onRegister():void{
 			addToSignal(view.eventFileNew, handleFileNew);
 			addToSignal(view.eventFileSave, handleFileSave);
+			addToSignal(view.eventFileSaveAs, handleFileSaveAs);
 			addToSignal(view.eventFileOpen, handleFileOpen);
 			addToSignal(view.eventLoadAssetLibrary, handleLoadAssetLibrary);
 			addToSignal(view.eventUpdateIsoSceneViewMode, handleUpdateIsoSceneViewMode);
 			addToSignal(view.eventResetIsoSceneBackground, hangleResetIsoSceneBackground);
+			addToSignal(view.eventAutoSetToggleWalkable, handleAutoSetToggleWalkable);
 			
 			addOnceToSignal(view.eventAddedToStage, handleAddedToStage);
+			
+			addToSignal(applicationCurrentFileUpdated, handleApplicationCurrentFileUpdated);
+		}
+		
+		private function handleApplicationCurrentFileUpdated(newFile:File):void{
+			view.saveCommand.enabled = true;
+		}
+		
+		private function handleAutoSetToggleWalkable(value:String):void{
+			updateIsoSceneAutoSetWalkable.dispatch(value);
 		}
 		
 		private function handleAddedToStage(event:Event):void{
@@ -70,13 +98,20 @@ package la.diversion.views {
 			//trace("MainMenuMediator handleFileNew");
 		}
 		
-		private function handleFileSave(file:File):void{
-			//trace("MainMenuMediator handleFileSave");
+		private function handleFileSave():void{
+			if(applicationModel.currentFile){
+				saveMap.dispatch(applicationModel.currentFile);
+			}
+		}
+		
+		private function handleFileSaveAs(file:File):void{
 			saveMap.dispatch(file);
+			updateApplicationCurrentFile.dispatch(file);
 		}
 		
 		private function handleFileOpen(file:File):void{
 			loadMap.dispatch(file);
+			updateApplicationCurrentFile.dispatch(file);
 		}
 		
 		private function handleLoadAssetLibrary(file:File):void{

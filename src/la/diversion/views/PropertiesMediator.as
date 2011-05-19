@@ -21,6 +21,7 @@ package la.diversion.views
 	import la.diversion.signals.UpdateApplicationWindowResizeSignal;
 	import la.diversion.signals.UpdateIsoSceneAssetPropertySignal;
 	import la.diversion.signals.UpdateIsoScenePropertySignal;
+	import la.diversion.signals.UpdateLibraryAssetPropertySignal;
 	import la.diversion.signals.UpdateSceneGridSizeSignal;
 	
 	import mx.collections.ArrayCollection;
@@ -59,6 +60,9 @@ package la.diversion.views
 		[Inject]
 		public var isoSceneStageColorUpdated:IsoSceneStageColorUpdatedSignal;
 		
+		[Inject]
+		public var updateLibraryAssetProperty:UpdateLibraryAssetPropertySignal;
+		
 		private var _dataProvider:ArrayCollection
 		private var _asset:GameAsset;
 		
@@ -73,11 +77,6 @@ package la.diversion.views
 			addToSignal(updateApplicationWindowResize, handleUpdateApplicationWindowResize);
 			addToSignal(sceneGridSizeUpdated, handleSceneGridSizeUpdated);
 			addToSignal(isoSceneStageColorUpdated, handleIsoSceneStageColorUpdated);
-			
-			//var gridSize:Object = new Object();
-			//gridSize.cols = SceneModel.DEFAULT_COLS;
-			//gridSize.rows = SceneModel.DEFAULT_ROWS;
-			//updateSceneGridSize.dispatch(gridSize);
 		}
 		
 		private function handleIsoSceneStageColorUpdated(newcolor:uint):void{
@@ -102,12 +101,18 @@ package la.diversion.views
 				update.editProperty = view.propertyGrid.dataProvider.getItemAt(event.rowIndex).editProperty;
 				update.value = view.propertyGrid.dataProvider.getItemAt(event.rowIndex).value;
 				updateIsoSceneProperty.dispatch(update);
-			}else if (sceneModel.viewModeProperties == PropertyViewModes.VIEW_MODE_ASSET){
+			}else if (sceneModel.viewModeProperties == PropertyViewModes.VIEW_MODE_ISOVIEW_ASSET){
 				var assetUpdate:PropertyUpdate = new PropertyUpdate();
 				assetUpdate.id = _asset.id;
 				assetUpdate.editProperty = view.propertyGrid.dataProvider.getItemAt(event.rowIndex).editProperty;
 				assetUpdate.value = view.propertyGrid.dataProvider.getItemAt(event.rowIndex).value;
 				updateIsoSceneAssetProperty.dispatch(assetUpdate);
+			}else if (sceneModel.viewModeProperties == PropertyViewModes.VIEW_MODE_LIBRARY_ASSET){
+				var libraryAssetUpdate:PropertyUpdate = new PropertyUpdate();
+				libraryAssetUpdate.id = _asset.id;
+				libraryAssetUpdate.editProperty = view.propertyGrid.dataProvider.getItemAt(event.rowIndex).editProperty;
+				libraryAssetUpdate.value = view.propertyGrid.dataProvider.getItemAt(event.rowIndex).value;
+				updateLibraryAssetProperty.dispatch(libraryAssetUpdate);
 			}
 		}
 		
@@ -125,8 +130,13 @@ package la.diversion.views
 					view.title = "Map Properties";
 					view.propertyGrid.dataProvider = sceneModel.editProperitiesList;
 					break;
-				case PropertyViewModes.VIEW_MODE_ASSET:
-					view.title = "Asset Properties";
+				case PropertyViewModes.VIEW_MODE_ISOVIEW_ASSET:
+					view.title = "IsoView Asset Properties: " + asset.id;
+					_asset = asset;
+					view.propertyGrid.dataProvider = asset.editProperitiesList;
+					break;
+				case PropertyViewModes.VIEW_MODE_LIBRARY_ASSET:
+					view.title = "Library Asset Properties: " + asset.displayClassId;
 					_asset = asset;
 					view.propertyGrid.dataProvider = asset.editProperitiesList;
 					break;

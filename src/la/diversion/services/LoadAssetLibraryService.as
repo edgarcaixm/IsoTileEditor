@@ -72,7 +72,7 @@ package la.diversion.services {
 				var assetSWF:MovieClip =  _bulkLoader.getMovieClip(file.url);
 				for each(var assetDef:Object in assetSWF.tiles){
 					var tClass:Class = assetSWF.loaderInfo.applicationDomain.getDefinition(assetDef.classRef) as Class;
-					var gameAsset:GameAsset = new GameAsset(assetDef.tileID, tClass, AssetTypes.SPRITE,assetDef.rows, assetDef.cols, assetDef.height, file.name,-1,-1,0, assetDef.classRef);
+					var gameAsset:GameAsset = new GameAsset(assetDef.tileID, tClass, AssetTypes.SPRITE,assetDef.rows, assetDef.cols, assetDef.height, file.name, -1,- 1, 0, 0, 0, assetDef.classRef);
 					addNewLibraryAsset.dispatch(gameAsset);
 				}
 				for each(var bgDef:Object in assetSWF.backgrounds){
@@ -81,7 +81,6 @@ package la.diversion.services {
 					addNewLibraryBackground.dispatch(bg);
 				}
 			}
-			_bulkLoader
 			loadAssetLibraryComplete.dispatch(_files);
 		}
 		

@@ -36,7 +36,7 @@ package la.diversion.models {
 		
 		private var _assetManager:AssetManager = new AssetManager();
 		private var _backgroundManager:AssetManager = new AssetManager();
-		private var _viewMode:String = AssetViewModes.VIEW_MODE_ASSETS;
+		private var _viewMode:String = AssetViewModes.VIEW_MODE_ISOVIEW_ASSETS;
 		
 		public function AssetModel()
 		{
@@ -171,6 +171,13 @@ package la.diversion.models {
 		{
 			_viewMode = value;
 			assetViewModeUpdated.dispatch(value);
+		}
+		
+		public function updateLibraryAssetProperty(assetId:String, assetProperty:String, assetValue:*):void{
+			var asset:GameAsset = getAsset(assetId);
+			if(asset != null){
+				asset[assetProperty] = assetValue;
+			}
 		}
 	}
 }

@@ -147,6 +147,9 @@ package la.diversion.services
 							newAsset.stageCol = savedAsset.stageCol;
 							newAsset.stageRow = savedAsset.stageRow;
 							newAsset.actorId = savedAsset.actorId;
+							newAsset.isInteractive = savedAsset.isInteractive;
+							newAsset.interactiveCol = savedAsset.interactiveCol;
+							newAsset.interactiveRow = savedAsset.interactiveRow;
 							sceneModel.addAsset(newAsset);
 						}else{
 							trace("error loading asset: " + savedAsset.displayClassId);

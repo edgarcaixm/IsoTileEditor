@@ -15,6 +15,7 @@ package la.diversion.views {
 	import flash.events.Event;
 	import flash.filesystem.File;
 	
+	import la.diversion.enums.AutoSetWalkableModes;
 	import la.diversion.enums.IsoSceneViewModes;
 	import la.diversion.models.components.Background;
 	
@@ -28,54 +29,58 @@ package la.diversion.views {
 		//PUBLIC VARS
 		public var eventAddedToStage:NativeSignal;
 		public var file:File;
+		public var saveCommand:NativeMenuItem;
 		
 		//SIGNALS
 		private var _eventFileSave:Signal;
+		private var _eventFileSaveAs:Signal;
 		private var _eventFileOpen:Signal;
 		private var _eventFileNew:Signal;
 		private var _eventLoadAssetLibrary:Signal;
 		private var _eventUpdateIsoSceneViewMode:Signal;
 		private var _eventResetIsoSceneBackground:Signal;
+		private var _eventAutoSetToggleWalkable:Signal;
 		
 		//PRIVATE VARS
 		private var _isoViewModeCommands:Array = new Array();
 		
-		public function MainMenuView()
-		{
+		public function MainMenuView(){
 			super();
 			
 			eventAddedToStage = new NativeSignal(this, Event.ADDED_TO_STAGE, Event);
 			eventAddedToStage.addOnce(init);
 		}
 		
-		public function get eventFileNew():Signal
-		{
+		public function get eventFileNew():Signal{
 			return _eventFileNew ||= new Signal();
 		}
 
-		public function get eventFileSave():Signal
-		{
+		public function get eventFileSave():Signal{
 			return _eventFileSave ||= new Signal();
 		}
+		
+		public function get eventFileSaveAs():Signal{
+			return _eventFileSaveAs ||= new Signal();
+		}
 
-		public function get eventFileOpen():Signal
-		{
+		public function get eventFileOpen():Signal{
 			return _eventFileOpen ||= new Signal();
 		}
 		
-		public function get eventLoadAssetLibrary():Signal
-		{
+		public function get eventLoadAssetLibrary():Signal{
 			return _eventLoadAssetLibrary ||= new Signal();
 		}
 
-		public function get eventUpdateIsoSceneViewMode():Signal
-		{
+		public function get eventUpdateIsoSceneViewMode():Signal{
 			return _eventUpdateIsoSceneViewMode ||= new Signal();
 		}
 
-		public function get eventResetIsoSceneBackground():Signal
-		{
+		public function get eventResetIsoSceneBackground():Signal{
 			return _eventResetIsoSceneBackground ||= new Signal();
+		}
+		
+		public function get eventAutoSetToggleWalkable():Signal{
+			return _eventAutoSetToggleWalkable ||= new Signal();
 		}
 
 		public function init(e:Event = null):void {
@@ -145,15 +150,24 @@ package la.diversion.views {
 		public function createFileMenu(fileMenu:NativeMenuItem):void {
 			var command:NativeMenuItem = fileMenu.submenu.addItem(new NativeMenuItem("", true));
 			
+			//TODO - new map support
 			//command = fileMenu.submenu.addItem(new NativeMenuItem("New Map"));
 			//command.addEventListener(Event.SELECT, selectCommand);
+			
 			command = fileMenu.submenu.addItem(new NativeMenuItem("Open Map..."));
+			command.keyEquivalent = "o";
 			command.addEventListener(Event.SELECT, selectCommand);
-			command = fileMenu.submenu.addItem(new NativeMenuItem("Save Map"));
+			saveCommand = fileMenu.submenu.addItem(new NativeMenuItem("Save Map"));
+			saveCommand.keyEquivalent = "s";
+			saveCommand.enabled = false;
+			saveCommand.addEventListener(Event.SELECT, selectCommand);
+			command = fileMenu.submenu.addItem(new NativeMenuItem("Save Map As..."));
+			command.keyEquivalent = "S";
 			command.addEventListener(Event.SELECT, selectCommand);
 			
 			command = fileMenu.submenu.addItem(new NativeMenuItem("", true));
 			command = fileMenu.submenu.addItem(new NativeMenuItem("Load Asset Library"));
+			command.keyEquivalent = "l";
 			command.addEventListener(Event.SELECT, selectCommand);
 		}
 		
@@ -182,20 +196,31 @@ package la.diversion.views {
 			
 			command = menu.submenu.addItem(new NativeMenuItem("Mode: Asset Placement"));
 			command.addEventListener(Event.SELECT, selectCommand);
+			command.keyEquivalent = "p";
 			command.checked = true;
 			_isoViewModeCommands.push(command);
 			
 			command = menu.submenu.addItem(new NativeMenuItem("Mode: Set Walkable Tiles"));
 			command.addEventListener(Event.SELECT, selectCommand);
+			command.keyEquivalent = "t";
 			_isoViewModeCommands.push(command);
 			
 			command = menu.submenu.addItem(new NativeMenuItem("Mode: Move Background"));
 			command.addEventListener(Event.SELECT, selectCommand);
+			command.keyEquivalent = "b";
 			_isoViewModeCommands.push(command);
 			
 			command = menu.submenu.addItem(new NativeMenuItem("", true));
 			
 			command = menu.submenu.addItem(new NativeMenuItem("Reset Background Image"));
+			command.keyEquivalent = "B";
+			command.addEventListener(Event.SELECT, selectCommand);
+			
+			command = menu.submenu.addItem(new NativeMenuItem("", true));
+			
+			command = menu.submenu.addItem(new NativeMenuItem("Auto Set Walkable"));
+			command.checked = true;
+			command.keyEquivalent = "T";
 			command.addEventListener(Event.SELECT, selectCommand);
 		}
 		
@@ -204,10 +229,12 @@ package la.diversion.views {
 			trace("Selected command: " + event.target.label);
 			switch (event.target.label) {
 				case "Save Map":
+					eventFileSave.dispatch();
+					break;
+				case "Save Map As...":
 					file = new File();
-					file.addEventListener(Event.SELECT, onSave);
+					file.addEventListener(Event.SELECT, onSaveAs);
 					file.browseForSave("Save Scene");
-					//eventFileSave.dispatch();
 					break;
 				case "Open Map...":
 					file = new File();
@@ -244,6 +271,16 @@ package la.diversion.views {
 					break;
 				case "Reset Background Image":
 					eventResetIsoSceneBackground.dispatch();
+					break;
+				case "Auto Set Walkable":
+					if(event.target.checked){
+						eventAutoSetToggleWalkable.dispatch(AutoSetWalkableModes.DO_NOT_AUTO_SET);
+						event.target.checked = false;
+					}else{
+						eventAutoSetToggleWalkable.dispatch(AutoSetWalkableModes.AUTO_SET);
+						event.target.checked = true;
+					}
+					break;
 				default:
 					break;
 			}
@@ -256,9 +293,9 @@ package la.diversion.views {
 			}
 		}
 		
-		private function onSave(event:Event):void{
-			file.removeEventListener(Event.SELECT, onSave);
-			eventFileSave.dispatch(file);
+		private function onSaveAs(event:Event):void{
+			file.removeEventListener(Event.SELECT, onSaveAs);
+			eventFileSaveAs.dispatch(file);
 		}
 		
 		private function onOpen(event:Event):void{

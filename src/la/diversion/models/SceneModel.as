@@ -17,6 +17,7 @@ package la.diversion.models {
 	
 	import la.diversion.enums.IsoSceneViewModes;
 	import la.diversion.enums.PropertyViewModes;
+	import la.diversion.enums.AutoSetWalkableModes;
 	import la.diversion.models.components.AssetManager;
 	import la.diversion.models.components.Background;
 	import la.diversion.models.components.GameAsset;
@@ -93,6 +94,7 @@ package la.diversion.models {
 		private var _background:Background = null;
 		private var _stageColor:uint = 0x000000;
 		private var _editProperitiesList:ArrayCollection;
+		private var _autoSetWalkable:String;
 		
 		public function SceneModel() {
 			super();
@@ -100,6 +102,7 @@ package la.diversion.models {
 			// Default Mode
 			_viewMode = IsoSceneViewModes.VIEW_MODE_PLACE_ASSETS;
 			_viewModeProperties = PropertyViewModes.VIEW_MODE_MAP;
+			_autoSetWalkable = AutoSetWalkableModes.AUTO_SET;
 			
 			//default grid
 			_grid = new Array(DEFAULT_COLS);
@@ -113,6 +116,14 @@ package la.diversion.models {
 			}
 		}
 		
+		public function get autoSetWalkable():String {
+			return _autoSetWalkable;
+		}
+
+		public function set autoSetWalkable(value:String):void {
+			_autoSetWalkable = value;
+		}
+
 		public function get stageColor():uint {
 			return _stageColor;
 		}

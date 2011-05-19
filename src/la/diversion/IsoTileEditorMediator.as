@@ -48,9 +48,9 @@ package la.diversion {
 		private function handleTabBarItemClick(event:ItemClickEvent):void{
 			trace(event.label);
 			switch(event.label) {
-				//case AssetViewModes.VIEW_MODE_ASSETS:
+				//case AssetViewModes.VIEW_MODE_ISOVIEW_ASSETS:
 				case "Assets":
-					updateAssetViewMode.dispatch(AssetViewModes.VIEW_MODE_ASSETS);
+					updateAssetViewMode.dispatch(AssetViewModes.VIEW_MODE_ISOVIEW_ASSETS);
 					break;
 				//case AssetViewModes.VIEW_MODE_BACKGROUNDS:
 				case "Backgrounds":

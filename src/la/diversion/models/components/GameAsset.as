@@ -37,6 +37,8 @@ package la.diversion.models.components {
 		private var _stage:DisplayObject;
 		private var _fileUrl:String;
 		private var _isInteractive:int;
+		private var _interactiveRow:int;
+		private var _interactiveCol:int;
 		private var _editProperitiesList:ArrayCollection;
 		private var _actorId:String;
 		private var _classRef:String;
@@ -47,7 +49,20 @@ package la.diversion.models.components {
 		public var rollOver:NativeSignal;
 		public var rollOut:NativeSignal;
 		
-		public function GameAsset(displayClassId:String, displayClass:Class, displayClassType:String, rows:int, cols:int, height:Number, fileUrl:String = "", stageRow:int = -1, stageCol:int = -1, isInteractive:int = 0, classRef:String = "", descriptor:Object = null){
+		public function GameAsset(displayClassId:String, 
+								  displayClass:Class, 
+								  displayClassType:String, 
+								  rows:int, 
+								  cols:int, 
+								  height:Number, 
+								  fileUrl:String = "", 
+								  stageRow:int = -1, 
+								  stageCol:int = -1, 
+								  isInteractive:int = 0, 
+								  interactiveCol:int = 0,
+								  interactiveRow:int = 0,
+								  classRef:String = "", 
+								  descriptor:Object = null){
 			super(descriptor);
 			this._displayClassId = displayClassId;
 			this._actorId = id;
@@ -62,6 +77,8 @@ package la.diversion.models.components {
 			this.sprites = [displayClass];
 			this._fileUrl = fileUrl;
 			this._isInteractive = isInteractive;
+			this._interactiveCol = interactiveCol;
+			this._interactiveRow = interactiveRow;
 			this._classRef = classRef;
 			
 			_addedToStage = new NativeSignal(this, Event.ADDED_TO_STAGE, Event);
@@ -71,6 +88,22 @@ package la.diversion.models.components {
 			rollOut = new NativeSignal(this, MouseEvent.ROLL_OUT, ProxyEvent);
 		}
 		
+		public function get interactiveCol():int {
+			return _interactiveCol;
+		}
+
+		public function set interactiveCol(value:int):void {
+			_interactiveCol = value;
+		}
+
+		public function get interactiveRow():int {
+			return _interactiveRow;
+		}
+
+		public function set interactiveRow(value:int):void {
+			_interactiveRow = value;
+		}
+
 		public function get classRef():String {
 			return _classRef;
 		}
@@ -106,12 +139,15 @@ package la.diversion.models.components {
 		public function get editProperitiesList():ArrayCollection {
 			_editProperitiesList = new ArrayCollection([
 				{property:"Id", value:this.id, canEdit:false, editProperty:""},
+				{property:"DisplayClassId", value:this.displayClassId, canEdit:false, editProperty:""},
 				{property:"Cols", value:this.cols, canEdit:true, editProperty:"cols"},
 				{property:"Rows", value:this.rows, canEdit:true, editProperty:"rows"},
 				{property:"Height", value:this.height, canEdit:true, editProperty:"height"},
 				{property:"Stage Col", value:this.stageCol, canEdit:false, editProperty:"stageCol"},
 				{property:"Stage Row", value:this.stageRow, canEdit:false, editProperty:"stageRow"},
 				{property:"Is Interactive", value:this.isInteractive, canEdit:true, editProperty:"isInteractive"},			
+				{property:"Interactive Col", value:this.interactiveCol, canEdit:true, editProperty:"interactiveCol"},			
+				{property:"Interactive Row", value:this.interactiveRow, canEdit:true, editProperty:"interactiveRow"},			
 				{property:"Actor Id", value:this.actorId, canEdit:true, editProperty:"actorId"}				
 			]); 
 			return _editProperitiesList;
@@ -202,13 +238,15 @@ package la.diversion.models.components {
 			result.fileUrl = _fileUrl;
 			result.id = this.id;
 			result.isInteractive = _isInteractive;
+			result.interactiveCol = _interactiveCol;
+			result.interactiveRow = _interactiveRow;
 			result.actorId = _actorId;
 			result.classRef = _classRef;
 			return DiversionJSON.encode(result);
 		}
 		
 		override public function clone():*{
-			return new GameAsset(_displayClassId, _displayClass, _displayClassType, _rows, _cols, height, _fileUrl, _stageRow, _stageCol, _isInteractive, _classRef, _descriptor);
+			return new GameAsset(_displayClassId, _displayClass, _displayClassType, _rows, _cols, height, _fileUrl, _stageRow, _stageCol, _isInteractive, _interactiveCol, _interactiveRow, _classRef, _descriptor);
 		}
 	}
 }
