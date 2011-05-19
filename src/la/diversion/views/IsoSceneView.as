@@ -67,9 +67,6 @@ package la.diversion.views {
 			
 			//background blue sprite
 			bg = new Sprite();
-			bg.graphics.beginFill(0x00FFFF);
-			bg.graphics.drawRect(0,0,760,760);
-			bg.graphics.endFill();
 			this.addChildAt(bg,0);
 			
 			//row, col position

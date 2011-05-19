@@ -127,6 +127,9 @@ package la.diversion.services
 				if(_map.sceneModel.position){
 					sceneModel.position = new Point(_map.sceneModel.position.x, _map.sceneModel.position.y);
 				}
+				if(_map.sceneModel.stageColor){
+					sceneModel.stageColor = uint(_map.sceneModel.stageColor);
+				}
 				
 				if(_map.sceneModel.unwalkableGridTiles){
 					for each(var tile:Object in _map.sceneModel.unwalkableGridTiles){

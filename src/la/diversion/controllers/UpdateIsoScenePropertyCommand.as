@@ -3,18 +3,18 @@
  * Copyright (c) 2011 Diversion, Inc.
  *
  * Authors: jobelloyd
- * Created: May 9, 2011
+ * Created: May 17, 2011
  *
  */
 
 package la.diversion.controllers
 {
+	import org.robotlegs.mvcs.SignalCommand;
+	
 	import la.diversion.models.SceneModel;
 	import la.diversion.models.components.PropertyUpdate;
 	
-	import org.robotlegs.mvcs.SignalCommand;
-	
-	public class UpdateIsoSceneAssetPropertyCommand extends SignalCommand
+	public class UpdateIsoScenePropertyCommand extends SignalCommand
 	{
 		[Inject]
 		public var update:PropertyUpdate;
@@ -23,7 +23,7 @@ package la.diversion.controllers
 		public var model:SceneModel;
 		
 		override public function execute():void{
-			model.updateSceneAssetProperty(update.id, update.editProperty, update.value);
+			model.updateSceneProperty(update.editProperty, update.value);
 		}
 	}
 }
