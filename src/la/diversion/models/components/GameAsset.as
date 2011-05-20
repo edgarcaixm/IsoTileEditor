@@ -46,6 +46,7 @@ package la.diversion.models.components {
 		private var _addedToStage:NativeSignal;
 		public var mouseDown:NativeSignal;
 		public var mouseUp:NativeSignal;
+		public var mouseMove:NativeSignal;
 		public var rollOver:NativeSignal;
 		public var rollOut:NativeSignal;
 		
@@ -84,6 +85,7 @@ package la.diversion.models.components {
 			_addedToStage = new NativeSignal(this, Event.ADDED_TO_STAGE, Event);
 			_addedToStage.add(handleAddedToStage);
 			mouseDown = new NativeSignal(this, MouseEvent.MOUSE_DOWN, ProxyEvent);
+			mouseMove = new NativeSignal(this, MouseEvent.MOUSE_MOVE, ProxyEvent);
 			rollOver = new NativeSignal(this, MouseEvent.ROLL_OVER, ProxyEvent);
 			rollOut = new NativeSignal(this, MouseEvent.ROLL_OUT, ProxyEvent);
 		}
