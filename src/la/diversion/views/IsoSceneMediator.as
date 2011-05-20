@@ -27,9 +27,9 @@ package la.diversion.views {
 	import flash.filters.GlowFilter;
 	import flash.geom.Point;
 	
+	import la.diversion.enums.AutoSetWalkableModes;
 	import la.diversion.enums.IsoSceneViewModes;
 	import la.diversion.enums.PropertyViewModes;
-	import la.diversion.enums.AutoSetWalkableModes;
 	import la.diversion.models.SceneModel;
 	import la.diversion.models.components.Background;
 	import la.diversion.models.components.GameAsset;
@@ -118,6 +118,8 @@ package la.diversion.views {
 		private var _isMouseOverGrid:Boolean = false;
 		private var _isMouseOverThis:Boolean = false;
 		private var _zoomFactor:Number = 1;
+		private var _assetMove:GameAsset;
+		private var _assetMovePoint:Point;
 		
 		override public function onRegister():void{
 			makeGrid();
@@ -355,15 +357,30 @@ package la.diversion.views {
 		
 		private function handleAssetMouseDown(event:ProxyEvent):void{
 			if(sceneModel.viewMode == IsoSceneViewModes.VIEW_MODE_PLACE_ASSETS){
-				addOnceToSignal( GameAsset(event.target).mouseUp, handleAssetMouseUp);
-				assetStartedDragging.dispatch(event.target);
-				//updatePropertiesViewMode.dispatch(PropertyViewModes.VIEW_MODE_ISOVIEW_ASSET, event.target);
+				_assetMove = GameAsset(event.target);
+				_assetMovePoint = new Point(MouseEvent(event.targetEvent).stageX, MouseEvent(event.targetEvent).stageY);
+				
+				addToSignal(view.stageMouseEventMouseMove, handleAssetMouseMove);
+				addOnceToSignal(view.stageMouseEventMouseUp, handleAssetMouseUpNoDrag);
+				updatePropertiesViewMode.dispatch(PropertyViewModes.VIEW_MODE_ISOVIEW_ASSET, _assetMove);
 			}
 		}
 		
+		private function handleAssetMouseMove(event:MouseEvent):void{
+			if (Math.abs(_assetMovePoint.x - event.stageX) > 5 || Math.abs(_assetMovePoint.y - event.stageY) > 5){
+				this.signalMap.removeFromSignal( view.stageMouseEventMouseMove, handleAssetMouseMove);
+				this.signalMap.removeFromSignal( view.stageMouseEventMouseUp, handleAssetMouseUpNoDrag);
+				addOnceToSignal( _assetMove.mouseUp, handleAssetMouseUp);
+				assetStartedDragging.dispatch(_assetMove);
+			}
+		}
+		
+		private function handleAssetMouseUpNoDrag(event:MouseEvent):void{
+			this.signalMap.removeFromSignal( view.stageMouseEventMouseMove, handleAssetMouseMove);
+		}
+		
 		private function handleAssetMouseUp(event:MouseEvent):void{
-			assetFinishedDragging.dispatch(sceneModel.assetBeingDragged, event);
-			//updatePropertiesViewMode.dispatch(PropertyViewModes.VIEW_MODE_ISOVIEW_ASSET, sceneModel.assetBeingDragged);
+			assetFinishedDragging.dispatch(_assetMove, event);
 		}
 		
 		private function handleAssetRollOver(event:ProxyEvent):void{
@@ -381,7 +398,6 @@ package la.diversion.views {
 		}
 		
 		private function handleAssetStartedDragging(asset:GameAsset):void{
-			
 			if(asset.stageCol >= 0 && asset.stageRow >=0  && sceneModel.autoSetWalkable == AutoSetWalkableModes.AUTO_SET){
 				for (var i:int = asset.stageCol; i < (asset.stageCol + asset.cols); i++) {
 					for (var j:int = asset.stageRow ; j < (asset.stageRow + asset.rows); j++) {
