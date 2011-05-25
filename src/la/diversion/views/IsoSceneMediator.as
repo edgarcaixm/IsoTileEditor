@@ -22,6 +22,7 @@ package la.diversion.views {
 	import eDpLib.events.ProxyEvent;
 	
 	import flash.display.Sprite;
+	import flash.display.MovieClip;
 	import flash.events.Event;
 	import flash.events.MouseEvent;
 	import flash.filters.GlowFilter;
@@ -120,6 +121,7 @@ package la.diversion.views {
 		private var _zoomFactor:Number = 1;
 		private var _assetMove:GameAsset;
 		private var _assetMovePoint:Point;
+		private var _highlightIsLocked:Boolean = false;
 		
 		override public function onRegister():void{
 			makeGrid();
@@ -264,9 +266,11 @@ package la.diversion.views {
 				}
 				
 				_isMouseOverGrid = true;
-				view.highlight.container.visible = true;
-				view.highlight.moveTo(_mouseCol * sceneModel.cellSize, _mouseRow * sceneModel.cellSize,0);
-				view.isoScene.render();
+				if (!_highlightIsLocked){
+					view.highlight.container.visible = true;
+					view.highlight.moveTo(_mouseCol * sceneModel.cellSize, _mouseRow * sceneModel.cellSize,0);
+					view.isoScene.render();
+				}
 				if(_isMouseOverThis){
 					view.colRowText.text = String(_mouseCol) + "\n" + String(_mouseRow);
 				}else{
@@ -363,11 +367,26 @@ package la.diversion.views {
 				addToSignal(view.stageMouseEventMouseMove, handleAssetMouseMove);
 				addOnceToSignal(view.stageMouseEventMouseUp, handleAssetMouseUpNoDrag);
 				updatePropertiesViewMode.dispatch(PropertyViewModes.VIEW_MODE_ISOVIEW_ASSET, _assetMove);
+				
+				_highlightIsLocked = true;
+				view.highlight.setSize(_assetMove.cols * sceneModel.cellSize, _assetMove.rows * sceneModel.cellSize, 0);
+				view.highlight.moveTo(_assetMove.stageCol * sceneModel.cellSize, _assetMove.stageRow * sceneModel.cellSize, 0);
+				if(_assetMove.isInteractive == 1){
+					var interactiveTile:IsoRectangle = new IsoRectangle();
+					interactiveTile.setSize(sceneModel.cellSize, sceneModel.cellSize, 0);
+					interactiveTile.fills = [ new SolidColorFill(0xFFFF00, 1) ];
+					interactiveTile.moveTo(_assetMove.interactiveCol * sceneModel.cellSize, _assetMove.interactiveRow * sceneModel.cellSize,0);
+					view.highlight.addChild(interactiveTile);
+				}
+				view.isoScene.render();
 			}
 		}
 		
 		private function handleAssetMouseMove(event:MouseEvent):void{
 			if (Math.abs(_assetMovePoint.x - event.stageX) > 5 || Math.abs(_assetMovePoint.y - event.stageY) > 5){
+				_highlightIsLocked = false;
+				view.highlight.moveTo(_mouseCol * sceneModel.cellSize, _mouseRow * sceneModel.cellSize,0);
+				view.isoScene.render();
 				this.signalMap.removeFromSignal( view.stageMouseEventMouseMove, handleAssetMouseMove);
 				this.signalMap.removeFromSignal( view.stageMouseEventMouseUp, handleAssetMouseUpNoDrag);
 				addOnceToSignal( _assetMove.mouseUp, handleAssetMouseUp);
@@ -377,6 +396,15 @@ package la.diversion.views {
 		
 		private function handleAssetMouseUpNoDrag(event:MouseEvent):void{
 			this.signalMap.removeFromSignal( view.stageMouseEventMouseMove, handleAssetMouseMove);
+			
+			if(_assetMove.isInteractive == 1){
+				view.highlight.removeAllChildren();
+			}
+			_assetMove = null;
+			_highlightIsLocked = false;
+			view.highlight.moveTo(_mouseCol * sceneModel.cellSize, _mouseRow * sceneModel.cellSize,0);
+			view.highlight.setSize(sceneModel.cellSize,sceneModel.cellSize,0);
+			view.isoScene.render();
 		}
 		
 		private function handleAssetMouseUp(event:MouseEvent):void{
@@ -407,6 +435,7 @@ package la.diversion.views {
 				}
 			}
 			
+			/*
 			view.highlight.setSize(asset.cols * sceneModel.cellSize, asset.rows * sceneModel.cellSize, 0);
 			if(asset.isInteractive == 1){
 				var interactiveTile:IsoRectangle = new IsoRectangle();
@@ -416,6 +445,7 @@ package la.diversion.views {
 				view.highlight.addChild(interactiveTile);
 			}
 			view.isoScene.render();
+			*/
 			
 			view.dragImage = new asset.displayClass as Sprite;
 			view.dragImage.mouseEnabled = false;
