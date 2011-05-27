@@ -19,6 +19,8 @@ package la.diversion.services {
 	
 	import org.robotlegs.mvcs.Actor;
 	
+	import mx.controls.Alert;
+	
 	public class SaveMapService extends Actor implements ISaveMap {
 		
 		[Inject]
@@ -39,10 +41,13 @@ package la.diversion.services {
 			save.sceneModel = sceneModel;
 			
 			var fileStream:FileStream = new FileStream();
-			fileStream.open(file, FileMode.WRITE);
-			//fileStream.writeUTFBytes(sceneModel.encodeJSON());
-			fileStream.writeUTFBytes(DiversionJSON.encode(save));
-			fileStream.close();
+			try{
+				fileStream.open(file, FileMode.WRITE);
+				fileStream.writeUTFBytes(DiversionJSON.encode(save));
+				fileStream.close();
+			}catch(e:Error){
+				Alert.show(e.toString(),"Error Saving Asset File",Alert.OK);
+			}
 		}
 	}
 }

@@ -43,6 +43,7 @@
 	</fx:Script>
 	<s:DataGrid id="propertyGrid" 
 				width="100%" 
+				height="100%"
 				editable="true"
 				gridItemEditorSessionSave="handleGridItemEditorSessionSave(event)" 
 				gridItemEditorSessionStarting="handleGridItemEditorSessionStarting(event)"

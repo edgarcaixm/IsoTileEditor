@@ -71,7 +71,7 @@ package la.diversion.services
 			}
 			_assetFiles = new Array();
 			var loadedFiles:Dictionary = new Dictionary();
-			if(_map.assetModel && _map.assetModel.assetManager){
+			if(_map && _map.assetModel && _map.assetModel.assetManager){
 				//load assets
 				for each(var asset:Object in _map.assetModel.assetManager){
 					if(!loadedFiles[asset.fileUrl]){
@@ -80,8 +80,11 @@ package la.diversion.services
 						loadedFiles[asset.fileUrl] = true;
 					}
 				}
+			}else{
+				Alert.show("Unable to parse map assets list.","Error Loading Map File",Alert.OK);
+				return;
 			}
-			if(_map.assetModel && _map.assetModel.backgroundManager){
+			if(_map && _map.assetModel && _map.assetModel.backgroundManager){
 				//load backgrounds
 				for each(var bg:Object in _map.assetModel.backgroundManager){
 					if(!loadedFiles[bg.fileUrl]){
@@ -90,6 +93,9 @@ package la.diversion.services
 						loadedFiles[bg.fileUrl] = true;
 					}
 				}
+			}else{
+				Alert.show("Unable to parse map backgrounds list.","Error Loading Map File",Alert.OK);
+				return;
 			}
 			
 			if(_assetFiles.length > 0){
