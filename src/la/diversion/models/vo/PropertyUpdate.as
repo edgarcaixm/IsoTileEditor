@@ -7,7 +7,7 @@
  *
  */
 
-package la.diversion.models.components
+package la.diversion.models.vo
 {
 	public class PropertyUpdate
 	{

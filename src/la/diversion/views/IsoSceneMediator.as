@@ -21,21 +21,27 @@ package la.diversion.views {
 	
 	import eDpLib.events.ProxyEvent;
 	
-	import flash.display.Sprite;
+	import flash.display.Bitmap;
 	import flash.display.MovieClip;
+	import flash.display.Sprite;
 	import flash.events.Event;
 	import flash.events.MouseEvent;
 	import flash.filters.GlowFilter;
 	import flash.geom.Point;
+	import flash.text.TextField;
+	import flash.text.TextFormat;
 	
+	import la.diversion.enums.AssetTypes;
 	import la.diversion.enums.AutoSetWalkableModes;
 	import la.diversion.enums.IsoSceneViewModes;
 	import la.diversion.enums.PropertyViewModes;
 	import la.diversion.models.SceneModel;
-	import la.diversion.models.components.Background;
-	import la.diversion.models.components.GameAsset;
-	import la.diversion.models.components.Tile;
+	import la.diversion.models.vo.Background;
+	import la.diversion.models.vo.MapAsset;
+	import la.diversion.models.vo.SpriteSheet;
+	import la.diversion.models.vo.Tile;
 	import la.diversion.signals.AddAssetToSceneSignal;
+	import la.diversion.signals.AddMapAssetPathingPointSignal;
 	import la.diversion.signals.AssetAddedToSceneSignal;
 	import la.diversion.signals.AssetFinishedDraggingSignal;
 	import la.diversion.signals.AssetRemovedFromSceneSignal;
@@ -44,10 +50,14 @@ package la.diversion.views {
 	import la.diversion.signals.IsoSceneBackgroundUpdatedSignal;
 	import la.diversion.signals.IsoSceneStageColorUpdatedSignal;
 	import la.diversion.signals.IsoSceneViewModeUpdatedSignal;
+	import la.diversion.signals.MapAssetPathingPointsUpdatedSignal;
+	import la.diversion.signals.PropertiesViewModeUpdatedSignal;
+	import la.diversion.signals.RemoveMapAssetPathingPointSignal;
 	import la.diversion.signals.SceneGridSizeUpdatedSignal;
 	import la.diversion.signals.TileWalkableUpdatedSignal;
 	import la.diversion.signals.UpdateApplicationWindowResizeSignal;
 	import la.diversion.signals.UpdateIsoSceneBackgroundPositionSignal;
+	import la.diversion.signals.UpdateIsoSceneViewModeSignal;
 	import la.diversion.signals.UpdatePropertiesViewModeSignal;
 	import la.diversion.signals.UpdateTileWalkableSignal;
 	
@@ -62,6 +72,9 @@ package la.diversion.views {
 		
 		[Inject]
 		public var sceneModel:SceneModel;
+		
+		[Inject]
+		public var updateIsoSceneViewMode:UpdateIsoSceneViewModeSignal;
 		
 		[Inject]
 		public var isoSceneViewModeUpdated:IsoSceneViewModeUpdatedSignal;
@@ -97,6 +110,9 @@ package la.diversion.views {
 		public var updatePropertiesViewMode:UpdatePropertiesViewModeSignal;
 		
 		[Inject]
+		public var propertiesViewModeUpdated:PropertiesViewModeUpdatedSignal;
+		
+		[Inject]
 		public var updateIsoSceneBackgroundPosition:UpdateIsoSceneBackgroundPositionSignal;
 		
 		[Inject]
@@ -107,6 +123,15 @@ package la.diversion.views {
 		
 		[Inject]
 		public var isoSceneStageColorUpdated:IsoSceneStageColorUpdatedSignal;
+		
+		[Inject]
+		public var addMapAssetPathingPoint:AddMapAssetPathingPointSignal;
+		
+		[Inject]
+		public var removeMapAssetPathingPoint:RemoveMapAssetPathingPointSignal;
+		
+		[Inject]
+		public var mapAssetPathingPointsUpdated:MapAssetPathingPointsUpdatedSignal;
 		
 		private var _isPanning:Boolean = false;
 		private var _isMovingBackground:Boolean = false;
@@ -119,9 +144,10 @@ package la.diversion.views {
 		private var _isMouseOverGrid:Boolean = false;
 		private var _isMouseOverThis:Boolean = false;
 		private var _zoomFactor:Number = 1;
-		private var _assetMove:GameAsset;
-		private var _assetMovePoint:Point;
+		private var _assetSelected:MapAsset;
+		private var _assetSelectedMovePoint:Point;
 		private var _highlightIsLocked:Boolean = false;
+		private var _pathingHighlights:Array = [];
 		
 		override public function onRegister():void{
 			makeGrid();
@@ -137,10 +163,17 @@ package la.diversion.views {
 			addToSignal(isoSceneBackgroundReset, handleIsoSceneBackgroundReset);
 			addToSignal(updateApplicationWindowResize, handleUpdateApplicationWindowResize);
 			addToSignal(isoSceneStageColorUpdated, handleIsoSceneStageColorUpdated);
+			addToSignal(mapAssetPathingPointsUpdated, handleMapAssetPathingPointsUpdated);
+			addToSignal(propertiesViewModeUpdated, handlePropertiesViewModeUpdated);
 			
 			addToSignal(view.addedToStage, handleThisAddedToStage);
 			addToSignal(view.thisMouseEventRollOut, handleThisMouseEventRollOut);
 			addToSignal(view.thisMouseEventRollOver, handleThisMouseEventRollOver);
+			addToSignal(view.enterFrame, handleEnterFrame);
+		}
+		
+		private function handleEnterFrame(event:Event):void{
+			view.isoScene.render();
 		}
 		
 		private function handleIsoSceneStageColorUpdated(newColor:uint):void{
@@ -344,63 +377,89 @@ package la.diversion.views {
 				}else{
 					updateTileWalkable.dispatch(tile, true);
 				}
+			}else if(_isMouseOverGrid 
+				&& _isMouseOverThis 
+				&& _assetSelected
+				&& sceneModel.viewMode  == IsoSceneViewModes.VIEW_MODE_EDIT_PATH
+				&& sceneModel.viewModeProperties == PropertyViewModes.VIEW_MODE_ISOVIEW_ASSET){
+				for each(var pt:Point in _assetSelected.pathingPoints){
+					if(pt.x == _mouseCol && pt.y == _mouseRow){
+						removeMapAssetPathingPoint.dispatch(_assetSelected, pt);
+						return;
+					}
+				}
+				addMapAssetPathingPoint.dispatch(_assetSelected, new Point(_mouseCol,_mouseRow));
 			}else if(!_isMouseOverGrid && _isMouseOverThis){
 				//click outside the grid, set properties panel to map
-				var dummyAsset:GameAsset = new GameAsset("dummyAsset", GameAsset,"dummyAsset",0,0,0);
+				var dummyAsset:MapAsset = new MapAsset("dummyAsset", MapAsset,"dummyAsset",0,0,0);
 				updatePropertiesViewMode.dispatch(PropertyViewModes.VIEW_MODE_MAP, dummyAsset);
+				_assetSelected = null;
+				
+				if(sceneModel.viewMode == IsoSceneViewModes.VIEW_MODE_EDIT_PATH){
+					updateIsoSceneViewMode.dispatch(IsoSceneViewModes.VIEW_MODE_PLACE_ASSETS);
+				}
 			}
 		}
 		
-		private function handleAssetAddedToScene(asset:GameAsset):void{
+		private function handleAssetAddedToScene(asset:MapAsset):void{
 			addToSignal(asset.mouseDown, handleAssetMouseDown);
 			addToSignal(asset.rollOver, handleAssetRollOver);
 			addToSignal(asset.rollOut, handleAssetRollOut);
 			view.isoScene.addChild(asset);
 			view.isoScene.render();
+			if(asset.displayClassType == AssetTypes.SPRITE_SHEET){
+				asset.spriteSheet.action();
+			}else if(asset.displayClassType == AssetTypes.MOVIECLIP){
+				MovieClip(asset.container.getChildAt(0)).gotoAndStop("state_0");
+			}
+			_assetSelected = asset;
+			updateMapAssetPathingGridDisplay();
+			view.isoScene.render();
 		}
 		
 		private function handleAssetMouseDown(event:ProxyEvent):void{
 			if(sceneModel.viewMode == IsoSceneViewModes.VIEW_MODE_PLACE_ASSETS){
-				_assetMove = GameAsset(event.target);
-				_assetMovePoint = new Point(MouseEvent(event.targetEvent).stageX, MouseEvent(event.targetEvent).stageY);
+				_assetSelected = MapAsset(event.target);
+				_assetSelectedMovePoint = new Point(MouseEvent(event.targetEvent).stageX, MouseEvent(event.targetEvent).stageY);
 				
 				addToSignal(view.stageMouseEventMouseMove, handleAssetMouseMove);
 				addOnceToSignal(view.stageMouseEventMouseUp, handleAssetMouseUpNoDrag);
-				updatePropertiesViewMode.dispatch(PropertyViewModes.VIEW_MODE_ISOVIEW_ASSET, _assetMove);
+				updatePropertiesViewMode.dispatch(PropertyViewModes.VIEW_MODE_ISOVIEW_ASSET, _assetSelected);
 				
 				_highlightIsLocked = true;
-				view.highlight.setSize(_assetMove.cols * sceneModel.cellSize, _assetMove.rows * sceneModel.cellSize, 0);
-				view.highlight.moveTo(_assetMove.stageCol * sceneModel.cellSize, _assetMove.stageRow * sceneModel.cellSize, 0);
-				if(_assetMove.isInteractive == 1){
+				view.highlight.setSize(_assetSelected.cols * sceneModel.cellSize, _assetSelected.rows * sceneModel.cellSize, 0);
+				view.highlight.moveTo(_assetSelected.stageCol * sceneModel.cellSize, _assetSelected.stageRow * sceneModel.cellSize, 0);
+				if(_assetSelected.isInteractive == 1){
 					var interactiveTile:IsoRectangle = new IsoRectangle();
 					interactiveTile.setSize(sceneModel.cellSize, sceneModel.cellSize, 0);
 					interactiveTile.fills = [ new SolidColorFill(0xFFFF00, 1) ];
-					interactiveTile.moveTo(_assetMove.interactiveCol * sceneModel.cellSize, _assetMove.interactiveRow * sceneModel.cellSize,0);
+					interactiveTile.moveTo(_assetSelected.interactiveCol * sceneModel.cellSize, _assetSelected.interactiveRow * sceneModel.cellSize,0);
 					view.highlight.addChild(interactiveTile);
 				}
 				view.isoScene.render();
 			}
+			updateMapAssetPathingGridDisplay();
 		}
 		
 		private function handleAssetMouseMove(event:MouseEvent):void{
-			if (Math.abs(_assetMovePoint.x - event.stageX) > 5 || Math.abs(_assetMovePoint.y - event.stageY) > 5){
+			if (Math.abs(_assetSelectedMovePoint.x - event.stageX) > 5 || Math.abs(_assetSelectedMovePoint.y - event.stageY) > 5){
 				_highlightIsLocked = false;
 				view.highlight.moveTo(_mouseCol * sceneModel.cellSize, _mouseRow * sceneModel.cellSize,0);
 				view.isoScene.render();
 				this.signalMap.removeFromSignal( view.stageMouseEventMouseMove, handleAssetMouseMove);
 				this.signalMap.removeFromSignal( view.stageMouseEventMouseUp, handleAssetMouseUpNoDrag);
-				addOnceToSignal( _assetMove.mouseUp, handleAssetMouseUp);
-				assetStartedDragging.dispatch(_assetMove);
+				addOnceToSignal( _assetSelected.mouseUp, handleAssetMouseUp);
+				assetStartedDragging.dispatch(_assetSelected);
 			}
 		}
 		
 		private function handleAssetMouseUpNoDrag(event:MouseEvent):void{
 			this.signalMap.removeFromSignal( view.stageMouseEventMouseMove, handleAssetMouseMove);
 			
-			if(_assetMove.isInteractive == 1){
+			if(_assetSelected.isInteractive == 1){
 				view.highlight.removeAllChildren();
 			}
-			_assetMove = null;
+			//_assetSelected = null;
 			_highlightIsLocked = false;
 			view.highlight.moveTo(_mouseCol * sceneModel.cellSize, _mouseRow * sceneModel.cellSize,0);
 			view.highlight.setSize(sceneModel.cellSize,sceneModel.cellSize,0);
@@ -408,24 +467,24 @@ package la.diversion.views {
 		}
 		
 		private function handleAssetMouseUp(event:MouseEvent):void{
-			assetFinishedDragging.dispatch(_assetMove, event);
+			assetFinishedDragging.dispatch(_assetSelected, event);
 		}
 		
 		private function handleAssetRollOver(event:ProxyEvent):void{
 			if(sceneModel.viewMode == IsoSceneViewModes.VIEW_MODE_PLACE_ASSETS){
-				GameAsset(event.target).container.alpha = .75;
-				GameAsset(event.target).container.filters = [new GlowFilter(0xFFFFFF, 1, 2, 2, 12, 3, false, false)];
+				MapAsset(event.target).container.alpha = .75;
+				MapAsset(event.target).container.filters = [new GlowFilter(0xFFFFFF, 1, 2, 2, 12, 3, false, false)];
 			}
 		}
 		
 		private function handleAssetRollOut(event:ProxyEvent):void{
 			if(sceneModel.viewMode == IsoSceneViewModes.VIEW_MODE_PLACE_ASSETS){
-				GameAsset(event.target).container.alpha = 1;
-				GameAsset(event.target).container.filters = [];
+				MapAsset(event.target).container.alpha = 1;
+				MapAsset(event.target).container.filters = [];
 			}
 		}
 		
-		private function handleAssetStartedDragging(asset:GameAsset):void{
+		private function handleAssetStartedDragging(asset:MapAsset):void{
 			if(asset.stageCol >= 0 && asset.stageRow >=0  && sceneModel.autoSetWalkable == AutoSetWalkableModes.AUTO_SET){
 				for (var i:int = asset.stageCol; i < (asset.stageCol + asset.cols); i++) {
 					for (var j:int = asset.stageRow ; j < (asset.stageRow + asset.rows); j++) {
@@ -435,19 +494,33 @@ package la.diversion.views {
 				}
 			}
 			
-			/*
-			view.highlight.setSize(asset.cols * sceneModel.cellSize, asset.rows * sceneModel.cellSize, 0);
-			if(asset.isInteractive == 1){
-				var interactiveTile:IsoRectangle = new IsoRectangle();
-				interactiveTile.setSize(sceneModel.cellSize, sceneModel.cellSize, 0);
-				interactiveTile.fills = [ new SolidColorFill(0xFFFF00, 1) ];
-				interactiveTile.moveTo(asset.interactiveCol * sceneModel.cellSize, asset.interactiveRow * sceneModel.cellSize,0);
-				view.highlight.addChild(interactiveTile);
+			if(_assetSelected != asset){
+				_assetSelected = null;
 			}
-			view.isoScene.render();
-			*/
 			
-			view.dragImage = new asset.displayClass as Sprite;
+			switch(asset.displayClassType) {
+				case AssetTypes.SPRITE:
+					view.dragImage = new asset.displayClass as Sprite;
+					break;
+				case AssetTypes.SPRITE_SHEET:
+					var displaySprite:Sprite = new Sprite();
+					var bmp:Bitmap = new Bitmap(asset.spriteSheet.getFrameBitmap().bitmapData);
+					bmp.x = asset.spriteSheetOffset_x;
+					bmp.y = asset.spriteSheetOffset_y;
+					displaySprite.addChild(bmp);
+					view.dragImage = displaySprite;
+					break;
+				case AssetTypes.MOVIECLIP:
+					var dragClip:MovieClip = new asset.displayClass as MovieClip;
+					dragClip.gotoAndStop("state_0");
+					view.dragImage = dragClip;
+					break;
+				
+				default:
+					view.dragImage = new asset.displayClass as Sprite;
+					break;
+			}
+			
 			view.dragImage.mouseEnabled = false;
 			view.dragImage.mouseChildren = false;
 			view.dragImage.alpha = 0.5;
@@ -473,12 +546,13 @@ package la.diversion.views {
 			}
 		}
 		
-		private function handleAssetFinishedDragging(asset:GameAsset, event:MouseEvent):void{
+		private function handleAssetFinishedDragging(asset:MapAsset, event:MouseEvent):void{
 			if(asset.isInteractive == 1){
 				view.highlight.removeAllChildren();
 			}
 			
 			if(_isMouseOverGrid && _isMouseOverThis){
+				_assetSelected = asset;
 				asset.setSize(asset.cols * sceneModel.cellSize, asset.rows * sceneModel.cellSize, 64);
 				asset.moveTo(_mouseCol * sceneModel.cellSize, _mouseRow * sceneModel.cellSize, 0);
 				asset.stageCol = _mouseCol;
@@ -497,18 +571,20 @@ package la.diversion.views {
 			}else{
 				//cleanup the asset, it has landed off the visible stage
 				asset.cleanup();
+				_assetSelected = null;
 				sceneModel.assetBeingDragged = null;
 				updatePropertiesViewMode.dispatch(PropertyViewModes.VIEW_MODE_MAP, asset);
 			}
 			
+			updateMapAssetPathingGridDisplay();
 			view.highlight.setSize(sceneModel.cellSize,sceneModel.cellSize,0);
 			view.isoScene.render();
 			view.stage.removeChild(view.dragImage);
 			view.enterFrame.remove(handleAssetDraggingEnterFrame);
 		}
 		
-		private function handleAssetRemovedFromScene(asset:GameAsset):void{
-			//trace("handleAssetRemovedFromScene");
+		private function handleAssetRemovedFromScene(asset:MapAsset):void{
+			trace("handleAssetRemovedFromScene");
 			view.isoScene.removeChild(asset);
 		}
 		
@@ -516,14 +592,81 @@ package la.diversion.views {
 			//trace("handleIsoSceneViewModeUpdated:" + mode);
 			for(var i:int = 0; i < sceneModel.numCols; i++){
 				for(var j:int = 0; j < sceneModel.numRows; j++){
-					if(!sceneModel.getTile(i,j).isWalkable){
-						if(mode == IsoSceneViewModes.VIEW_MODE_PLACE_ASSETS){
+					if(!sceneModel.getTile(i,j).isWalkable  && (mode == IsoSceneViewModes.VIEW_MODE_SET_WALKABLE_TILES || mode == IsoSceneViewModes.VIEW_MODE_EDIT_PATH)){
+						sceneModel.getTile(i,j).isoTile.container.visible = true;
+					}else{
+						if (sceneModel.getTile(i,j).isoTile){
 							sceneModel.getTile(i,j).isoTile.container.visible = false;
-						}else{
-							sceneModel.getTile(i,j).isoTile.container.visible = true;
 						}
 					}
 				}
+			}
+			if(mode == IsoSceneViewModes.VIEW_MODE_EDIT_PATH && sceneModel.viewModeProperties == PropertyViewModes.VIEW_MODE_ISOVIEW_ASSET){
+				updateMapAssetPathingGridDisplay(_assetSelected);
+			}else{
+				updateMapAssetPathingGridDisplay(null);
+			}
+			view.isoScene.render();
+		}
+		
+		private function handleMapAssetPathingPointsUpdated(asset:MapAsset):void{
+			updateMapAssetPathingGridDisplay(asset);
+		}
+		
+		private function updateMapAssetPathingGridDisplay(asset:MapAsset = null):void{
+			if(asset != null && _assetSelected == asset && sceneModel.viewMode  == IsoSceneViewModes.VIEW_MODE_EDIT_PATH){
+				//create new points if needed
+				if(_assetSelected.pathingPoints.length > _pathingHighlights.length){
+					addPathingHighlights(_assetSelected.pathingPoints.length - _pathingHighlights.length);
+				}
+				//move points to correct positions
+				for (var i:int = 0; i < _assetSelected.pathingPoints.length; i++) {
+					var pt:Point = _assetSelected.pathingPoints[i];
+					if(!IsoRectangle(_pathingHighlights[i]).parent){
+						view.isoScene.addChild(_pathingHighlights[i]);
+					}
+					IsoRectangle(_pathingHighlights[i]).moveTo(pt.x * sceneModel.cellSize, pt.y * sceneModel.cellSize,0);
+				}
+				//hide any points not needed
+				if(_pathingHighlights.length > _assetSelected.pathingPoints.length){
+					for (var j:int = _assetSelected.pathingPoints.length; j < _pathingHighlights.length; j++) {
+						if(IsoRectangle(_pathingHighlights[j]).parent){
+							view.isoScene.removeChild(_pathingHighlights[i]);
+						}
+					}
+				}
+			}else{
+				//hide any visible pathing points
+				for (var k:int = 0; k < _pathingHighlights.length; k++) {
+					if(IsoRectangle(_pathingHighlights[k]).parent){
+						view.isoScene.removeChild(_pathingHighlights[k]);
+					}
+				}
+			}
+		}
+		
+		private function addPathingHighlights(numberToAdd:int):void{
+			var newSize:int = _pathingHighlights.length + numberToAdd;
+			for (var i:int = _pathingHighlights.length; i < newSize; i++) {
+				var rec:IsoRectangle = new IsoRectangle();
+				rec.setSize(sceneModel.cellSize,sceneModel.cellSize,0);
+				rec.fills = [ new SolidColorFill(0xFFFFFF, 1) ];
+				var txt:TextField = new TextField();
+				txt.defaultTextFormat = new TextFormat(null, 24, 0x000000);
+				txt.text = String(i);
+				txt.x = -7 * String(i).length;
+				txt.y = 5;
+				txt.mouseEnabled = false;
+				rec.container.addChild(txt);
+				_pathingHighlights[i] = rec;
+			}
+		}
+		
+		private function handlePropertiesViewModeUpdated(mode:String, asset:MapAsset):void{
+			if(sceneModel.viewMode == IsoSceneViewModes.VIEW_MODE_EDIT_PATH && sceneModel.viewModeProperties == PropertyViewModes.VIEW_MODE_ISOVIEW_ASSET){
+				updateMapAssetPathingGridDisplay(_assetSelected);
+			}else{
+				updateMapAssetPathingGridDisplay(null);
 			}
 			view.isoScene.render();
 		}

@@ -11,7 +11,7 @@ package la.diversion.signals
 {
 	import org.osflash.signals.Signal;
 	
-	import la.diversion.models.components.PropertyUpdate;
+	import la.diversion.models.vo.PropertyUpdate;
 	
 	public class UpdateLibraryAssetPropertySignal extends Signal
 	{

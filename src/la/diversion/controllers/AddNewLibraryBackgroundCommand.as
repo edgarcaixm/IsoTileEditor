@@ -12,7 +12,7 @@ package la.diversion.controllers
 	import flash.display.Bitmap;
 	
 	import la.diversion.models.AssetModel;
-	import la.diversion.models.components.Background;
+	import la.diversion.models.vo.Background;
 	
 	import org.robotlegs.mvcs.SignalCommand;
 	

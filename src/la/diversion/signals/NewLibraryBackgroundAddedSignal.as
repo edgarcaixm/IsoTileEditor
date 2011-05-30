@@ -11,7 +11,7 @@ package la.diversion.signals
 {
 	import org.osflash.signals.Signal;
 	
-	import la.diversion.models.components.Background;
+	import la.diversion.models.vo.Background;
 	
 	public class NewLibraryBackgroundAddedSignal extends Signal
 	{

@@ -10,12 +10,12 @@
 package la.diversion.signals {
 	import org.osflash.signals.Signal;
 	
-	import la.diversion.models.components.GameAsset;
+	import la.diversion.models.vo.MapAsset;
 	
 	public class AddNewLibraryAssetSignal extends Signal {
 		public function AddNewLibraryAssetSignal()
 		{
-			super(GameAsset);
+			super(MapAsset);
 		}
 	}
 }

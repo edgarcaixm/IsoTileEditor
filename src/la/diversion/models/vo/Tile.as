@@ -7,7 +7,7 @@
  *
  */
 
-package la.diversion.models.components {
+package la.diversion.models.vo {
 	import as3isolib.display.primitive.IsoRectangle;
 	import as3isolib.graphics.SolidColorFill;
 	

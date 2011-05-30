@@ -7,6 +7,7 @@
 	</fx:Declarations>
 	<fx:Script> 
 		<![CDATA[ 
+			import spark.events.GridEvent;
 			import mx.collections.ArrayCollection;
 			
 			import org.osflash.signals.Signal;
@@ -25,10 +26,11 @@
 			private var myDP:ArrayCollection = new ArrayCollection([]); 
 			
 			private function product_itemRendererFunction(item:Object, column:GridColumn):ClassFactory {
-				if(!item || item.canEdit) 
+				if(!item || item.canEdit){
 					return new ClassFactory(DefaultGridItemRenderer);
-				else
+				}else{
 					return new ClassFactory(PropertyGridItemNotEditableItemRenderer);
+				}
 			}
 			
 			private function handleGridItemEditorSessionSave(event:GridItemEditorEvent):void{
@@ -37,6 +39,36 @@
 			
 			private function handleGridItemEditorSessionStarting(event:GridItemEditorEvent):void{
 				gridItemEditorSessionStarting.dispatch(event);
+			}
+			
+			private var mouseDownRowIndex:int;
+			private var mouseDownColumnIndex:int;
+			
+			protected function dataGrid_gridMouseDownHandler(event:GridEvent):void
+			{
+				mouseDownRowIndex = event.rowIndex;
+				mouseDownColumnIndex = event.columnIndex;
+			}
+			
+			protected function dataGrid_gridMouseUpHandler(event:GridEvent):void
+			{
+				// Start a grid item editor if:
+				// - the rowIndex is valid
+				// - mouseUp is on the same cell and mouseDown
+				// - shift and ctrl keys are not down
+				// - cell is editable
+				// - an editor is not already running
+				// An editor may already be running if the cell was already
+				// selected and the data grid started the editor.
+				if (event.rowIndex >= 0 &&
+					event.rowIndex == mouseDownRowIndex && 
+					event.columnIndex == mouseDownColumnIndex &&
+					!(event.shiftKey || event.ctrlKey) &&
+					event.column.editable &&
+					!event.grid.dataGrid.itemEditorInstance)
+				{
+					event.grid.dataGrid.startItemEditorSession(event.rowIndex, event.columnIndex);
+				}
 			}
 
 		]]> 
@@ -47,7 +79,9 @@
 				editable="true"
 				gridItemEditorSessionSave="handleGridItemEditorSessionSave(event)" 
 				gridItemEditorSessionStarting="handleGridItemEditorSessionStarting(event)"
-				selectionColor="haloGreen">
+				selectionColor="haloGreen"
+				gridMouseDown="dataGrid_gridMouseDownHandler(event)" 
+				gridMouseUp="dataGrid_gridMouseUpHandler(event)">
 		<s:columns>
 			<s:ArrayList>
 				<s:GridColumn dataField="property" headerText="Property" editable="false" itemRendererFunction="product_itemRendererFunction"/>

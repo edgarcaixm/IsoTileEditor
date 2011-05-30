@@ -12,7 +12,7 @@ package la.diversion.controllers
 	import org.robotlegs.mvcs.SignalCommand;
 	
 	import la.diversion.models.SceneModel;
-	import la.diversion.models.components.PropertyUpdate;
+	import la.diversion.models.vo.PropertyUpdate;
 	
 	public class UpdateIsoScenePropertyCommand extends SignalCommand
 	{

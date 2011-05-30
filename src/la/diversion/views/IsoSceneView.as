@@ -36,7 +36,7 @@ package la.diversion.views {
 	import flash.text.TextField;
 	import flash.text.TextFormat;
 	
-	import la.diversion.models.components.GameAsset;
+	import la.diversion.models.vo.MapAsset;
 	
 	import org.osflash.signals.natives.NativeSignal;
 	

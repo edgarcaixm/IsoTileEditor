@@ -15,6 +15,7 @@ package la.diversion.services {
 	import flash.display.BitmapData;
 	import flash.display.Loader;
 	import flash.display.MovieClip;
+	import flash.display.Sprite;
 	import flash.errors.IOError;
 	import flash.events.ErrorEvent;
 	import flash.events.Event;
@@ -23,8 +24,9 @@ package la.diversion.services {
 	import flash.net.URLRequest;
 	
 	import la.diversion.enums.AssetTypes;
-	import la.diversion.models.components.Background;
-	import la.diversion.models.components.GameAsset;
+	import la.diversion.models.vo.Background;
+	import la.diversion.models.vo.MapAsset;
+	import la.diversion.models.vo.SpriteSheet;
 	import la.diversion.signals.AddNewLibraryAssetSignal;
 	import la.diversion.signals.AddNewLibraryBackgroundSignal;
 	import la.diversion.signals.LoadAssetLibraryCompleteSignal;
@@ -72,7 +74,29 @@ package la.diversion.services {
 				var assetSWF:MovieClip =  _bulkLoader.getMovieClip(file.url);
 				for each(var assetDef:Object in assetSWF.tiles){
 					var tClass:Class = assetSWF.loaderInfo.applicationDomain.getDefinition(assetDef.classRef) as Class;
-					var gameAsset:GameAsset = new GameAsset(assetDef.tileID, tClass, AssetTypes.SPRITE,assetDef.rows, assetDef.cols, assetDef.height, file.name, -1,- 1, 0, 0, 0, assetDef.classRef);
+					var gameAsset:MapAsset;
+					switch(assetDef.type) {
+						case "sprite":
+							gameAsset = new MapAsset(assetDef.tileID, tClass, AssetTypes.SPRITE,assetDef.rows, assetDef.cols, assetDef.height, file.name, -1,- 1, 0, 0, 0, assetDef.classRef);
+							break;
+						case "movieclip":
+							gameAsset = new MapAsset(assetDef.tileID, tClass, AssetTypes.MOVIECLIP,assetDef.rows, assetDef.cols, assetDef.height, file.name, -1,- 1, 0, 0, 0, assetDef.classRef);
+							break;
+						case "spritesheet":
+							gameAsset = new MapAsset(assetDef.tileID, tClass, AssetTypes.SPRITE_SHEET,assetDef.rows, assetDef.cols, assetDef.height, file.name, -1,- 1, 0, 0, 0, assetDef.classRef);
+							gameAsset.spriteSheet = new SpriteSheet();
+							gameAsset.spriteSheet.build(new tClass as Sprite, gameAsset.frameWidth, gameAsset.frameHeight);
+							gameAsset.spriteSheet.x = gameAsset.spriteSheetOffset_x;
+							gameAsset.spriteSheet.y = gameAsset.spriteSheetOffset_y;
+							gameAsset.spriteSheet.idle();
+							gameAsset.setSize(20, 20, 80);
+							gameAsset.sprites = [gameAsset.spriteSheet];
+							break;
+						
+						default:
+							gameAsset = new MapAsset(assetDef.tileID, tClass, AssetTypes.SPRITE,assetDef.rows, assetDef.cols, assetDef.height, file.name, -1,- 1, 0, 0, 0, assetDef.classRef);
+							break;
+					}
 					addNewLibraryAsset.dispatch(gameAsset);
 				}
 				for each(var bgDef:Object in assetSWF.backgrounds){

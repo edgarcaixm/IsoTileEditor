@@ -54,6 +54,9 @@ package la.diversion
 			injector.mapSingleton(UpdateIsoSceneAutoSetWalkableSignal);
 			injector.mapSingleton(UpdateApplicationCurrentFileSignal);
 			injector.mapSingleton(ApplicationCurrentFileUpdatedSignal);
+			injector.mapSingleton(AddMapAssetPathingPointSignal);
+			injector.mapSingleton(RemoveMapAssetPathingPointSignal);
+			injector.mapSingleton(MapAssetPathingPointsUpdatedSignal);
 			
 			//models
 			injector.mapSingleton(SceneModel);
@@ -86,6 +89,8 @@ package la.diversion
 			signalCommandMap.mapSignalClass(UpdateLibraryAssetPropertySignal, UpdateLibraryAssetPropertyCommand);
 			signalCommandMap.mapSignalClass(UpdateIsoSceneAutoSetWalkableSignal, UpdateIsoSceneAutoSetWalkableCommand);
 			signalCommandMap.mapSignalClass(UpdateApplicationCurrentFileSignal, UpdateApplicaitonCurrentFileCommand);
+			signalCommandMap.mapSignalClass(AddMapAssetPathingPointSignal, AddMapAssetPathingPointCommand);
+			signalCommandMap.mapSignalClass(RemoveMapAssetPathingPointSignal, RemoveMapAssetPathingPointCommand);
 			
 			//mediators
 			mediatorMap.mapView(IsoSceneView,IsoSceneMediator);

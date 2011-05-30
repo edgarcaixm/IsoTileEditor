@@ -20,8 +20,8 @@ package la.diversion.views.components {
 	import flash.geom.Rectangle;
 	
 	import la.diversion.enums.AssetTypes;
-	import la.diversion.models.components.GameAsset;
-	import la.diversion.models.components.IAsset;
+	import la.diversion.models.vo.MapAsset;
+	import la.diversion.models.vo.IAsset;
 	
 	import org.osflash.signals.Signal;
 	import org.osflash.signals.natives.NativeSignal;
@@ -54,15 +54,27 @@ package la.diversion.views.components {
 			// generate thumbnail
 			var tBmd:BitmapData = new BitmapData(32, 32, true, 0x00000000);
 			var tAsset:Sprite;
-			if(gameAsset.displayClassType == AssetTypes.SPRITE){
-				tAsset = new gameAsset.displayClass as Sprite;
-			}else if(gameAsset.displayClassType == AssetTypes.BITMAP){
-				tAsset = new Sprite();
-				var tBitmap:Bitmap = new Bitmap(new gameAsset.displayClass as BitmapData);
-				tAsset.addChild(tBitmap);
-			}else{
-				tAsset = new Sprite();
+			switch(gameAsset.displayClassType) {
+				case AssetTypes.SPRITE:
+					tAsset = new gameAsset.displayClass as Sprite;
+					break;
+				case AssetTypes.BITMAP:
+					tAsset = new Sprite();
+					tAsset.addChild( new Bitmap(new gameAsset.displayClass as BitmapData) );
+					break;
+				case AssetTypes.SPRITE_SHEET:
+					tAsset = new Sprite();
+					tAsset.addChild( new Bitmap(gameAsset.spriteSheet.getFrameBitmap().bitmapData) );
+					break;
+				case AssetTypes.MOVIECLIP:
+					tAsset = new gameAsset.displayClass as Sprite;
+					break;
+				
+				default:
+					tAsset = new Sprite();
+					break;
 			}
+			
 			// since image data can be off stage (positioned less than 0,0)
 			// we need to translate and then scale bitmaps using Matrix transforms
 			var imgArea:Rectangle = tAsset.getBounds(tAsset); // gets full extent of image even if off stage

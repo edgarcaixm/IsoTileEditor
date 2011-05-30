@@ -3,21 +3,23 @@
  * Copyright (c) 2011 Diversion, Inc.
  *
  * Authors: jobelloyd
- * Created: May 9, 2011
+ * Created: May 28, 2011
  *
  */
 
 package la.diversion.signals
 {
+	import flash.geom.Point;
+	
 	import la.diversion.models.vo.MapAsset;
 	
 	import org.osflash.signals.Signal;
 	
-	public class UpdatePropertiesViewModeSignal extends Signal
+	public class AddMapAssetPathingPointSignal extends Signal
 	{
-		public function UpdatePropertiesViewModeSignal(...parameters)
+		public function AddMapAssetPathingPointSignal(...parameters)
 		{
-			super(String, MapAsset);
+			super(MapAsset, Point);
 		}
 	}
 }

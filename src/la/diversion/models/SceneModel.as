@@ -15,19 +15,21 @@ package la.diversion.models {
 	import flash.geom.Point;
 	import flash.utils.Dictionary;
 	
+	import la.diversion.enums.AutoSetWalkableModes;
+	import la.diversion.enums.EditPathingGridModes;
 	import la.diversion.enums.IsoSceneViewModes;
 	import la.diversion.enums.PropertyViewModes;
-	import la.diversion.enums.AutoSetWalkableModes;
-	import la.diversion.models.components.AssetManager;
-	import la.diversion.models.components.Background;
-	import la.diversion.models.components.GameAsset;
-	import la.diversion.models.components.Tile;
+	import la.diversion.models.vo.AssetManager;
+	import la.diversion.models.vo.Background;
+	import la.diversion.models.vo.MapAsset;
+	import la.diversion.models.vo.Tile;
 	import la.diversion.signals.AssetAddedToSceneSignal;
 	import la.diversion.signals.AssetRemovedFromSceneSignal;
 	import la.diversion.signals.IsoSceneBackgroundResetSignal;
 	import la.diversion.signals.IsoSceneBackgroundUpdatedSignal;
 	import la.diversion.signals.IsoSceneStageColorUpdatedSignal;
 	import la.diversion.signals.IsoSceneViewModeUpdatedSignal;
+	import la.diversion.signals.MapAssetPathingPointsUpdatedSignal;
 	import la.diversion.signals.PropertiesViewModeUpdatedSignal;
 	import la.diversion.signals.SceneGridSizeUpdatedSignal;
 	import la.diversion.signals.TileWalkableUpdatedSignal;
@@ -78,6 +80,10 @@ package la.diversion.models {
 		[Inject]
 		public var isoSceneStageColorUpdated:IsoSceneStageColorUpdatedSignal;
 		
+		[Transient]
+		[Inject]
+		public var mapAssetPathingPointsUpdated:MapAssetPathingPointsUpdatedSignal;
+		
 		public static var DEFAULT_COLS:int = 40;
 		public static var DEFAULT_ROWS:int = 40;
 		
@@ -86,7 +92,7 @@ package la.diversion.models {
 		private var _numCols:int = DEFAULT_COLS;
 		private var _position:Point = new Point(0, 0);
 		private var _zoomLevel:Number = 0;
-		private var _assetBeingDragged:GameAsset;
+		private var _assetBeingDragged:MapAsset;
 		private var _assetManager:AssetManager = new AssetManager();
 		private var _viewMode:String;
 		private var _viewModeProperties:String;
@@ -95,6 +101,7 @@ package la.diversion.models {
 		private var _stageColor:uint = 0x000000;
 		private var _editProperitiesList:ArrayCollection;
 		private var _autoSetWalkable:String;
+		private var _pathingGrid:Array = [];
 		
 		public function SceneModel() {
 			super();
@@ -116,6 +123,25 @@ package la.diversion.models {
 			}
 		}
 		
+		public function removeMapAssetPathingPoint(assetId:String, pt:Point):void{
+			var ass:MapAsset = _assetManager.getAsset(assetId);
+			if(ass){
+				ass.removeNodeFromPathingPoints(pt);
+				mapAssetPathingPointsUpdated.dispatch(ass);
+				trace("SceneModel removeMapAssetPathingPoint");
+			}
+		}
+		
+		public function addMapAssetPathingPoint(assetId:String, pt:Point):void{
+			var ass:MapAsset = _assetManager.getAsset(assetId);
+			if(ass){
+				ass.addNodeToPathingPoints(pt);
+				mapAssetPathingPointsUpdated.dispatch(ass);
+				trace("SceneModel addMapAssetPathingPoint");
+			}
+		}
+
+		[Transient]
 		public function get autoSetWalkable():String {
 			return _autoSetWalkable;
 		}
@@ -161,7 +187,7 @@ package la.diversion.models {
 			return _viewModeProperties;
 		}
 
-		public function setViewModeProperties(value:String, asset:GameAsset):void {
+		public function setViewModeProperties(value:String, asset:MapAsset):void {
 			_viewModeProperties = value;
 			propertiesViewModeUpdated.dispatch(value, asset);
 		}
@@ -180,18 +206,18 @@ package la.diversion.models {
 		}
 
 		[Transient]
-		public function get assetBeingDragged():GameAsset
+		public function get assetBeingDragged():MapAsset
 		{
 			return _assetBeingDragged;
 		}
 
-		public function set assetBeingDragged(value:GameAsset):void
+		public function set assetBeingDragged(value:MapAsset):void
 		{
 			_assetBeingDragged = value;
 		}
 
 		public function updateSceneAssetProperty(assetId:String, assetProperty:String, assetValue:*):void{
-			var asset:GameAsset = getAsset(assetId);
+			var asset:MapAsset = getAsset(assetId);
 			if(asset != null){
 				asset[assetProperty] = assetValue;
 			}
@@ -222,29 +248,33 @@ package la.diversion.models {
 		public function set viewMode(value:String):void
 		{
 			//trace("SceneModel viewMode=" + value);
+			var newAlpha:Number = 1;
 			switch(value){
 				case IsoSceneViewModes.VIEW_MODE_PLACE_ASSETS:
 					_viewMode = value;
-					for each(var paAsset:GameAsset in this.assetManager.assets){
-						paAsset.container.alpha = 1;
-					}
-					isoSceneViewModeUpdated.dispatch(_viewMode);
+					newAlpha = 1;
 					break;
 				case IsoSceneViewModes.VIEW_MODE_SET_WALKABLE_TILES:
 					_viewMode = value;
-					for each(var swtAsset:GameAsset in this.assetManager.assets){
-						swtAsset.container.alpha = 0.5;
-					}
-					isoSceneViewModeUpdated.dispatch(_viewMode);
+					newAlpha = 0.5;
 					break;
 				case IsoSceneViewModes.VIEW_MODE_BACKGROUND:
 					_viewMode = value;
-					for each(var paAsset2:GameAsset in this.assetManager.assets){
-						paAsset2.container.alpha = 1;
-					}
-					isoSceneViewModeUpdated.dispatch(_viewMode);
+					newAlpha = 1;
+					break;
+				case IsoSceneViewModes.VIEW_MODE_EDIT_PATH:
+					_viewMode = value;
+					newAlpha = 1;
+					break;
+				default:
+					_viewMode = value;
+					newAlpha = 1;
 					break;
 			}
+			for each(var asset:MapAsset in this.assetManager.assets){
+				asset.container.alpha = newAlpha;
+			}
+			isoSceneViewModeUpdated.dispatch(_viewMode);
 		}
 		
 		/**
@@ -253,7 +283,7 @@ package la.diversion.models {
 		 * @param GameAsset
 		 * 
 		 */
-		public function addAsset(asset:GameAsset):void{
+		public function addAsset(asset:MapAsset):void{
 			if(viewMode == IsoSceneViewModes.VIEW_MODE_PLACE_ASSETS){
 				asset.container.alpha = 1;
 			}else{
@@ -270,7 +300,7 @@ package la.diversion.models {
 		 * @return GameAsset
 		 * 
 		 */
-		public function getAsset(assetId:String):GameAsset{
+		public function getAsset(assetId:String):MapAsset{
 			return _assetManager.getAsset(assetId);
 		}
 		

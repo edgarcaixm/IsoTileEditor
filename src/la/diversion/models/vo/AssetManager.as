@@ -1,10 +1,10 @@
-package la.diversion.models.components
+package la.diversion.models.vo
 {
 	import com.adobe.serialization.json.DiversionJSON;
 	
 	import flash.utils.Dictionary;
 	
-	import la.diversion.models.components.GameAsset;
+	import la.diversion.models.vo.MapAsset;
 	
 	public class AssetManager
 	{
@@ -18,7 +18,7 @@ package la.diversion.models.components
 			_dic[asset.id] = asset;
 		}
 		
-		public function getAsset(assetId:String):GameAsset{
+		public function getAsset(assetId:String):MapAsset{
 			return _dic[assetId];
 		}
 		

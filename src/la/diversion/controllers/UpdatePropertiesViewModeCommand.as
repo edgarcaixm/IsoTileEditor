@@ -10,7 +10,7 @@
 package la.diversion.controllers
 {
 	import la.diversion.models.SceneModel;
-	import la.diversion.models.components.GameAsset;
+	import la.diversion.models.vo.MapAsset;
 	
 	import org.robotlegs.mvcs.SignalCommand;
 	
@@ -20,7 +20,7 @@ package la.diversion.controllers
 		public var mode:String;
 		
 		[Inject]
-		public var asset:GameAsset;
+		public var asset:MapAsset;
 		
 		[Inject]
 		public var model:SceneModel;

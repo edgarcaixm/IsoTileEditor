@@ -10,7 +10,7 @@
 package la.diversion.controllers
 {
 	import la.diversion.models.SceneModel;
-	import la.diversion.models.components.PropertyUpdate;
+	import la.diversion.models.vo.PropertyUpdate;
 	
 	import org.robotlegs.mvcs.SignalCommand;
 	

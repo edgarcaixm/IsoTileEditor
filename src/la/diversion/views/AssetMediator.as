@@ -14,8 +14,8 @@ package la.diversion.views {
 	import la.diversion.enums.AssetViewModes;
 	import la.diversion.enums.PropertyViewModes;
 	import la.diversion.models.AssetModel;
-	import la.diversion.models.components.Background;
-	import la.diversion.models.components.GameAsset;
+	import la.diversion.models.vo.Background;
+	import la.diversion.models.vo.MapAsset;
 	import la.diversion.signals.AddNewLibraryAssetSignal;
 	import la.diversion.signals.AssetFinishedDraggingSignal;
 	import la.diversion.signals.AssetStartedDraggingSignal;
@@ -63,7 +63,7 @@ package la.diversion.views {
 		
 		private var _assetListCount:int = 0;
 		private var _backgroundListCount:int = 0;
-		private var _assetBeingDragged:GameAsset;
+		private var _assetBeingDragged:MapAsset;
 		private var _listItemSelected:AssetListItem;
 		
 		override public function onRegister():void{
@@ -132,8 +132,6 @@ package la.diversion.views {
 			addOnceToSignal(_listItemSelected.mouseUp, handleListItemMouseUp);
 			addOnceToSignal(_listItemSelected.mouseRollOut, handleListItemRollOut);
 			_assetBeingDragged = null;
-			//_assetBeingDragged = AssetListItem(event.target).gameAsset.clone();
-			//assetStartDragging.dispatch(_assetBeingDragged);
 			updatePropertiesViewMode.dispatch(PropertyViewModes.VIEW_MODE_LIBRARY_ASSET, AssetListItem(event.target).gameAsset);
 		}
 		
@@ -147,12 +145,11 @@ package la.diversion.views {
 		
 		private function handleListItemRollOut(event:MouseEvent):void{
 			trace("handleListItemRollOut");
-			//this.signalMap.removeFromSignal(AssetListItem(event.target).mouseUp, handleListItemMouseUp);
 			_assetBeingDragged = AssetListItem(event.target).gameAsset.clone();
 			assetStartDragging.dispatch(_assetBeingDragged);
 		}
 		
-		private function handleNewAssetAdded(asset:GameAsset):void{
+		private function handleNewAssetAdded(asset:MapAsset):void{
 			var listItem:AssetListItem = new AssetListItem(asset, view.item_width, view.item_height);
 			listItem.y = view.item_height * _assetListCount;
 			view.assetHolder.addChild(listItem);

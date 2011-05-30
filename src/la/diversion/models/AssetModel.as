@@ -11,9 +11,9 @@ package la.diversion.models {
 	import flash.utils.Dictionary;
 	
 	import la.diversion.enums.AssetViewModes;
-	import la.diversion.models.components.AssetManager;
-	import la.diversion.models.components.Background;
-	import la.diversion.models.components.GameAsset;
+	import la.diversion.models.vo.AssetManager;
+	import la.diversion.models.vo.Background;
+	import la.diversion.models.vo.MapAsset;
 	import la.diversion.signals.AssetViewModeUpdatedSignal;
 	import la.diversion.signals.NewLibraryAssetAddedSignal;
 	import la.diversion.signals.NewLibraryBackgroundAddedSignal;
@@ -49,7 +49,7 @@ package la.diversion.models {
 		 * @param GameAsset
 		 * 
 		 */
-		public function addAsset(asset:GameAsset):void{
+		public function addAsset(asset:MapAsset):void{
 			_assetManager.addAsset(asset);
 			newAssetAdded.dispatch(asset);
 		}
@@ -61,12 +61,12 @@ package la.diversion.models {
 		 * @return GameAsset
 		 * 
 		 */
-		public function getAsset(assetId:String):GameAsset{
+		public function getAsset(assetId:String):MapAsset{
 			return _assetManager.getAsset(assetId);
 		}
 		
-		public function getAssetByDisplayClass(displayClass:String):GameAsset{
-			for each(var asset:GameAsset in _assetManager.assets){
+		public function getAssetByDisplayClass(displayClass:String):MapAsset{
+			for each(var asset:MapAsset in _assetManager.assets){
 				if(asset.displayClassId == displayClass){
 					return asset;
 				}
@@ -114,7 +114,7 @@ package la.diversion.models {
 		 * @return Background
 		 * 
 		 */
-		public function getBackground(backgroundId:String):GameAsset{
+		public function getBackground(backgroundId:String):MapAsset{
 			return _backgroundManager.getAsset(backgroundId);
 		}
 		
@@ -174,7 +174,7 @@ package la.diversion.models {
 		}
 		
 		public function updateLibraryAssetProperty(assetId:String, assetProperty:String, assetValue:*):void{
-			var asset:GameAsset = getAsset(assetId);
+			var asset:MapAsset = getAsset(assetId);
 			if(asset != null){
 				asset[assetProperty] = assetValue;
 			}

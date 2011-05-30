@@ -7,7 +7,7 @@
  *
  */
 
-package la.diversion.models.components
+package la.diversion.models.vo
 {
 	import com.adobe.serialization.json.DiversionJSON;
 	
@@ -26,6 +26,7 @@ package la.diversion.models.components
 		private var _displayClassType:String;
 		private var _fileUrl:String;
 		private var _classRef:String;
+		private var _spriteSheet:SpriteSheet;
 		
 		public function Background(id:String, displayClassId:String, displayClass:Class, displayClassType:String, fileUrl:String, classRef:String, bitmapData:BitmapData=null, pixelSnapping:String="auto", smoothing:Boolean=false)
 		{
@@ -38,6 +39,14 @@ package la.diversion.models.components
 			_classRef = classRef;
 		}
 		
+		public function get spriteSheet():SpriteSheet {
+			return _spriteSheet;
+		}
+
+		public function set spriteSheet(value:SpriteSheet):void {
+			_spriteSheet = value;
+		}
+
 		public function get classRef():String {
 			return _classRef;
 		}

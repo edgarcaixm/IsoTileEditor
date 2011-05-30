@@ -17,10 +17,13 @@ package la.diversion.views {
 	import flash.filesystem.FileMode;
 	import flash.filesystem.FileStream;
 	
+	import la.diversion.enums.EditPathingGridModes;
+	import la.diversion.enums.IsoSceneViewModes;
 	import la.diversion.models.ApplicationModel;
 	import la.diversion.models.SceneModel;
-	import la.diversion.models.components.Background;
+	import la.diversion.models.vo.Background;
 	import la.diversion.signals.ApplicationCurrentFileUpdatedSignal;
+	import la.diversion.signals.IsoSceneViewModeUpdatedSignal;
 	import la.diversion.signals.LoadAssetLibrarySignal;
 	import la.diversion.signals.LoadMapSignal;
 	import la.diversion.signals.ResetIsoSceneBackgroundSignal;
@@ -54,6 +57,9 @@ package la.diversion.views {
 		
 		[Inject]
 		public var updateIsoSceneViewMode:UpdateIsoSceneViewModeSignal;
+
+		[Inject]
+		public var isoSceneViewModeUpdated:IsoSceneViewModeUpdatedSignal;
 		
 		[Inject]
 		public var resetIsoSceneBackground:ResetIsoSceneBackgroundSignal;
@@ -79,7 +85,30 @@ package la.diversion.views {
 			
 			addOnceToSignal(view.eventAddedToStage, handleAddedToStage);
 			
+			addToSignal(isoSceneViewModeUpdated, handleIsoSceneViewModeUpdated);
 			addToSignal(applicationCurrentFileUpdated, handleApplicationCurrentFileUpdated);
+		}
+		
+		private function handleIsoSceneViewModeUpdated(mode:String):void{
+			for each(var command:NativeMenuItem in view.isoViewModeCommands){
+				switch(command.label) {
+					case "Mode: Asset Placement":
+						command.checked = (mode == IsoSceneViewModes.VIEW_MODE_PLACE_ASSETS);
+						break;
+					case "Mode: Set Walkable Tiles":
+						command.checked = (mode == IsoSceneViewModes.VIEW_MODE_SET_WALKABLE_TILES);
+						break;
+					case "Mode: Move Background":
+						command.checked = (mode == IsoSceneViewModes.VIEW_MODE_BACKGROUND);
+						break;
+					case "Mode: Edit Pathing":
+						command.checked = (mode == IsoSceneViewModes.VIEW_MODE_EDIT_PATH);
+						break;
+					
+					default:
+						break;
+				}
+			}
 		}
 		
 		private function handleApplicationCurrentFileUpdated(newFile:File):void{

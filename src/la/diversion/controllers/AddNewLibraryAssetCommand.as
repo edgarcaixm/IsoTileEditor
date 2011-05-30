@@ -8,7 +8,7 @@
  */
 
 package la.diversion.controllers {
-	import la.diversion.models.components.GameAsset;
+	import la.diversion.models.vo.MapAsset;
 	import la.diversion.models.AssetModel;
 	
 	import org.robotlegs.mvcs.SignalCommand;
@@ -16,7 +16,7 @@ package la.diversion.controllers {
 	public class AddNewLibraryAssetCommand extends SignalCommand {
 		
 		[Inject]
-		public var asset:GameAsset;
+		public var asset:MapAsset;
 		
 		[Inject]
 		public var model:AssetModel;

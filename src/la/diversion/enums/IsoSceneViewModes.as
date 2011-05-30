@@ -13,6 +13,7 @@ package la.diversion.enums {
 		public static var VIEW_MODE_PLACE_ASSETS:String = "viewModePlaceAssets";
 		public static var VIEW_MODE_SET_WALKABLE_TILES:String = "viewModeSetWalkableTiles";
 		public static var VIEW_MODE_BACKGROUND:String = "viewModeBackground";
+		public static var VIEW_MODE_EDIT_PATH:String = "viewModeEditPath";
 		
 		public function IsoSceneViewModes()
 		{

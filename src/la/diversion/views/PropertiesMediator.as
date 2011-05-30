@@ -13,8 +13,8 @@ package la.diversion.views
 	
 	import la.diversion.enums.PropertyViewModes;
 	import la.diversion.models.SceneModel;
-	import la.diversion.models.components.GameAsset;
-	import la.diversion.models.components.PropertyUpdate;
+	import la.diversion.models.vo.MapAsset;
+	import la.diversion.models.vo.PropertyUpdate;
 	import la.diversion.signals.IsoSceneStageColorUpdatedSignal;
 	import la.diversion.signals.PropertiesViewModeUpdatedSignal;
 	import la.diversion.signals.SceneGridSizeUpdatedSignal;
@@ -64,7 +64,7 @@ package la.diversion.views
 		public var updateLibraryAssetProperty:UpdateLibraryAssetPropertySignal;
 		
 		private var _dataProvider:ArrayCollection
-		private var _asset:GameAsset;
+		private var _asset:MapAsset;
 		
 		override public function onRegister():void{
 			//trace("PropertiesMediator");
@@ -123,7 +123,7 @@ package la.diversion.views
 			}
 		}
 		
-		private function handlePropertiesViewModeUpdated(viewMode:String, asset:GameAsset):void {
+		private function handlePropertiesViewModeUpdated(viewMode:String, asset:MapAsset):void {
 			//trace("handlePropertiesViewModeUpdated: " + viewMode);
 			switch(viewMode) {
 				case PropertyViewModes.VIEW_MODE_MAP:

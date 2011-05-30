@@ -10,7 +10,7 @@
 package la.diversion.signals {
 	import org.osflash.signals.Signal;
 	
-	import la.diversion.models.components.Tile;
+	import la.diversion.models.vo.Tile;
 	
 	public class UpdateTileWalkableSignal extends Signal {
 		public function UpdateTileWalkableSignal(...parameters)

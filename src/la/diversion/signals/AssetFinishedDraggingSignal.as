@@ -10,13 +10,13 @@
 package la.diversion.signals {
 	import org.osflash.signals.Signal;
 	
-	import la.diversion.models.components.GameAsset;
+	import la.diversion.models.vo.MapAsset;
 	import flash.events.MouseEvent;
 	
 	public class AssetFinishedDraggingSignal extends Signal {
 		public function AssetFinishedDraggingSignal(...parameters)
 		{
-			super(GameAsset, MouseEvent);
+			super(MapAsset, MouseEvent);
 		}
 	}
 }

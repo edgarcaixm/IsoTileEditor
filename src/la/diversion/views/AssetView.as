@@ -29,7 +29,7 @@ package la.diversion.views {
 	import flash.geom.Rectangle;
 	import flash.net.URLRequest;
 	
-	import la.diversion.models.components.GameAsset;
+	import la.diversion.models.vo.MapAsset;
 	import la.diversion.views.components.AssetListItem;
 	
 	import org.bytearray.explorer.SWFExplorer;
@@ -61,7 +61,7 @@ package la.diversion.views {
 		public var mouseEventMouseWheel:NativeSignal;
 		
 		private var listCount:int = 0;
-		private var _assetBeingDragged:GameAsset;
+		private var _assetBeingDragged:MapAsset;
 		
 		public function AssetView()
 		{

@@ -7,7 +7,7 @@
  *
  */
 
-package la.diversion.models.components
+package la.diversion.models.vo
 {
 	public interface IAsset
 	{
@@ -20,6 +20,8 @@ package la.diversion.models.components
 		function get displayClassType():String;
 		
 		function get fileUrl():String;
+		
+		function get spriteSheet():SpriteSheet;
 		
 		function clone():*;
 	}

@@ -9,7 +9,7 @@
 
 package la.diversion.signals
 {
-	import la.diversion.models.components.GameAsset;
+	import la.diversion.models.vo.MapAsset;
 	
 	import org.osflash.signals.Signal;
 	
@@ -17,7 +17,7 @@ package la.diversion.signals
 	{
 		public function PropertiesViewModeUpdatedSignal(...parameters)
 		{
-			super(String, GameAsset);
+			super(String, MapAsset);
 		}
 	}
 }

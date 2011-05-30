@@ -16,8 +16,9 @@ package la.diversion.views {
 	import flash.filesystem.File;
 	
 	import la.diversion.enums.AutoSetWalkableModes;
+	import la.diversion.enums.EditPathingGridModes;
 	import la.diversion.enums.IsoSceneViewModes;
-	import la.diversion.models.components.Background;
+	import la.diversion.models.vo.Background;
 	
 	import mx.core.UIComponent;
 	
@@ -30,6 +31,7 @@ package la.diversion.views {
 		public var eventAddedToStage:NativeSignal;
 		public var file:File;
 		public var saveCommand:NativeMenuItem;
+		public var editPathingGridMenuItem:NativeMenuItem;
 		
 		//SIGNALS
 		private var _eventFileSave:Signal;
@@ -51,6 +53,14 @@ package la.diversion.views {
 			eventAddedToStage.addOnce(init);
 		}
 		
+		public function get isoViewModeCommands():Array {
+			return _isoViewModeCommands;
+		}
+
+		public function set isoViewModeCommands(value:Array):void {
+			_isoViewModeCommands = value;
+		}
+
 		public function get eventFileNew():Signal{
 			return _eventFileNew ||= new Signal();
 		}
@@ -210,6 +220,11 @@ package la.diversion.views {
 			command.keyEquivalent = "b";
 			_isoViewModeCommands.push(command);
 			
+			editPathingGridMenuItem = menu.submenu.addItem(new NativeMenuItem("Mode: Edit Pathing"));
+			editPathingGridMenuItem.keyEquivalent = "g";
+			editPathingGridMenuItem.addEventListener(Event.SELECT, selectCommand);
+			_isoViewModeCommands.push(editPathingGridMenuItem);
+			
 			command = menu.submenu.addItem(new NativeMenuItem("", true));
 			
 			command = menu.submenu.addItem(new NativeMenuItem("Reset Background Image"));
@@ -222,6 +237,12 @@ package la.diversion.views {
 			command.checked = true;
 			command.keyEquivalent = "T";
 			command.addEventListener(Event.SELECT, selectCommand);
+			
+			//command = menu.submenu.addItem(new NativeMenuItem("", true));
+			
+			//editPathingGridMenuItem = menu.submenu.addItem(new NativeMenuItem("Edit Pathing Grid"));
+			//editPathingGridMenuItem.keyEquivalent = "g";
+			//editPathingGridMenuItem.addEventListener(Event.SELECT, selectCommand);
 		}
 		
 		//catch custom menu items
@@ -250,23 +271,22 @@ package la.diversion.views {
 					break;
 				case "Mode: Asset Placement":
 					if(!event.target.checked){
-						uncheckAllIsoViewModes();
-						event.target.checked = true;
 						eventUpdateIsoSceneViewMode.dispatch(IsoSceneViewModes.VIEW_MODE_PLACE_ASSETS);
 					}
 					break;
 				case "Mode: Set Walkable Tiles":
 					if(!event.target.checked){
-						uncheckAllIsoViewModes();
-						event.target.checked = true;
 						eventUpdateIsoSceneViewMode.dispatch(IsoSceneViewModes.VIEW_MODE_SET_WALKABLE_TILES);
 					}
 					break;
 				case "Mode: Move Background":
 					if(!event.target.checked){
-						uncheckAllIsoViewModes();
-						event.target.checked = true;
 						eventUpdateIsoSceneViewMode.dispatch(IsoSceneViewModes.VIEW_MODE_BACKGROUND);
+					}
+					break;
+				case "Mode: Edit Pathing":
+					if(!event.target.checked){
+						eventUpdateIsoSceneViewMode.dispatch(IsoSceneViewModes.VIEW_MODE_EDIT_PATH);
 					}
 					break;
 				case "Reset Background Image":
@@ -285,12 +305,6 @@ package la.diversion.views {
 					break;
 			}
 			
-		}
-		
-		private function uncheckAllIsoViewModes():void{
-			for each(var command:NativeMenuItem in _isoViewModeCommands){
-				command.checked = false;
-			}
 		}
 		
 		private function onSaveAs(event:Event):void{

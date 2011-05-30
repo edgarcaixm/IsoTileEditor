@@ -9,7 +9,7 @@
 
 package la.diversion.controllers {
 	import la.diversion.models.SceneModel;
-	import la.diversion.models.components.Tile;
+	import la.diversion.models.vo.Tile;
 	
 	import org.robotlegs.mvcs.SignalCommand;
 	

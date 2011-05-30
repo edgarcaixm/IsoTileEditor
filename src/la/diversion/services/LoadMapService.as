@@ -12,6 +12,7 @@ package la.diversion.services
 	import com.adobe.serialization.json.DiversionJSON;
 	
 	import flash.display.Loader;
+	import flash.display.Sprite;
 	import flash.events.Event;
 	import flash.filesystem.File;
 	import flash.geom.Point;
@@ -20,10 +21,12 @@ package la.diversion.services
 	import flash.net.URLRequest;
 	import flash.utils.Dictionary;
 	
+	import la.diversion.enums.AssetTypes;
 	import la.diversion.models.AssetModel;
 	import la.diversion.models.SceneModel;
-	import la.diversion.models.components.Background;
-	import la.diversion.models.components.GameAsset;
+	import la.diversion.models.vo.Background;
+	import la.diversion.models.vo.MapAsset;
+	import la.diversion.models.vo.SpriteSheet;
 	import la.diversion.signals.LoadAssetLibraryCompleteSignal;
 	import la.diversion.signals.LoadAssetLibrarySignal;
 	
@@ -145,10 +148,13 @@ package la.diversion.services
 				
 				if(_map.sceneModel.assetManager){
 					for each(var savedAsset:Object in _map.sceneModel.assetManager){
-						var newAsset:GameAsset = assetModel.getAssetByDisplayClass(savedAsset.displayClassId);
+						var newAsset:MapAsset = assetModel.getAssetByDisplayClass(savedAsset.displayClassId);
 						if (newAsset){
 							newAsset = newAsset.clone();
-							newAsset.setSize(savedAsset.cols * sceneModel.cellSize, savedAsset.rows * sceneModel.cellSize, 64);
+							newAsset.rows = savedAsset.rows;
+							newAsset.cols = savedAsset.cols;
+							newAsset.height = savedAsset.height;
+							newAsset.setSize(savedAsset.cols * sceneModel.cellSize, savedAsset.rows * sceneModel.cellSize, savedAsset.height);
 							newAsset.moveTo(savedAsset.stageCol * sceneModel.cellSize, savedAsset.stageRow * sceneModel.cellSize, 0);
 							newAsset.stageCol = savedAsset.stageCol;
 							newAsset.stageRow = savedAsset.stageRow;
@@ -156,6 +162,28 @@ package la.diversion.services
 							newAsset.isInteractive = savedAsset.isInteractive;
 							newAsset.interactiveCol = savedAsset.interactiveCol;
 							newAsset.interactiveRow = savedAsset.interactiveRow;
+							newAsset.pathingType = savedAsset.pathingType;
+							newAsset.frameWidth = savedAsset.frameWidth;
+							newAsset.frameHeight = savedAsset.frameHeight;
+							newAsset.spriteSheetOffset_x = savedAsset.spriteSheetOffset_x;
+							newAsset.spriteSheetOffset_y = savedAsset.spriteSheetOffset_y;
+							newAsset.moveSpeed = savedAsset.moveSpeed;
+							var pathingPoints:Array = [];
+							for (var i:int = 0; i < savedAsset.pathingPoints.length; i++) {
+								pathingPoints[i] = new Point(savedAsset.pathingPoints[i].x, savedAsset.pathingPoints[i].y);
+							}
+							newAsset.pathingPoints = pathingPoints;
+							
+							if(newAsset.displayClassType == AssetTypes.SPRITE_SHEET){
+								newAsset.spriteSheet = new SpriteSheet();
+								newAsset.spriteSheet.build(new newAsset.displayClass as Sprite, newAsset.frameWidth, newAsset.frameHeight);
+								newAsset.spriteSheet.x = newAsset.spriteSheetOffset_x;
+								newAsset.spriteSheet.y = newAsset.spriteSheetOffset_y;
+								newAsset.spriteSheet.idle();
+								newAsset.setSize(20, 20, 80);
+								newAsset.sprites = [newAsset.spriteSheet];
+							}
+							
 							sceneModel.addAsset(newAsset);
 						}else{
 							trace("error loading asset: " + savedAsset.displayClassId);

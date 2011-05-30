@@ -10,7 +10,7 @@
 package la.diversion.controllers {
 	import flash.events.MouseEvent;
 	
-	import la.diversion.models.components.GameAsset;
+	import la.diversion.models.vo.MapAsset;
 	import la.diversion.models.SceneModel;
 	
 	import org.robotlegs.mvcs.SignalCommand;
@@ -18,7 +18,7 @@ package la.diversion.controllers {
 	public class AssetStartDraggingCommand extends SignalCommand {
 		
 		[Inject]
-		public var gameAsset:GameAsset;
+		public var gameAsset:MapAsset;
 		
 		[Inject]
 		public var model:SceneModel;

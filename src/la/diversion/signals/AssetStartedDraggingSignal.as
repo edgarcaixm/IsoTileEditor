@@ -10,12 +10,12 @@
 package la.diversion.signals {
 	import org.osflash.signals.Signal;
 	
-	import la.diversion.models.components.GameAsset;
+	import la.diversion.models.vo.MapAsset;
 	
 	public class AssetStartedDraggingSignal extends Signal {
 		public function AssetStartedDraggingSignal(...parameters)
 		{
-			super(GameAsset);
+			super(MapAsset);
 		}
 	}
 }
