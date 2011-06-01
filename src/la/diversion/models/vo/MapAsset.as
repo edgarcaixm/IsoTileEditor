@@ -53,6 +53,8 @@ package la.diversion.models.vo {
 		private var _moveSpeed:Number;
 		private var _pathingPoints:Array;
 		private var _pathingType:int;
+		private var _pathingIdleChance:int;
+		private var _pathingIdleTime:int;
 		
 		private var _addedToStage:NativeSignal;
 		public var mouseDown:NativeSignal;
@@ -100,6 +102,9 @@ package la.diversion.models.vo {
 			this._spriteSheetOffset_y = -65;
 			this._pathingPoints = [];
 			this._pathingType = 0;
+			this._moveSpeed = 0.3;
+			this._pathingIdleChance = 10;
+			this._pathingIdleTime = 10000;
 			
 			_addedToStage = new NativeSignal(this, Event.ADDED_TO_STAGE, Event);
 			_addedToStage.add(handleAddedToStage);
@@ -109,6 +114,22 @@ package la.diversion.models.vo {
 			rollOut = new NativeSignal(this, MouseEvent.ROLL_OUT, ProxyEvent);
 		}
 		
+		public function get pathingIdleTime():int {
+			return _pathingIdleTime;
+		}
+
+		public function set pathingIdleTime(value:int):void {
+			_pathingIdleTime = value;
+		}
+
+		public function get pathingIdleChance():int {
+			return _pathingIdleChance;
+		}
+
+		public function set pathingIdleChance(value:int):void {
+			_pathingIdleChance = value;
+		}
+
 		public function get pathingType():int {
 			return _pathingType;
 		}
@@ -253,7 +274,10 @@ package la.diversion.models.vo {
 						{property:"Frame Height", value:this.frameHeight, canEdit:true, editProperty:"frameHeight"},
 						{property:"Offset X", value:this.spriteSheetOffset_x, canEdit:true, editProperty:"spriteSheetOffset_x"},
 						{property:"Offset Y", value:this.spriteSheetOffset_y, canEdit:true, editProperty:"spriteSheetOffset_y"},
-						{property:"Pathing Type", value:this.pathingType, canEdit:true, editProperty:"pathingType"}
+						{property:"Pathing Type", value:this.pathingType, canEdit:true, editProperty:"pathingType"},
+						{property:"Move Speed", value:this.moveSpeed, canEdit:true, editProperty:"moveSpeed"},
+						{property:"Pathing Idle Chance", value:this.pathingIdleChance, canEdit:true, editProperty:"pathingIdleChance"},
+						{property:"Pathing Idle Time", value:this.pathingIdleTime, canEdit:true, editProperty:"pathingIdleTime"}
 					]); 
 					break;
 				
@@ -271,7 +295,10 @@ package la.diversion.models.vo {
 						{property:"Interactive Col", value:this.interactiveCol, canEdit:true, editProperty:"interactiveCol"},			
 						{property:"Interactive Row", value:this.interactiveRow, canEdit:true, editProperty:"interactiveRow"},			
 						{property:"Actor Id", value:this.actorId, canEdit:true, editProperty:"actorId"},
-						{property:"Pathing Type", value:this.pathingType, canEdit:true, editProperty:"pathingType"}
+						{property:"Pathing Type", value:this.pathingType, canEdit:true, editProperty:"pathingType"},
+						{property:"Move Speed", value:this.moveSpeed, canEdit:true, editProperty:"moveSpeed"},
+						{property:"Pathing Idle Chance", value:this.pathingIdleChance, canEdit:true, editProperty:"pathingIdleChance"},
+						{property:"Pathing Idle Time", value:this.pathingIdleTime, canEdit:true, editProperty:"pathingIdleTime"}
 					]); 
 					break;
 			}
@@ -375,6 +402,8 @@ package la.diversion.models.vo {
 			result.spriteSheetOffset_y = _spriteSheetOffset_y;
 			result.moveSpeed = _moveSpeed;
 			result.pathingPoints = pathingPoints;
+			result.pathingIdleChance = _pathingIdleChance;
+			result.pathingIdleTime = _pathingIdleTime;
 			
 			return DiversionJSON.encode(result);
 		}
