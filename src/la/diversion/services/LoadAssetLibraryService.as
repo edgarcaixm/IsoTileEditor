@@ -89,7 +89,7 @@ package la.diversion.services {
 							gameAsset.spriteSheet.x = gameAsset.spriteSheetOffset_x;
 							gameAsset.spriteSheet.y = gameAsset.spriteSheetOffset_y;
 							gameAsset.spriteSheet.idle();
-							gameAsset.setSize(20, 20, 80);
+							//gameAsset.setSize(20, 20, 80);
 							gameAsset.sprites = [gameAsset.spriteSheet];
 							break;
 						

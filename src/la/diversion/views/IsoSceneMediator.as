@@ -553,7 +553,7 @@ package la.diversion.views {
 			
 			if(_isMouseOverGrid && _isMouseOverThis){
 				_assetSelected = asset;
-				asset.setSize(asset.cols * sceneModel.cellSize, asset.rows * sceneModel.cellSize, 64);
+				asset.setSize(asset.cols * sceneModel.cellSize, asset.rows * sceneModel.cellSize, asset.height);
 				asset.moveTo(_mouseCol * sceneModel.cellSize, _mouseRow * sceneModel.cellSize, 0);
 				asset.stageCol = _mouseCol;
 				asset.stageRow = _mouseRow;

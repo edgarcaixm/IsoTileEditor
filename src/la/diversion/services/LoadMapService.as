@@ -169,8 +169,10 @@ package la.diversion.services
 							newAsset.spriteSheetOffset_y = savedAsset.spriteSheetOffset_y;
 							newAsset.moveSpeed = savedAsset.moveSpeed;
 							var pathingPoints:Array = [];
-							for (var i:int = 0; i < savedAsset.pathingPoints.length; i++) {
-								pathingPoints[i] = new Point(savedAsset.pathingPoints[i].x, savedAsset.pathingPoints[i].y);
+							if(savedAsset.pathingPoints){
+								for (var i:int = 0; i < savedAsset.pathingPoints.length; i++) {
+									pathingPoints[i] = new Point(savedAsset.pathingPoints[i].x, savedAsset.pathingPoints[i].y);
+								}
 							}
 							newAsset.pathingPoints = pathingPoints;
 							
@@ -180,7 +182,7 @@ package la.diversion.services
 								newAsset.spriteSheet.x = newAsset.spriteSheetOffset_x;
 								newAsset.spriteSheet.y = newAsset.spriteSheetOffset_y;
 								newAsset.spriteSheet.idle();
-								newAsset.setSize(20, 20, 80);
+								//newAsset.setSize(20, 20, 80);
 								newAsset.sprites = [newAsset.spriteSheet];
 							}
 							
