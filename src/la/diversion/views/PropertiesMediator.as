@@ -10,12 +10,14 @@
 package la.diversion.views
 {
 	import flash.events.Event;
+	import flash.geom.Point;
 	
 	import la.diversion.enums.PropertyViewModes;
 	import la.diversion.models.SceneModel;
 	import la.diversion.models.vo.MapAsset;
 	import la.diversion.models.vo.PropertyUpdate;
 	import la.diversion.signals.IsoSceneStageColorUpdatedSignal;
+	import la.diversion.signals.PlayerAvatarSpawnPositionUpdatedSignal;
 	import la.diversion.signals.PropertiesViewModeUpdatedSignal;
 	import la.diversion.signals.SceneGridSizeUpdatedSignal;
 	import la.diversion.signals.UpdateApplicationWindowResizeSignal;
@@ -63,6 +65,9 @@ package la.diversion.views
 		[Inject]
 		public var updateLibraryAssetProperty:UpdateLibraryAssetPropertySignal;
 		
+		[Inject]
+		public var playerAvatarSpawnPositionUpdated:PlayerAvatarSpawnPositionUpdatedSignal;
+		
 		private var _dataProvider:ArrayCollection
 		private var _asset:MapAsset;
 		
@@ -77,6 +82,13 @@ package la.diversion.views
 			addToSignal(updateApplicationWindowResize, handleUpdateApplicationWindowResize);
 			addToSignal(sceneGridSizeUpdated, handleSceneGridSizeUpdated);
 			addToSignal(isoSceneStageColorUpdated, handleIsoSceneStageColorUpdated);
+			addToSignal(playerAvatarSpawnPositionUpdated, handlePlayerAvatarSpawnPositionUpdated);
+		}
+		
+		private function handlePlayerAvatarSpawnPositionUpdated(pt:Point):void{
+			if(sceneModel.viewModeProperties == PropertyViewModes.VIEW_MODE_MAP){
+				view.propertyGrid.dataProvider = sceneModel.editProperitiesList;
+			}
 		}
 		
 		private function handleIsoSceneStageColorUpdated(newcolor:uint):void{

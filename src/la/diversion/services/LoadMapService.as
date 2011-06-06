@@ -139,6 +139,9 @@ package la.diversion.services
 				if(_map.sceneModel.stageColor){
 					sceneModel.stageColor = uint(_map.sceneModel.stageColor);
 				}
+				if(_map.sceneModel.playerAvatarSpawnPosition){
+					sceneModel.playerAvatarSpawnPosition = new Point(_map.sceneModel.playerAvatarSpawnPosition.x, _map.sceneModel.playerAvatarSpawnPosition.y);
+				}
 				
 				if(_map.sceneModel.unwalkableGridTiles){
 					for each(var tile:Object in _map.sceneModel.unwalkableGridTiles){

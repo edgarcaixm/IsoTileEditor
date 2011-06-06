@@ -37,6 +37,7 @@ package la.diversion.models {
 	import mx.collections.ArrayCollection;
 	
 	import org.robotlegs.mvcs.Actor;
+	import la.diversion.signals.PlayerAvatarSpawnPositionUpdatedSignal;
 
 	/**
 	 * This is the Model class for a Scene and can be used
@@ -83,22 +84,30 @@ package la.diversion.models {
 		[Transient]
 		[Inject]
 		public var mapAssetPathingPointsUpdated:MapAssetPathingPointsUpdatedSignal;
+
+		[Transient]
+		[Inject]
+		public var playerAvatarSpawnPositionUpdated:PlayerAvatarSpawnPositionUpdatedSignal;
 		
 		public static var DEFAULT_COLS:int = 40;
 		public static var DEFAULT_ROWS:int = 40;
 		
+		//game loaded map properties
+		private var _background:Background = null;
 		private var _cellSize:int = 32;
 		private var _numRows:int = DEFAULT_ROWS;
 		private var _numCols:int = DEFAULT_COLS;
 		private var _position:Point = new Point(0, 0);
+		private var _playerAvatarSpawnPosition:Point = new Point(int(DEFAULT_COLS/2),int(DEFAULT_ROWS/2));
 		private var _zoomLevel:Number = 0;
+		private var _stageColor:uint = 0x000000;
+		
+		//editor only
 		private var _assetBeingDragged:MapAsset;
 		private var _assetManager:AssetManager = new AssetManager();
 		private var _viewMode:String;
 		private var _viewModeProperties:String;
 		private var _grid:Array;
-		private var _background:Background = null;
-		private var _stageColor:uint = 0x000000;
 		private var _editProperitiesList:ArrayCollection;
 		private var _autoSetWalkable:String;
 		private var _pathingGrid:Array = [];
@@ -123,6 +132,25 @@ package la.diversion.models {
 			}
 		}
 		
+		public function get playerAvatarSpawnPosition():Point {
+			return _playerAvatarSpawnPosition;
+		}
+
+		public function set playerAvatarSpawnPosition(value:Point):void {
+			_playerAvatarSpawnPosition = value;
+			playerAvatarSpawnPositionUpdated.dispatch(_playerAvatarSpawnPosition);
+		}
+		
+		public function set setPlayerAvatarSpawnPosition_x(position:Number):void{
+			_playerAvatarSpawnPosition.x = position;
+			playerAvatarSpawnPositionUpdated.dispatch(_playerAvatarSpawnPosition);
+		}
+		
+		public function set setPlayerAvatarSpawnPosition_y(position:Number):void{
+			_playerAvatarSpawnPosition.y = position;
+			playerAvatarSpawnPositionUpdated.dispatch(_playerAvatarSpawnPosition);
+		}
+
 		public function removeMapAssetPathingPoint(assetId:String, pt:Point):void{
 			var ass:MapAsset = _assetManager.getAsset(assetId);
 			if(ass){
@@ -164,7 +192,9 @@ package la.diversion.models {
 			_editProperitiesList = new ArrayCollection([
 				{property:"Cols", value:this.numCols, canEdit:true, editProperty:"numCols"},
 				{property:"Rows", value:this.numRows, canEdit:true, editProperty:"numRows"},
-				{property:"Stage Color", value:getNumberAsHexString(this.stageColor, 6), canEdit:true, editProperty:"stageColor"}			
+				{property:"Stage Color", value:getNumberAsHexString(this.stageColor, 6), canEdit:true, editProperty:"stageColor"},
+				{property:"Player Spawn X", value:_playerAvatarSpawnPosition.x, canEdit:true, editProperty:"setPlayerAvatarSpawnPosition_x"},
+				{property:"Player Spawn Y", value:_playerAvatarSpawnPosition.y, canEdit:true, editProperty:"setPlayerAvatarSpawnPosition_y"}
 			]); 
 			return _editProperitiesList;
 		}

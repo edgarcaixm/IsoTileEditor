@@ -46,6 +46,7 @@ package la.diversion.views {
 		public var isoScene:IsoScene;
 		public var isoGrid:IsoGrid;
 		public var highlight:IsoRectangle;
+		public var spawnPositionHighlight:IsoRectangle;
 		public var dragImage:Sprite;
 		public var colRowText:TextField;
 		public var colRowTextLabel:TextField;
@@ -65,7 +66,7 @@ package la.diversion.views {
 		{
 			super();
 			
-			//background blue sprite
+			//background sprite
 			bg = new Sprite();
 			this.addChildAt(bg,0);
 			

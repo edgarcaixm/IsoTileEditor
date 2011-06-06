@@ -51,6 +51,7 @@ package la.diversion.views {
 	import la.diversion.signals.IsoSceneStageColorUpdatedSignal;
 	import la.diversion.signals.IsoSceneViewModeUpdatedSignal;
 	import la.diversion.signals.MapAssetPathingPointsUpdatedSignal;
+	import la.diversion.signals.PlayerAvatarSpawnPositionUpdatedSignal;
 	import la.diversion.signals.PropertiesViewModeUpdatedSignal;
 	import la.diversion.signals.RemoveMapAssetPathingPointSignal;
 	import la.diversion.signals.SceneGridSizeUpdatedSignal;
@@ -133,6 +134,9 @@ package la.diversion.views {
 		[Inject]
 		public var mapAssetPathingPointsUpdated:MapAssetPathingPointsUpdatedSignal;
 		
+		[Inject]
+		public var playerAvatarSpawnPositionUpdated:PlayerAvatarSpawnPositionUpdatedSignal;
+		
 		private var _isPanning:Boolean = false;
 		private var _isMovingBackground:Boolean = false;
 		private var _panX:Number = 0;
@@ -165,6 +169,8 @@ package la.diversion.views {
 			addToSignal(isoSceneStageColorUpdated, handleIsoSceneStageColorUpdated);
 			addToSignal(mapAssetPathingPointsUpdated, handleMapAssetPathingPointsUpdated);
 			addToSignal(propertiesViewModeUpdated, handlePropertiesViewModeUpdated);
+			addToSignal(playerAvatarSpawnPositionUpdated, handlePlayerAvatarSpawnPositionUpdated);
+			
 			
 			addToSignal(view.addedToStage, handleThisAddedToStage);
 			addToSignal(view.thisMouseEventRollOut, handleThisMouseEventRollOut);
@@ -173,6 +179,11 @@ package la.diversion.views {
 		}
 		
 		private function handleEnterFrame(event:Event):void{
+			view.isoScene.render();
+		}
+		
+		private function handlePlayerAvatarSpawnPositionUpdated(pt:Point):void{
+			view.spawnPositionHighlight.moveTo(sceneModel.playerAvatarSpawnPosition.x * sceneModel.cellSize, sceneModel.playerAvatarSpawnPosition.y * sceneModel.cellSize,0);
 			view.isoScene.render();
 		}
 		
@@ -208,16 +219,25 @@ package la.diversion.views {
 		}
 		
 		protected function initializeGrid():void {
-			view.isoScene 		= new IsoScene();
-			view.isoView 		= new IsoView();
-			view.isoGrid 		= new IsoGrid();
-			view.highlight	    = new IsoRectangle();
+			view.isoScene 					= new IsoScene();
+			view.isoView 					= new IsoView();
+			view.isoGrid 					= new IsoGrid();
+			view.highlight	    			= new IsoRectangle();
+			view.spawnPositionHighlight 	= new IsoRectangle();
 			
+			//highlight
 			view.highlight.setSize(sceneModel.cellSize, sceneModel.cellSize, 0);
 			view.highlight.fills = [ new SolidColorFill(0x006600, 1) ];
 			view.highlight.container.filters = [new GlowFilter(0x00FF00, 1, 5, 5, 6, 2, false, false)];
 			view.isoScene.addChildAt(view.highlight,1);
 			
+			//player spawn point
+			view.spawnPositionHighlight.setSize(sceneModel.cellSize, sceneModel.cellSize, 0);
+			view.spawnPositionHighlight.container.filters = [new GlowFilter(0x00CCFF, 1, 5, 5, 6, 2, false, false)];
+			view.spawnPositionHighlight.moveTo(sceneModel.playerAvatarSpawnPosition.x * sceneModel.cellSize, sceneModel.playerAvatarSpawnPosition.y * sceneModel.cellSize,0);
+			view.isoScene.addChildAt(view.spawnPositionHighlight,2);
+			
+			//grid
 			view.isoGrid.cellSize = sceneModel.cellSize;
 			view.isoGrid.setGridSize(sceneModel.numCols, sceneModel.numRows);
 			view.isoGrid.stroke = new Stroke(0.1, 0xAAAAAA,1);
@@ -235,7 +255,7 @@ package la.diversion.views {
 			view.addChildAt(view.isoView, 1);
 			view.isoView.panTo( 0 ,int(sceneModel.numRows * sceneModel.cellSize / 2) );
 			
-			//
+			//background
 			view.bg.graphics.clear();
 			view.bg.graphics.beginFill(sceneModel.stageColor);
 			view.bg.graphics.drawRect(0,0,760,760);
