@@ -15,6 +15,8 @@ package la.diversion.models.vo {
 	import eDpLib.events.ProxyEvent;
 	
 	import flash.display.DisplayObject;
+	import flash.display.MovieClip;
+	import flash.display.Sprite;
 	import flash.events.Event;
 	import flash.events.MouseEvent;
 	import flash.filters.GlowFilter;
@@ -424,6 +426,13 @@ package la.diversion.models.vo {
 			if (_displayClassType == AssetTypes.SPRITE_SHEET){
 				ass.spriteSheet = _spriteSheet.clone();
 				ass.sprites = [ass.spriteSheet];
+			}
+			if(_displayClassType == AssetTypes.MOVIECLIP){
+				//create a wrapper for the remotely loaded clip because adobe hates developers
+				var wrapper:Sprite = new ass.displayClass as Sprite;
+				wrapper.addChild(new ass.displayClass as MovieClip);
+				wrapper.mouseChildren = false;
+				ass.sprites = [wrapper];
 			}
 			return ass;
 		}
