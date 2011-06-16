@@ -98,8 +98,8 @@ package la.diversion.models.vo {
 			this._interactiveCol = interactiveCol;
 			this._interactiveRow = interactiveRow;
 			this._classRef = classRef;
-			this._frameWidth = 48;
-			this._frameHeight = 92;
+			this._frameWidth = 78;
+			this._frameHeight = 150;
 			this._spriteSheetOffset_x = -25;
 			this._spriteSheetOffset_y = -65;
 			this._pathingPoints = [];
