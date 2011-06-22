@@ -114,7 +114,35 @@ package la.diversion.services
 		private function loadMapAssetsComplete(assetsLoaded:Array):void{
 			if(assetsLoaded == _assetFiles){
 				loadAssetLibraryComplete.remove(loadMapAssetsComplete);
+				updateAssetLibraryWithMapfileSpecifics();
 				loadStageInstances();
+			}
+		}
+		
+		private function updateAssetLibraryWithMapfileSpecifics():void{
+			if(_map && _map.assetModel && _map.assetModel.assetManager){
+				for each(var asset:Object in _map.assetModel.assetManager){
+					var libAsset:MapAsset = assetModel.getAssetByDisplayClass(asset.displayClassId);
+					if(libAsset){
+						for (var property:* in asset){
+							try{
+								
+								if(property == "displayClassType" 
+									|| property == "actorId"
+									|| property == "pathingPoints"
+									|| property == "classRef"
+									|| property == "id"
+									|| property == "displayClassId"){
+									//ignore these properties
+								}else{
+									libAsset[property] = asset[property];
+								}
+							}catch(e:Error){
+								trace("ERROR updating library Asset:" + property + ", error:" + e.toString());
+							}
+						}
+						}
+				}
 			}
 		}
 		
