@@ -182,6 +182,7 @@ package la.diversion.services
 						var newAsset:MapAsset = assetModel.getAssetByDisplayClass(savedAsset.displayClassId);
 						if (newAsset){
 							newAsset = newAsset.clone();
+							//TODO: refactor this to use some form of reflection
 							newAsset.rows = savedAsset.rows;
 							newAsset.cols = savedAsset.cols;
 							newAsset.height = savedAsset.height;
@@ -199,6 +200,7 @@ package la.diversion.services
 							newAsset.spriteSheetOffset_x = savedAsset.spriteSheetOffset_x;
 							newAsset.spriteSheetOffset_y = savedAsset.spriteSheetOffset_y;
 							newAsset.moveSpeed = savedAsset.moveSpeed;
+							newAsset.walkType = savedAsset.walkType;
 							var pathingPoints:Array = [];
 							if(savedAsset.pathingPoints){
 								for (var i:int = 0; i < savedAsset.pathingPoints.length; i++) {

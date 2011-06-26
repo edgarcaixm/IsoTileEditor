@@ -57,6 +57,7 @@ package la.diversion.models.vo {
 		private var _pathingType:int;
 		private var _pathingIdleChance:int;
 		private var _pathingIdleTime:int;
+		private var _walkType:int;
 		
 		private var _addedToStage:NativeSignal;
 		public var mouseDown:NativeSignal;
@@ -107,6 +108,7 @@ package la.diversion.models.vo {
 			this._moveSpeed = 0.3;
 			this._pathingIdleChance = 10;
 			this._pathingIdleTime = 10000;
+			this._walkType = 0;
 			
 			_addedToStage = new NativeSignal(this, Event.ADDED_TO_STAGE, Event);
 			_addedToStage.add(handleAddedToStage);
@@ -116,6 +118,14 @@ package la.diversion.models.vo {
 			rollOut = new NativeSignal(this, MouseEvent.ROLL_OUT, ProxyEvent);
 		}
 		
+		public function get walkType():int {
+			return _walkType;
+		}
+
+		public function set walkType(value:int):void {
+			_walkType = value;
+		}
+
 		public function get pathingIdleTime():int {
 			return _pathingIdleTime;
 		}
@@ -279,7 +289,8 @@ package la.diversion.models.vo {
 						{property:"Pathing Type", value:this.pathingType, canEdit:true, editProperty:"pathingType"},
 						{property:"Move Speed", value:this.moveSpeed, canEdit:true, editProperty:"moveSpeed"},
 						{property:"Pathing Idle Chance", value:this.pathingIdleChance, canEdit:true, editProperty:"pathingIdleChance"},
-						{property:"Pathing Idle Time", value:this.pathingIdleTime, canEdit:true, editProperty:"pathingIdleTime"}
+						{property:"Pathing Idle Time", value:this.pathingIdleTime, canEdit:true, editProperty:"pathingIdleTime"},
+						{property:"Walk Type", value:this.walkType, canEdit:true, editProperty:"walkType"}
 					]); 
 					break;
 				
@@ -300,7 +311,8 @@ package la.diversion.models.vo {
 						{property:"Pathing Type", value:this.pathingType, canEdit:true, editProperty:"pathingType"},
 						{property:"Move Speed", value:this.moveSpeed, canEdit:true, editProperty:"moveSpeed"},
 						{property:"Pathing Idle Chance", value:this.pathingIdleChance, canEdit:true, editProperty:"pathingIdleChance"},
-						{property:"Pathing Idle Time", value:this.pathingIdleTime, canEdit:true, editProperty:"pathingIdleTime"}
+						{property:"Pathing Idle Time", value:this.pathingIdleTime, canEdit:true, editProperty:"pathingIdleTime"},
+						{property:"Walk Type", value:this.walkType, canEdit:true, editProperty:"walkType"}
 					]); 
 					break;
 			}
@@ -406,6 +418,7 @@ package la.diversion.models.vo {
 			result.pathingPoints = pathingPoints;
 			result.pathingIdleChance = _pathingIdleChance;
 			result.pathingIdleTime = _pathingIdleTime;
+			result.walkType = _walkType;
 			
 			return DiversionJSON.encode(result);
 		}
@@ -415,6 +428,7 @@ package la.diversion.models.vo {
 			ass.frameWidth = _frameWidth;
 			ass.frameHeight = _frameHeight;
 			ass.moveSpeed = _moveSpeed;
+			ass.walkType = _walkType;
 			if (this._pathingPoints.length > 0){
 				var pp:Array = new Array();
 				for (var i:int = 0; i < _pathingPoints.length; i++) {
