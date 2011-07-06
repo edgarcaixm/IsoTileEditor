@@ -101,8 +101,8 @@ package la.diversion.models.vo {
 			this._classRef = classRef;
 			this._frameWidth = 78;
 			this._frameHeight = 150;
-			this._spriteSheetOffset_x = -25;
-			this._spriteSheetOffset_y = -65;
+			this._spriteSheetOffset_x = -39;
+			this._spriteSheetOffset_y = -150;
 			this._pathingPoints = [];
 			this._pathingType = 0;
 			this._moveSpeed = 0.3;
