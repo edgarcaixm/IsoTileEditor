@@ -294,15 +294,10 @@ package as3isolib.core
 		 */
 		public function render( recursive:Boolean = true ):void
 		{
-			//trace(">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>> start render");
 			var speed:int = getTimer();
-			//trace(">>++++========================>  1:" + String(getTimer() - speed));
 			preRenderLogic();
-			//trace(">>++++========================>  2:" + String(getTimer() - speed));
 			renderLogic( recursive );
-			//trace(">>++++========================>  3:" + String(getTimer() - speed));
 			postRenderLogic();
-			//trace(">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>  4:" + String(getTimer() - speed));
 		}
 		
 		/**

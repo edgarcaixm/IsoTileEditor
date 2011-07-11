@@ -315,18 +315,13 @@ package la.diversion.models {
 		 * 
 		 */
 		public function addAsset(asset:MapAsset):void{
-			var speed:int = getTimer();
-			trace("++========================>  1:" + String(getTimer() - speed));
 			if(viewMode == IsoSceneViewModes.VIEW_MODE_PLACE_ASSETS){
 				asset.container.alpha = 1;
 			}else{
 				asset.container.alpha = .5;
 			}
-			trace("++========================>  2:" + String(getTimer() - speed));
 			_assetManager.addAsset(asset);
-			trace("++========================>  3:" + String(getTimer() - speed));
 			assetAddedToScene.dispatch(asset);
-			trace("++========================>  4:" + String(getTimer() - speed));
 		}
 		
 		/**
