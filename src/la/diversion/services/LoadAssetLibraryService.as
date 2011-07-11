@@ -59,20 +59,24 @@ package la.diversion.services {
 			_files = files;
 			for each(var file:File in files){
 				_bulkLoader.add(file.url);
+				trace("LoadAssetLibraryService bulkloader add file to load: " + file.url);
 			}
 			_bulkLoader.addEventListener(BulkLoader.COMPLETE, onAllLoaded);
 			_bulkLoader.addEventListener(BulkLoader.ERROR, onErrorLoading);
 			_bulkLoader.addEventListener(BulkLoader.SECURITY_ERROR, onSecurityErrorLoading);
 			_bulkLoader.start();
+			trace("LoadAssetLibraryService bulkloader started");
 		}
 		
 		private function onAllLoaded(event:Event):void {
+			trace("LoadAssetLibraryService onAllLoaded");
 			_bulkLoader.removeEventListener(BulkLoader.COMPLETE, onAllLoaded);
 			_bulkLoader.removeEventListener(BulkLoader.ERROR, onErrorLoading);
 			_bulkLoader.removeEventListener(BulkLoader.SECURITY_ERROR, onSecurityErrorLoading);
 			for each(var file:File in _files){
 				var assetSWF:MovieClip =  _bulkLoader.getMovieClip(file.url);
 				for each(var assetDef:Object in assetSWF.tiles){
+					trace("LoadAssetLibraryService onAllLoaded creating asset: " + assetDef.tileID);
 					var tClass:Class = assetSWF.loaderInfo.applicationDomain.getDefinition(assetDef.classRef) as Class;
 					var gameAsset:MapAsset;
 					switch(assetDef.type) {

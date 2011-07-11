@@ -14,6 +14,7 @@ package la.diversion.models {
 	
 	import flash.geom.Point;
 	import flash.utils.Dictionary;
+	import flash.utils.getTimer;
 	
 	import la.diversion.enums.AutoSetWalkableModes;
 	import la.diversion.enums.EditPathingGridModes;
@@ -30,6 +31,7 @@ package la.diversion.models {
 	import la.diversion.signals.IsoSceneStageColorUpdatedSignal;
 	import la.diversion.signals.IsoSceneViewModeUpdatedSignal;
 	import la.diversion.signals.MapAssetPathingPointsUpdatedSignal;
+	import la.diversion.signals.PlayerAvatarSpawnPositionUpdatedSignal;
 	import la.diversion.signals.PropertiesViewModeUpdatedSignal;
 	import la.diversion.signals.SceneGridSizeUpdatedSignal;
 	import la.diversion.signals.TileWalkableUpdatedSignal;
@@ -37,7 +39,6 @@ package la.diversion.models {
 	import mx.collections.ArrayCollection;
 	
 	import org.robotlegs.mvcs.Actor;
-	import la.diversion.signals.PlayerAvatarSpawnPositionUpdatedSignal;
 
 	/**
 	 * This is the Model class for a Scene and can be used
@@ -314,13 +315,18 @@ package la.diversion.models {
 		 * 
 		 */
 		public function addAsset(asset:MapAsset):void{
+			var speed:int = getTimer();
+			trace("++========================>  1:" + String(getTimer() - speed));
 			if(viewMode == IsoSceneViewModes.VIEW_MODE_PLACE_ASSETS){
 				asset.container.alpha = 1;
 			}else{
 				asset.container.alpha = .5;
 			}
+			trace("++========================>  2:" + String(getTimer() - speed));
 			_assetManager.addAsset(asset);
+			trace("++========================>  3:" + String(getTimer() - speed));
 			assetAddedToScene.dispatch(asset);
+			trace("++========================>  4:" + String(getTimer() - speed));
 		}
 		
 		/**

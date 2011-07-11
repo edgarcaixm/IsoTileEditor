@@ -20,6 +20,7 @@ package la.diversion.services
 	import flash.net.URLLoaderDataFormat;
 	import flash.net.URLRequest;
 	import flash.utils.Dictionary;
+	import flash.utils.getTimer;
 	
 	import la.diversion.enums.AssetTypes;
 	import la.diversion.models.AssetModel;
@@ -81,6 +82,7 @@ package la.diversion.services
 						var f:File = new File(_file.parent.nativePath + "/" + asset.fileUrl);
 						_assetFiles.push(f);
 						loadedFiles[asset.fileUrl] = true;
+						trace("LoadMapService load asset file added: " + _file.parent.nativePath + "/" + asset.fileUrl);
 					}
 				}
 			}else{
@@ -94,6 +96,7 @@ package la.diversion.services
 						var f2:File = new File(_file.parent.nativePath + "/" + bg.fileUrl);
 						_assetFiles.push(f2);
 						loadedFiles[bg.fileUrl] = true;
+						trace("LoadMapService load bg file added: " + _file.parent.nativePath + "/" + bg.fileUrl);
 					}
 				}
 			}else{
@@ -120,6 +123,7 @@ package la.diversion.services
 		}
 		
 		private function updateAssetLibraryWithMapfileSpecifics():void{
+			trace("updateAssetLibraryWithMapfileSpecifics");
 			if(_map && _map.assetModel && _map.assetModel.assetManager){
 				for each(var asset:Object in _map.assetModel.assetManager){
 					var libAsset:MapAsset = assetModel.getAssetByDisplayClass(asset.displayClassId);
@@ -147,6 +151,7 @@ package la.diversion.services
 		}
 		
 		private function loadStageInstances():void{
+			trace("loadStageInstances");
 			if(_map.sceneModel){
 				//load map layout
 				if(_map.sceneModel.cellSize){
@@ -179,9 +184,13 @@ package la.diversion.services
 				
 				if(_map.sceneModel.assetManager){
 					for each(var savedAsset:Object in _map.sceneModel.assetManager){
+						trace("loadMap loadStageInstance: " + savedAsset.displayClassId + "(" + savedAsset.displayClassType + ")");
+						var speed:int = getTimer();
 						var newAsset:MapAsset = assetModel.getAssetByDisplayClass(savedAsset.displayClassId);
+						trace("==========================>  1:" + String(getTimer() - speed));
 						if (newAsset){
 							newAsset = newAsset.clone();
+							trace("==========================>  2:" + String(getTimer() - speed));
 							//TODO: refactor this to use some form of reflection
 							newAsset.rows = savedAsset.rows;
 							newAsset.cols = savedAsset.cols;
@@ -201,6 +210,7 @@ package la.diversion.services
 							newAsset.spriteSheetOffset_y = savedAsset.spriteSheetOffset_y;
 							newAsset.moveSpeed = savedAsset.moveSpeed;
 							newAsset.walkType = savedAsset.walkType;
+							trace("==========================>  3:" + String(getTimer() - speed));
 							var pathingPoints:Array = [];
 							if(savedAsset.pathingPoints){
 								for (var i:int = 0; i < savedAsset.pathingPoints.length; i++) {
@@ -208,6 +218,7 @@ package la.diversion.services
 								}
 							}
 							newAsset.pathingPoints = pathingPoints;
+							trace("==========================>  4:" + String(getTimer() - speed));
 							
 							if(newAsset.displayClassType == AssetTypes.SPRITE_SHEET){
 								newAsset.spriteSheet = new SpriteSheet();
@@ -218,8 +229,10 @@ package la.diversion.services
 								//newAsset.setSize(20, 20, 80);
 								newAsset.sprites = [newAsset.spriteSheet];
 							}
+							trace("==========================>  5:" + String(getTimer() - speed));
 							
 							sceneModel.addAsset(newAsset);
+							trace("==========================>  6:" + String(getTimer() - speed));
 						}else{
 							trace("error loading asset: " + savedAsset.displayClassId);
 						}

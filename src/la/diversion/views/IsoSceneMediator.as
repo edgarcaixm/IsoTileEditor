@@ -30,6 +30,7 @@ package la.diversion.views {
 	import flash.geom.Point;
 	import flash.text.TextField;
 	import flash.text.TextFormat;
+	import flash.utils.getTimer;
 	
 	import la.diversion.enums.AssetTypes;
 	import la.diversion.enums.AutoSetWalkableModes;
@@ -145,6 +146,8 @@ package la.diversion.views {
 		private var _panOriginY:Number = 0;
 		private var _mouseRow:Number;
 		private var _mouseCol:Number;
+		private var _prevMouseRow:Number;
+		private var _prevMouseCol:Number;
 		private var _isMouseOverGrid:Boolean = false;
 		private var _isMouseOverThis:Boolean = false;
 		private var _zoomFactor:Number = 1;
@@ -179,7 +182,7 @@ package la.diversion.views {
 		}
 		
 		private function handleEnterFrame(event:Event):void{
-			view.isoScene.render();
+			//view.isoScene.render();
 		}
 		
 		private function handlePlayerAvatarSpawnPositionUpdated(pt:Point):void{
@@ -301,6 +304,7 @@ package la.diversion.views {
 					positionUpdate.y = _panOriginY - ((_panY - event.stageY)*scaleFactor2);
 					updateIsoSceneBackgroundPosition.dispatch(positionUpdate);
 				}
+				_prevMouseCol = _mouseCol;
 				_mouseCol = Math.floor(isoPt.x / sceneModel.cellSize);
 				if (_mouseCol < 0 || _mouseCol >= sceneModel.numCols)
 				{
@@ -309,6 +313,7 @@ package la.diversion.views {
 					view.colRowText.text = "";
 					return;
 				}
+				_prevMouseRow = _mouseRow;
 				_mouseRow = Math.floor(isoPt.y / sceneModel.cellSize);
 				if (_mouseRow < 0 || _mouseRow >= sceneModel.numRows)
 				{
@@ -321,8 +326,12 @@ package la.diversion.views {
 				_isMouseOverGrid = true;
 				if (!_highlightIsLocked){
 					view.highlight.container.visible = true;
-					view.highlight.moveTo(_mouseCol * sceneModel.cellSize, _mouseRow * sceneModel.cellSize,0);
-					view.isoScene.render();
+					if(_prevMouseRow != _mouseRow || _prevMouseCol != _mouseCol){
+						if (sceneModel.viewMode != IsoSceneViewModes.VIEW_MODE_SET_WALKABLE_TILES && sceneModel.viewMode != IsoSceneViewModes.VIEW_MODE_EDIT_PATH){
+							view.highlight.moveTo(_mouseCol * sceneModel.cellSize, _mouseRow * sceneModel.cellSize,0);
+							view.isoScene.render();
+						}
+					}
 				}
 				if(_isMouseOverThis){
 					view.colRowText.text = String(_mouseCol) + "\n" + String(_mouseRow);
@@ -377,14 +386,22 @@ package la.diversion.views {
 		}
 		
 		private function handleTileWalkableUpdated(tile:Tile):void{
-			//trace("IsoSceneMediator handleTileWalkableUpdated: " +tile.isoTile.id + ", " + tile.isWalkable + " " + tile.col + ", " + tile.row);
-			if(!view.isoScene.contains(tile.isoTile)){
-				view.isoScene.addChild(tile.isoTile);
-			}
-			if(tile.isWalkable || sceneModel.viewMode == IsoSceneViewModes.VIEW_MODE_PLACE_ASSETS){
-				tile.isoTile.container.visible = false;
-			}else{
-				tile.isoTile.container.visible = true;
+			trace("IsoSceneMediator handleTileWalkableUpdated: " +tile.isoTile.id + ", " + tile.isWalkable + " " + tile.col + ", " + tile.row);
+			if(sceneModel.viewMode == IsoSceneViewModes.VIEW_MODE_EDIT_PATH || sceneModel.viewMode == IsoSceneViewModes.VIEW_MODE_SET_WALKABLE_TILES){ 
+			
+				//if(!view.isoScene.contains(tile.isoTile)){
+				//	view.isoScene.addChild(tile.isoTile);
+				//}
+				if(tile.isWalkable){
+					if(tile.isoTile && view.isoScene.contains(tile.isoTile)){
+						view.isoScene.removeChild(tile.isoTile);
+					}
+				}else{
+					if(tile.isoTile && !view.isoScene.contains(tile.isoTile)){
+						view.isoScene.addChild(tile.isoTile);
+					}
+				}
+				view.isoScene.render();
 			}
 		}
 		
@@ -610,13 +627,22 @@ package la.diversion.views {
 		
 		private function handleIsoSceneViewModeUpdated(mode:String):void{
 			//trace("handleIsoSceneViewModeUpdated:" + mode);
+			var tile:Tile;
 			for(var i:int = 0; i < sceneModel.numCols; i++){
 				for(var j:int = 0; j < sceneModel.numRows; j++){
-					if(!sceneModel.getTile(i,j).isWalkable  && (mode == IsoSceneViewModes.VIEW_MODE_SET_WALKABLE_TILES || mode == IsoSceneViewModes.VIEW_MODE_EDIT_PATH)){
-						sceneModel.getTile(i,j).isoTile.container.visible = true;
+					tile = sceneModel.getTile(i,j);
+					if (tile && tile.isoTile && !tile.isWalkable && (mode == IsoSceneViewModes.VIEW_MODE_SET_WALKABLE_TILES || mode == IsoSceneViewModes.VIEW_MODE_EDIT_PATH)){
+						//if(!tile.isWalkable){
+							view.isoScene.addChild(tile.isoTile);
+							tile.isoTile.container.visible = true;
+						//}else{
+							//if (tile.isoTile){
+							//	tile.isoTile.container.visible = false;
+							//}
+						//}
 					}else{
-						if (sceneModel.getTile(i,j).isoTile){
-							sceneModel.getTile(i,j).isoTile.container.visible = false;
+						if(tile.isoTile && view.isoScene.contains(tile.isoTile)){
+							view.isoScene.removeChild(tile.isoTile);
 						}
 					}
 				}
@@ -663,6 +689,7 @@ package la.diversion.views {
 					}
 				}
 			}
+			view.isoScene.render();
 		}
 		
 		private function addPathingHighlights(numberToAdd:int):void{
