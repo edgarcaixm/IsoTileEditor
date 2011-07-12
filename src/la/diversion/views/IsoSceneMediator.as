@@ -386,7 +386,7 @@ package la.diversion.views {
 		}
 		
 		private function handleTileWalkableUpdated(tile:Tile):void{
-			trace("IsoSceneMediator handleTileWalkableUpdated: " +tile.isoTile.id + ", " + tile.isWalkable + " " + tile.col + ", " + tile.row);
+			//trace("IsoSceneMediator handleTileWalkableUpdated: " +tile.isoTile.id + ", " + tile.isWalkable + " " + tile.col + ", " + tile.row);
 			if(sceneModel.viewMode == IsoSceneViewModes.VIEW_MODE_EDIT_PATH || sceneModel.viewMode == IsoSceneViewModes.VIEW_MODE_SET_WALKABLE_TILES){ 
 			
 				//if(!view.isoScene.contains(tile.isoTile)){

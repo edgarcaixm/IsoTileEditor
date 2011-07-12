@@ -59,6 +59,8 @@ package la.diversion.models.vo {
 		private var _pathingIdleTime:int;
 		private var _walkType:int;
 		
+		public var swf_url:String;
+		
 		private var _addedToStage:NativeSignal;
 		public var mouseDown:NativeSignal;
 		public var mouseUp:NativeSignal;
@@ -419,6 +421,7 @@ package la.diversion.models.vo {
 			result.pathingIdleChance = _pathingIdleChance;
 			result.pathingIdleTime = _pathingIdleTime;
 			result.walkType = _walkType;
+			result.swf_url = this.swf_url;
 			
 			return DiversionJSON.encode(result);
 		}
