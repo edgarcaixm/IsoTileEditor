@@ -34,6 +34,7 @@ package la.diversion.views {
 	import la.diversion.signals.UpdateIsoSceneViewModeSignal;
 	
 	import org.robotlegs.mvcs.SignalMediator;
+	import la.diversion.signals.UpdateIsoSceneGridVisibility;
 	
 	public class MainMenuMediator extends SignalMediator {
 		
@@ -73,6 +74,9 @@ package la.diversion.views {
 		[Inject]
 		public var applicationCurrentFileUpdated:ApplicationCurrentFileUpdatedSignal;
 		
+		[Inject]
+		public var updateIsoSceneGridVisibility:UpdateIsoSceneGridVisibility;
+		
 		override public function onRegister():void{
 			addToSignal(view.eventFileNew, handleFileNew);
 			addToSignal(view.eventFileSave, handleFileSave);
@@ -82,11 +86,16 @@ package la.diversion.views {
 			addToSignal(view.eventUpdateIsoSceneViewMode, handleUpdateIsoSceneViewMode);
 			addToSignal(view.eventResetIsoSceneBackground, hangleResetIsoSceneBackground);
 			addToSignal(view.eventAutoSetToggleWalkable, handleAutoSetToggleWalkable);
+			addToSignal(view.eventToggleGrid, handle_eventToggleGrid);
 			
 			addOnceToSignal(view.eventAddedToStage, handleAddedToStage);
 			
 			addToSignal(isoSceneViewModeUpdated, handleIsoSceneViewModeUpdated);
 			addToSignal(applicationCurrentFileUpdated, handleApplicationCurrentFileUpdated);
+		}
+		
+		private function handle_eventToggleGrid(showGrid:Boolean):void{
+			updateIsoSceneGridVisibility.dispatch(showGrid);
 		}
 		
 		private function handleIsoSceneViewModeUpdated(mode:String):void{

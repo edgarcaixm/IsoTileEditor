@@ -59,6 +59,7 @@ package la.diversion.views {
 	import la.diversion.signals.TileWalkableUpdatedSignal;
 	import la.diversion.signals.UpdateApplicationWindowResizeSignal;
 	import la.diversion.signals.UpdateIsoSceneBackgroundPositionSignal;
+	import la.diversion.signals.UpdateIsoSceneGridVisibility;
 	import la.diversion.signals.UpdateIsoSceneViewModeSignal;
 	import la.diversion.signals.UpdatePropertiesViewModeSignal;
 	import la.diversion.signals.UpdateTileWalkableSignal;
@@ -138,6 +139,9 @@ package la.diversion.views {
 		[Inject]
 		public var playerAvatarSpawnPositionUpdated:PlayerAvatarSpawnPositionUpdatedSignal;
 		
+		[Inject]
+		public var updateIsoSceneGridVisibility:UpdateIsoSceneGridVisibility;
+		
 		private var _isPanning:Boolean = false;
 		private var _isMovingBackground:Boolean = false;
 		private var _panX:Number = 0;
@@ -173,12 +177,24 @@ package la.diversion.views {
 			addToSignal(mapAssetPathingPointsUpdated, handleMapAssetPathingPointsUpdated);
 			addToSignal(propertiesViewModeUpdated, handlePropertiesViewModeUpdated);
 			addToSignal(playerAvatarSpawnPositionUpdated, handlePlayerAvatarSpawnPositionUpdated);
+			addToSignal(updateIsoSceneGridVisibility, handle_updateIsoSceneGridVisibility);
 			
 			
 			addToSignal(view.addedToStage, handleThisAddedToStage);
 			addToSignal(view.thisMouseEventRollOut, handleThisMouseEventRollOut);
 			addToSignal(view.thisMouseEventRollOver, handleThisMouseEventRollOver);
 			addToSignal(view.enterFrame, handleEnterFrame);
+		}
+		
+		private function handle_updateIsoSceneGridVisibility(vis:Boolean):void{
+			//trace("UPDATE GRID VISIBILTY = " + vis);
+			if(view.isoGrid){
+				if(vis){
+					view.isoScene.addChildAt(view.isoGrid,0);
+				}else{
+					view.isoScene.removeChild(view.isoGrid);
+				}
+			}
 		}
 		
 		private function handleEnterFrame(event:Event):void{

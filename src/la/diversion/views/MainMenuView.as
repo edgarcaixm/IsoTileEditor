@@ -42,6 +42,7 @@ package la.diversion.views {
 		private var _eventUpdateIsoSceneViewMode:Signal;
 		private var _eventResetIsoSceneBackground:Signal;
 		private var _eventAutoSetToggleWalkable:Signal;
+		private var _eventToggleGrid:Signal;
 		
 		//PRIVATE VARS
 		private var _isoViewModeCommands:Array = new Array();
@@ -91,6 +92,10 @@ package la.diversion.views {
 		
 		public function get eventAutoSetToggleWalkable():Signal{
 			return _eventAutoSetToggleWalkable ||= new Signal();
+		}
+		
+		public function get eventToggleGrid():Signal{
+			return _eventToggleGrid ||= new Signal();
 		}
 
 		public function init(e:Event = null):void {
@@ -238,6 +243,11 @@ package la.diversion.views {
 			command.keyEquivalent = "T";
 			command.addEventListener(Event.SELECT, selectCommand);
 			
+			command = menu.submenu.addItem(new NativeMenuItem("Toggle Grid"));
+			command.checked = true;
+			command.keyEquivalent = "r";
+			command.addEventListener(Event.SELECT, selectCommand);
+			
 			//command = menu.submenu.addItem(new NativeMenuItem("", true));
 			
 			//editPathingGridMenuItem = menu.submenu.addItem(new NativeMenuItem("Edit Pathing Grid"));
@@ -298,6 +308,15 @@ package la.diversion.views {
 						event.target.checked = false;
 					}else{
 						eventAutoSetToggleWalkable.dispatch(AutoSetWalkableModes.AUTO_SET);
+						event.target.checked = true;
+					}
+					break;
+				case "Toggle Grid":
+					if(event.target.checked){
+						eventToggleGrid.dispatch(false);
+						event.target.checked = false;
+					}else{
+						eventToggleGrid.dispatch(true);
 						event.target.checked = true;
 					}
 					break;
