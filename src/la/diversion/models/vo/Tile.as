@@ -25,7 +25,6 @@ package la.diversion.models.vo {
 		private var _isWalkable:Boolean = true;
 		private var _cellSize:Number;
 		private var _isoTile:IsoRectangle;
-		private var _walkableUpdated:Signal;
 		
 		public function Tile(col:int, row:int, cellSize:Number) {
 			this._col = col;
@@ -35,11 +34,6 @@ package la.diversion.models.vo {
 			//this.isoTile.setSize(cellSize, cellSize, 0);
 			//this.isoTile.moveTo(_col * cellSize, _row * cellSize, 0);
 			//this.isoTile.fills = [ new SolidColorFill(0xFF0000,.75) ];
-		}
-		
-		[Transient]
-		public function get walkableUpdated():Signal{
-			return _walkableUpdated ||= new Signal();
 		}
 		
 		public function get row():int
@@ -107,7 +101,6 @@ package la.diversion.models.vo {
 				this.isoTile.fills = [ new SolidColorFill(0xFF0000,.75) ];
 			}
 			this._isWalkable = isWalkable;
-			walkableUpdated.dispatch(this);
 		}
 	}
 }

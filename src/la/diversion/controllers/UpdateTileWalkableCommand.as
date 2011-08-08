@@ -14,8 +14,10 @@ package la.diversion.controllers {
 	import org.robotlegs.mvcs.SignalCommand;
 	
 	public class UpdateTileWalkableCommand extends SignalCommand {
+		//[Inject]
+		//public var tile:Tile;
 		[Inject]
-		public var tile:Tile;
+		public var tiles:Array;
 		
 		[Inject]
 		public var isWalkable:Boolean;
@@ -24,7 +26,8 @@ package la.diversion.controllers {
 		public var model:SceneModel;
 		
 		override public function execute():void{
-			model.getTile(tile.col, tile.row).isWalkable = isWalkable;
+			//model.getTile(tile.col, tile.row).isWalkable = isWalkable;
+			model.updateWalkableTilesGroup(tiles, isWalkable);
 		}
 	}
 }

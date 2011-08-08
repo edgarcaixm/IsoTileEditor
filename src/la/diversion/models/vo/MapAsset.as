@@ -446,7 +446,8 @@ package la.diversion.models.vo {
 			}
 			if(_displayClassType == AssetTypes.MOVIECLIP){
 				//create a wrapper for the remotely loaded clip because adobe hates developers
-				var wrapper:Sprite = new ass.displayClass as Sprite;
+				//var wrapper:Sprite = new ass.displayClass as Sprite;
+				var wrapper:Sprite = new Sprite;
 				wrapper.addChild(new ass.displayClass as MovieClip);
 				wrapper.mouseChildren = false;
 				ass.sprites = [wrapper];

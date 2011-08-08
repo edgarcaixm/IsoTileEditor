@@ -30,6 +30,7 @@ package la.diversion.views {
 	import flash.display.StageAlign;
 	import flash.display.StageScaleMode;
 	import flash.events.Event;
+	import flash.events.KeyboardEvent;
 	import flash.events.MouseEvent;
 	import flash.filters.GlowFilter;
 	import flash.geom.Point;
@@ -59,6 +60,10 @@ package la.diversion.views {
 		public var stageMouseEventMouseDown:NativeSignal;
 		public var stageMouseEventMouseUp:NativeSignal;
 		public var stageMouseEventMouseWheel:NativeSignal;
+		
+		public var stageKeyboardEventKeyDown:NativeSignal;
+		public var stageKeyboardEventKeyUp:NativeSignal;
+		
 		public var thisMouseEventRollOut:NativeSignal;
 		public var thisMouseEventRollOver:NativeSignal;
 		
@@ -101,6 +106,9 @@ package la.diversion.views {
 			stageMouseEventMouseDown = new NativeSignal(stage, MouseEvent.MOUSE_DOWN, MouseEvent);
 			stageMouseEventMouseUp = new NativeSignal(stage, MouseEvent.MOUSE_UP, MouseEvent);
 			stageMouseEventMouseWheel = new NativeSignal(stage, MouseEvent.MOUSE_WHEEL, MouseEvent);
+			
+			stageKeyboardEventKeyDown = new NativeSignal(stage, KeyboardEvent.KEY_DOWN, KeyboardEvent);
+			stageKeyboardEventKeyUp = new NativeSignal(stage, KeyboardEvent.KEY_UP, KeyboardEvent);
 		}
 		
 		public function get position():Point {

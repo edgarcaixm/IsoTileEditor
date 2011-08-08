@@ -127,7 +127,6 @@ package la.diversion.models {
 				_grid[i] = new Array(DEFAULT_ROWS);
 				for (var j:int = 0; j < DEFAULT_ROWS;  j++) {
 					var newTile:Tile = new Tile(i,j,_cellSize);
-					newTile.walkableUpdated.add(handleTileWalkableUpdated);
 					_grid[i][j] = newTile;
 				}
 			}
@@ -500,17 +499,23 @@ package la.diversion.models {
 			return null;
 		}
 		
+		public function updateWalkableTilesGroup(tiles:Array, isWalkable:Boolean):void{
+			//trace("updateWalkableTilesGroup");
+			var updatedTiles:Array = [];
+			for each(var tile:Tile in tiles){
+				if(tile.isWalkable != isWalkable){
+					tile.isWalkable = isWalkable;
+					updatedTiles.push(tile);
+				}
+			}
+			if(updatedTiles.length){
+				tileWalkableUpdated.dispatch(updatedTiles);
+			}
+		}
+		
 		// Creates the grid arrays and adds a Tile object
 		// to each one.
 		public function setGridSize(cols:int, rows:int):void {
-			//remove old listeners
-			for (var k:int = 0; k < _numCols; k++) {
-				for (var i2:int = 0; i2 < _numRows; i2++) {
-					Tile(_grid[k][i2]).walkableUpdated.removeAll();
-				}
-			}
-			
-			
 			_numCols = cols;
 			_numRows = rows;
 			_grid = new Array(cols);
@@ -518,15 +523,11 @@ package la.diversion.models {
 				_grid[i] = new Array(rows);
 				for (var j:int = 0; j < rows;  j++) {
 					var newTile:Tile = new Tile(i,j,_cellSize);
-					newTile.walkableUpdated.add(handleTileWalkableUpdated);
 					_grid[i][j] = newTile;
 				}
 			}
 			sceneGridSizeUpdated.dispatch();
 		}
-		
-		private function handleTileWalkableUpdated(tile:Tile):void{
-			tileWalkableUpdated.dispatch(tile);
-		}
+
 	}
 }

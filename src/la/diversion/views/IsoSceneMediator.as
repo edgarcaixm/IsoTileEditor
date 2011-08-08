@@ -25,6 +25,7 @@ package la.diversion.views {
 	import flash.display.MovieClip;
 	import flash.display.Sprite;
 	import flash.events.Event;
+	import flash.events.KeyboardEvent;
 	import flash.events.MouseEvent;
 	import flash.filters.GlowFilter;
 	import flash.geom.Point;
@@ -59,7 +60,7 @@ package la.diversion.views {
 	import la.diversion.signals.TileWalkableUpdatedSignal;
 	import la.diversion.signals.UpdateApplicationWindowResizeSignal;
 	import la.diversion.signals.UpdateIsoSceneBackgroundPositionSignal;
-	import la.diversion.signals.UpdateIsoSceneGridVisibility;
+	import la.diversion.signals.UpdateIsoSceneGridVisibilitySignal;
 	import la.diversion.signals.UpdateIsoSceneViewModeSignal;
 	import la.diversion.signals.UpdatePropertiesViewModeSignal;
 	import la.diversion.signals.UpdateTileWalkableSignal;
@@ -140,7 +141,7 @@ package la.diversion.views {
 		public var playerAvatarSpawnPositionUpdated:PlayerAvatarSpawnPositionUpdatedSignal;
 		
 		[Inject]
-		public var updateIsoSceneGridVisibility:UpdateIsoSceneGridVisibility;
+		public var updateIsoSceneGridVisibility:UpdateIsoSceneGridVisibilitySignal;
 		
 		private var _isPanning:Boolean = false;
 		private var _isMovingBackground:Boolean = false;
@@ -159,6 +160,12 @@ package la.diversion.views {
 		private var _assetSelectedMovePoint:Point;
 		private var _highlightIsLocked:Boolean = false;
 		private var _pathingHighlights:Array = [];
+		private var _shiftDown:Boolean = false;
+		private var _shiftStartRow:Number = -1;
+		private var _shiftStartCol:Number = -1;
+		private var _shiftCurrentRow:Number = -1;
+		private var _shiftCurrentCol:Number = -1;
+		private var _shiftIsWalkable:Boolean = false;
 		
 		override public function onRegister():void{
 			makeGrid();
@@ -184,6 +191,60 @@ package la.diversion.views {
 			addToSignal(view.thisMouseEventRollOut, handleThisMouseEventRollOut);
 			addToSignal(view.thisMouseEventRollOver, handleThisMouseEventRollOver);
 			addToSignal(view.enterFrame, handleEnterFrame);
+		}
+		
+		private function handleThisAddedToStage(event:Event):void{
+			addToSignal(view.stageMouseEventClick, handleStageMouseEventClick);
+			addToSignal(view.stageMouseEventMouseMove, handleStageMouseMove);
+			addToSignal(view.stageMouseEventMouseDown, handleStageMouseEventMouseDown);
+			addToSignal(view.stageMouseEventMouseWheel, handleStageMouseEventMouseWheel);
+			addToSignal(view.stageKeyboardEventKeyDown, handle_stageKeyboardEventKeyDown);
+			addToSignal(view.stageKeyboardEventKeyUp, handle_stageKeyboardEventKeyUp);
+		}
+		
+		private function handle_stageKeyboardEventKeyDown(event:KeyboardEvent):void{
+			trace("DOWN " + event.keyCode);
+			if(event.keyCode == 16){
+				_shiftDown = true;
+				_shiftStartRow = _shiftCurrentRow = _mouseRow;
+				_shiftStartCol = _shiftCurrentCol = _mouseCol;
+				
+				var tile:Tile = sceneModel.getTile(_mouseCol, _mouseRow);
+				if(tile.isWalkable ){
+					updateTileWalkable.dispatch([tile], false);
+					_shiftIsWalkable = false;
+				}else{
+					updateTileWalkable.dispatch([tile], true);
+					_shiftIsWalkable = true;
+				}
+			}
+			
+			/*
+			for each(var asset:MapAsset in sceneModel.assetManager.assets){
+				if(asset.displayClassType == AssetTypes.MOVIECLIP){
+					trace("-------------" + asset.displayClassId + " " + asset.container.numChildren);
+					MovieClip(asset.container.getChildAt(0)).gotoAndStop("state_0");
+					for each(var mc:MovieClip in asset.actualSprites){
+						trace("mc.numChildren "+ mc.numChildren);
+						mc.gotoAndStop("state_0");
+						
+						for (var i:int = 0; i < mc.numChildren; i++) {
+							MovieClip(mc.getChildAt(i)).gotoAndStop(1);
+						}
+					}
+				}
+			}
+			view.isoScene.render();
+			*/
+		}
+		
+		private function handle_stageKeyboardEventKeyUp(event:KeyboardEvent):void{
+			trace("UP " + event.keyCode);
+			if(event.keyCode == 16){
+				_shiftDown = false;
+				_shiftStartRow = _shiftCurrentRow = -1;
+				_shiftStartCol = _shiftCurrentCol = -1;
+			}
 		}
 		
 		private function handle_updateIsoSceneGridVisibility(vis:Boolean):void{
@@ -354,6 +415,54 @@ package la.diversion.views {
 				}else{
 					view.colRowText.text = "";
 				}
+				
+				if(_isMouseOverGrid && _isMouseOverThis && _shiftDown && sceneModel.viewMode == IsoSceneViewModes.VIEW_MODE_SET_WALKABLE_TILES){
+					if(_shiftCurrentRow != _mouseRow || _shiftCurrentCol != _mouseCol){
+						/*
+						var tile:Tile = sceneModel.getTile(_mouseCol, _mouseRow);
+						if(tile.isWalkable ){
+							updateTileWalkable.dispatch(tile, false);
+						}else{
+							updateTileWalkable.dispatch(tile, true);
+						}
+						_shiftStartRow = _mouseRow;
+						_shiftStartCol = _mouseCol;
+						*/
+						var startRow:Number;
+						var endRow:Number
+						var startCol:Number;
+						var endCol:Number;
+						if(_shiftStartRow > _mouseRow){
+							startRow = _mouseRow;
+							endRow = _shiftStartRow;
+						}else{
+							startRow = _shiftStartRow;
+							endRow = _mouseRow;
+						}
+						if(_shiftStartCol > _mouseCol){
+							startCol = _mouseCol;
+							endCol = _shiftStartCol;
+						}else{
+							startCol = _shiftStartCol;
+							endCol = _mouseCol;
+						}
+						
+						var updateTiles:Array = [];
+						for (var i:int = startCol; i <= endCol; i++) {
+							for (var j:int = startRow; j <= endRow; j++) {
+								var tile:Tile = sceneModel.getTile(i, j);
+								updateTiles.push(tile);
+							}
+						}
+						if(updateTiles.length){
+							updateTileWalkable.dispatch(updateTiles, _shiftIsWalkable);
+						}
+						
+						_shiftCurrentCol = _mouseCol;
+						_shiftCurrentRow = _mouseRow;
+					}
+				}
+				
 			}
 		}
 		
@@ -394,27 +503,22 @@ package la.diversion.views {
 			}
 		}
 		
-		private function handleThisAddedToStage(event:Event):void{
-			addToSignal(view.stageMouseEventClick, handleStageMouseEventClick);
-			addToSignal(view.stageMouseEventMouseMove, handleStageMouseMove);
-			addToSignal(view.stageMouseEventMouseDown, handleStageMouseEventMouseDown);
-			addToSignal(view.stageMouseEventMouseWheel, handleStageMouseEventMouseWheel);
-		}
-		
-		private function handleTileWalkableUpdated(tile:Tile):void{
+		private function handleTileWalkableUpdated(tiles:Array):void{
 			//trace("IsoSceneMediator handleTileWalkableUpdated: " +tile.isoTile.id + ", " + tile.isWalkable + " " + tile.col + ", " + tile.row);
 			if(sceneModel.viewMode == IsoSceneViewModes.VIEW_MODE_EDIT_PATH || sceneModel.viewMode == IsoSceneViewModes.VIEW_MODE_SET_WALKABLE_TILES){ 
 			
 				//if(!view.isoScene.contains(tile.isoTile)){
 				//	view.isoScene.addChild(tile.isoTile);
 				//}
-				if(tile.isWalkable){
-					if(tile.isoTile && view.isoScene.contains(tile.isoTile)){
-						view.isoScene.removeChild(tile.isoTile);
-					}
-				}else{
-					if(tile.isoTile && !view.isoScene.contains(tile.isoTile)){
-						view.isoScene.addChild(tile.isoTile);
+				for each(var tile:Tile in tiles){
+					if(tile.isWalkable){
+						if(tile.isoTile && view.isoScene.contains(tile.isoTile)){
+							view.isoScene.removeChild(tile.isoTile);
+						}
+					}else{
+						if(tile.isoTile && !view.isoScene.contains(tile.isoTile)){
+							view.isoScene.addChild(tile.isoTile);
+						}
 					}
 				}
 				view.isoScene.render();
@@ -426,9 +530,9 @@ package la.diversion.views {
 			if(_isMouseOverGrid && _isMouseOverThis && sceneModel.viewMode == IsoSceneViewModes.VIEW_MODE_SET_WALKABLE_TILES){
 				var tile:Tile = sceneModel.getTile(_mouseCol, _mouseRow);
 				if(tile.isWalkable ){
-					updateTileWalkable.dispatch(tile, false);
+					updateTileWalkable.dispatch([tile], false);
 				}else{
-					updateTileWalkable.dispatch(tile, true);
+					updateTileWalkable.dispatch([tile], true);
 				}
 			}else if(_isMouseOverGrid 
 				&& _isMouseOverThis 
@@ -463,7 +567,7 @@ package la.diversion.views {
 			if(asset.displayClassType == AssetTypes.SPRITE_SHEET){
 				asset.spriteSheet.action();
 			}else if(asset.displayClassType == AssetTypes.MOVIECLIP){
-				MovieClip(asset.container.getChildAt(0)).gotoAndStop("state_0");
+				MovieClip(Sprite(asset.container.getChildAt(0)).getChildAt(0)).gotoAndStop("state_0");
 			}
 			_assetSelected = asset;
 			updateMapAssetPathingGridDisplay();
@@ -542,7 +646,7 @@ package la.diversion.views {
 				for (var i:int = asset.stageCol; i < (asset.stageCol + asset.cols); i++) {
 					for (var j:int = asset.stageRow ; j < (asset.stageRow + asset.rows); j++) {
 						var tile:Tile = sceneModel.getTile(i,j);
-						updateTileWalkable.dispatch(tile, true);
+						updateTileWalkable.dispatch([tile], true);
 					}
 				}
 			}
@@ -617,7 +721,7 @@ package la.diversion.views {
 					for (var i:int = asset.stageCol; i < (asset.stageCol + asset.cols); i++) {
 						for (var j:int = asset.stageRow ; j < (asset.stageRow + asset.rows); j++) {
 							var tile:Tile = sceneModel.getTile(i,j);
-							updateTileWalkable.dispatch(tile, false);
+							updateTileWalkable.dispatch([tile], false);
 						}
 					}
 				}

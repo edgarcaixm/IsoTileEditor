@@ -58,7 +58,7 @@ package la.diversion
 			injector.mapSingleton(RemoveMapAssetPathingPointSignal);
 			injector.mapSingleton(MapAssetPathingPointsUpdatedSignal);
 			injector.mapSingleton(PlayerAvatarSpawnPositionUpdatedSignal);
-			injector.mapSingleton(UpdateIsoSceneGridVisibility);
+			injector.mapSingleton(UpdateIsoSceneGridVisibilitySignal);
 			
 			//models
 			injector.mapSingleton(SceneModel);

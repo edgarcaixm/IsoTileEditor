@@ -11,9 +11,9 @@ package la.diversion.signals
 {
 	import org.osflash.signals.Signal;
 	
-	public class UpdateIsoSceneGridVisibility extends Signal
+	public class UpdateIsoSceneGridVisibilitySignal extends Signal
 	{
-		public function UpdateIsoSceneGridVisibility(...parameters)
+		public function UpdateIsoSceneGridVisibilitySignal(...parameters)
 		{
 			super(Boolean);
 		}

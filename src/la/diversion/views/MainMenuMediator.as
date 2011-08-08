@@ -34,7 +34,7 @@ package la.diversion.views {
 	import la.diversion.signals.UpdateIsoSceneViewModeSignal;
 	
 	import org.robotlegs.mvcs.SignalMediator;
-	import la.diversion.signals.UpdateIsoSceneGridVisibility;
+	import la.diversion.signals.UpdateIsoSceneGridVisibilitySignal;
 	
 	public class MainMenuMediator extends SignalMediator {
 		
@@ -75,7 +75,7 @@ package la.diversion.views {
 		public var applicationCurrentFileUpdated:ApplicationCurrentFileUpdatedSignal;
 		
 		[Inject]
-		public var updateIsoSceneGridVisibility:UpdateIsoSceneGridVisibility;
+		public var updateIsoSceneGridVisibility:UpdateIsoSceneGridVisibilitySignal;
 		
 		override public function onRegister():void{
 			addToSignal(view.eventFileNew, handleFileNew);
