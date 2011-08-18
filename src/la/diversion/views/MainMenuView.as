@@ -225,10 +225,15 @@ package la.diversion.views {
 			command.keyEquivalent = "b";
 			_isoViewModeCommands.push(command);
 			
-			editPathingGridMenuItem = menu.submenu.addItem(new NativeMenuItem("Mode: Edit Pathing"));
-			editPathingGridMenuItem.keyEquivalent = "g";
-			editPathingGridMenuItem.addEventListener(Event.SELECT, selectCommand);
-			_isoViewModeCommands.push(editPathingGridMenuItem);
+			command = menu.submenu.addItem(new NativeMenuItem("Mode: Edit Pathing"));
+			command.keyEquivalent = "g";
+			command.addEventListener(Event.SELECT, selectCommand);
+			_isoViewModeCommands.push(command);
+			
+			command = menu.submenu.addItem(new NativeMenuItem("Mode: Edit Water Terrain"));
+			command.keyEquivalent = "j";
+			command.addEventListener(Event.SELECT, selectCommand);
+			_isoViewModeCommands.push(command);
 			
 			command = menu.submenu.addItem(new NativeMenuItem("", true));
 			
@@ -247,12 +252,6 @@ package la.diversion.views {
 			command.checked = true;
 			command.keyEquivalent = "r";
 			command.addEventListener(Event.SELECT, selectCommand);
-			
-			//command = menu.submenu.addItem(new NativeMenuItem("", true));
-			
-			//editPathingGridMenuItem = menu.submenu.addItem(new NativeMenuItem("Edit Pathing Grid"));
-			//editPathingGridMenuItem.keyEquivalent = "g";
-			//editPathingGridMenuItem.addEventListener(Event.SELECT, selectCommand);
 		}
 		
 		//catch custom menu items
@@ -297,6 +296,11 @@ package la.diversion.views {
 				case "Mode: Edit Pathing":
 					if(!event.target.checked){
 						eventUpdateIsoSceneViewMode.dispatch(IsoSceneViewModes.VIEW_MODE_EDIT_PATH);
+					}
+					break;
+				case "Mode: Edit Water Terrain":
+					if(!event.target.checked){
+						eventUpdateIsoSceneViewMode.dispatch(IsoSceneViewModes.VIEW_MODE_EDIT_WATER_TERRAIN);
 					}
 					break;
 				case "Reset Background Image":

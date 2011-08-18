@@ -20,6 +20,7 @@ package la.diversion.models {
 	import la.diversion.enums.EditPathingGridModes;
 	import la.diversion.enums.IsoSceneViewModes;
 	import la.diversion.enums.PropertyViewModes;
+	import la.diversion.enums.TerrainTypes;
 	import la.diversion.models.vo.AssetManager;
 	import la.diversion.models.vo.Background;
 	import la.diversion.models.vo.MapAsset;
@@ -34,6 +35,7 @@ package la.diversion.models {
 	import la.diversion.signals.PlayerAvatarSpawnPositionUpdatedSignal;
 	import la.diversion.signals.PropertiesViewModeUpdatedSignal;
 	import la.diversion.signals.SceneGridSizeUpdatedSignal;
+	import la.diversion.signals.TileTerrainUpdatedSignal;
 	import la.diversion.signals.TileWalkableUpdatedSignal;
 	
 	import mx.collections.ArrayCollection;
@@ -89,6 +91,10 @@ package la.diversion.models {
 		[Transient]
 		[Inject]
 		public var playerAvatarSpawnPositionUpdated:PlayerAvatarSpawnPositionUpdatedSignal;
+
+		[Transient]
+		[Inject]
+		public var tileTerrainUpdated:TileTerrainUpdatedSignal;
 		
 		public static var DEFAULT_COLS:int = 40;
 		public static var DEFAULT_ROWS:int = 40;
@@ -111,7 +117,6 @@ package la.diversion.models {
 		private var _grid:Array;
 		private var _editProperitiesList:ArrayCollection;
 		private var _autoSetWalkable:String;
-		private var _pathingGrid:Array = [];
 		
 		public function SceneModel() {
 			super();
@@ -478,7 +483,7 @@ package la.diversion.models {
 			var result:Array = new Array();
 			for (var i:int = 0; i < _grid.length; i++) {
 				for (var j:int = 0; j < _grid[i].length; j++) {
-					if (!_grid[i][j].isWalkable) {
+					if (!_grid[i][j].isWalkable || Tile(_grid[i][j]).terrain_type != TerrainTypes.GROUND ) {
 						result.push(_grid[i][j]);
 					}
 				}
@@ -493,14 +498,16 @@ package la.diversion.models {
 		 * 
 		 */
 		public function getTile(col:int, row:int):Tile{
-			if(_grid[col][row]){
-				return _grid[col][row];
+			if(col >= 0 && col < _numCols && row >= 0 && row < _numRows){
+				if(_grid[col][row]){
+					return _grid[col][row];
+				}
+				return null;
 			}
 			return null;
 		}
 		
 		public function updateWalkableTilesGroup(tiles:Array, isWalkable:Boolean):void{
-			//trace("updateWalkableTilesGroup");
 			var updatedTiles:Array = [];
 			for each(var tile:Tile in tiles){
 				if(tile.isWalkable != isWalkable){
@@ -510,6 +517,19 @@ package la.diversion.models {
 			}
 			if(updatedTiles.length){
 				tileWalkableUpdated.dispatch(updatedTiles);
+			}
+		}
+		
+		public function updateTilesTerrain(tiles:Array, terrain:String):void{
+			var updatedTiles:Array = [];
+			for each(var tile:Tile in tiles){
+				if(tile.terrain_type != terrain){
+					tile.terrain_type = terrain;
+					updatedTiles.push(tile);
+				}
+			}
+			if(updatedTiles.length){
+				tileTerrainUpdated.dispatch(updatedTiles);
 			}
 		}
 		

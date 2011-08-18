@@ -37,6 +37,7 @@ package la.diversion.views {
 	import la.diversion.enums.AutoSetWalkableModes;
 	import la.diversion.enums.IsoSceneViewModes;
 	import la.diversion.enums.PropertyViewModes;
+	import la.diversion.enums.TerrainTypes;
 	import la.diversion.models.SceneModel;
 	import la.diversion.models.vo.Background;
 	import la.diversion.models.vo.MapAsset;
@@ -57,12 +58,14 @@ package la.diversion.views {
 	import la.diversion.signals.PropertiesViewModeUpdatedSignal;
 	import la.diversion.signals.RemoveMapAssetPathingPointSignal;
 	import la.diversion.signals.SceneGridSizeUpdatedSignal;
+	import la.diversion.signals.TileTerrainUpdatedSignal;
 	import la.diversion.signals.TileWalkableUpdatedSignal;
 	import la.diversion.signals.UpdateApplicationWindowResizeSignal;
 	import la.diversion.signals.UpdateIsoSceneBackgroundPositionSignal;
 	import la.diversion.signals.UpdateIsoSceneGridVisibilitySignal;
 	import la.diversion.signals.UpdateIsoSceneViewModeSignal;
 	import la.diversion.signals.UpdatePropertiesViewModeSignal;
+	import la.diversion.signals.UpdateTileTerrainSignal;
 	import la.diversion.signals.UpdateTileWalkableSignal;
 	
 	import mx.events.FlexNativeWindowBoundsEvent;
@@ -143,6 +146,12 @@ package la.diversion.views {
 		[Inject]
 		public var updateIsoSceneGridVisibility:UpdateIsoSceneGridVisibilitySignal;
 		
+		[Inject]
+		public var updateTileTerrain:UpdateTileTerrainSignal;
+		
+		[Inject]
+		public var tileTerrainUpdatedSignal:TileTerrainUpdatedSignal;
+		
 		private var _isPanning:Boolean = false;
 		private var _isMovingBackground:Boolean = false;
 		private var _panX:Number = 0;
@@ -166,6 +175,7 @@ package la.diversion.views {
 		private var _shiftCurrentRow:Number = -1;
 		private var _shiftCurrentCol:Number = -1;
 		private var _shiftIsWalkable:Boolean = false;
+		private var _shiftTerrain:String = TerrainTypes.GROUND;
 		
 		override public function onRegister():void{
 			makeGrid();
@@ -185,6 +195,7 @@ package la.diversion.views {
 			addToSignal(propertiesViewModeUpdated, handlePropertiesViewModeUpdated);
 			addToSignal(playerAvatarSpawnPositionUpdated, handlePlayerAvatarSpawnPositionUpdated);
 			addToSignal(updateIsoSceneGridVisibility, handle_updateIsoSceneGridVisibility);
+			addToSignal(tileTerrainUpdatedSignal, handle_tileTerrainUpdatedSignal);
 			
 			
 			addToSignal(view.addedToStage, handleThisAddedToStage);
@@ -210,32 +221,23 @@ package la.diversion.views {
 				_shiftStartCol = _shiftCurrentCol = _mouseCol;
 				
 				var tile:Tile = sceneModel.getTile(_mouseCol, _mouseRow);
-				if(tile.isWalkable ){
-					updateTileWalkable.dispatch([tile], false);
-					_shiftIsWalkable = false;
-				}else{
-					updateTileWalkable.dispatch([tile], true);
-					_shiftIsWalkable = true;
-				}
-			}
-			
-			/*
-			for each(var asset:MapAsset in sceneModel.assetManager.assets){
-				if(asset.displayClassType == AssetTypes.MOVIECLIP){
-					trace("-------------" + asset.displayClassId + " " + asset.container.numChildren);
-					MovieClip(asset.container.getChildAt(0)).gotoAndStop("state_0");
-					for each(var mc:MovieClip in asset.actualSprites){
-						trace("mc.numChildren "+ mc.numChildren);
-						mc.gotoAndStop("state_0");
-						
-						for (var i:int = 0; i < mc.numChildren; i++) {
-							MovieClip(mc.getChildAt(i)).gotoAndStop(1);
-						}
+				if(tile){
+					if(tile.terrain_type == TerrainTypes.GROUND){
+						_shiftTerrain = TerrainTypes.WATER;
+					}else{
+						_shiftTerrain = TerrainTypes.GROUND;
 					}
+					if(tile.isWalkable ){
+						updateTileWalkable.dispatch([tile], false);
+						_shiftIsWalkable = false;
+					}else{
+						updateTileWalkable.dispatch([tile], true);
+						_shiftIsWalkable = true;
+					}
+				}else{
+					_shiftDown = false;
 				}
 			}
-			view.isoScene.render();
-			*/
 		}
 		
 		private function handle_stageKeyboardEventKeyUp(event:KeyboardEvent):void{
@@ -404,7 +406,7 @@ package la.diversion.views {
 				if (!_highlightIsLocked){
 					view.highlight.container.visible = true;
 					if(_prevMouseRow != _mouseRow || _prevMouseCol != _mouseCol){
-						if (sceneModel.viewMode != IsoSceneViewModes.VIEW_MODE_SET_WALKABLE_TILES && sceneModel.viewMode != IsoSceneViewModes.VIEW_MODE_EDIT_PATH){
+						if (sceneModel.viewMode != IsoSceneViewModes.VIEW_MODE_SET_WALKABLE_TILES && sceneModel.viewMode != IsoSceneViewModes.VIEW_MODE_EDIT_PATH  && sceneModel.viewMode != IsoSceneViewModes.VIEW_MODE_EDIT_WATER_TERRAIN){
 							view.highlight.moveTo(_mouseCol * sceneModel.cellSize, _mouseRow * sceneModel.cellSize,0);
 							view.isoScene.render();
 						}
@@ -416,18 +418,8 @@ package la.diversion.views {
 					view.colRowText.text = "";
 				}
 				
-				if(_isMouseOverGrid && _isMouseOverThis && _shiftDown && sceneModel.viewMode == IsoSceneViewModes.VIEW_MODE_SET_WALKABLE_TILES){
+				if(_isMouseOverGrid && _isMouseOverThis && _shiftDown && (sceneModel.viewMode == IsoSceneViewModes.VIEW_MODE_SET_WALKABLE_TILES || sceneModel.viewMode == IsoSceneViewModes.VIEW_MODE_EDIT_WATER_TERRAIN) ){
 					if(_shiftCurrentRow != _mouseRow || _shiftCurrentCol != _mouseCol){
-						/*
-						var tile:Tile = sceneModel.getTile(_mouseCol, _mouseRow);
-						if(tile.isWalkable ){
-							updateTileWalkable.dispatch(tile, false);
-						}else{
-							updateTileWalkable.dispatch(tile, true);
-						}
-						_shiftStartRow = _mouseRow;
-						_shiftStartCol = _mouseCol;
-						*/
 						var startRow:Number;
 						var endRow:Number
 						var startCol:Number;
@@ -455,7 +447,11 @@ package la.diversion.views {
 							}
 						}
 						if(updateTiles.length){
-							updateTileWalkable.dispatch(updateTiles, _shiftIsWalkable);
+							if(sceneModel.viewMode == IsoSceneViewModes.VIEW_MODE_SET_WALKABLE_TILES){
+								updateTileWalkable.dispatch(updateTiles, _shiftIsWalkable);
+							}else if(sceneModel.viewMode == IsoSceneViewModes.VIEW_MODE_EDIT_WATER_TERRAIN){
+								updateTileTerrain.dispatch(updateTiles, _shiftTerrain);
+							}
 						}
 						
 						_shiftCurrentCol = _mouseCol;
@@ -506,12 +502,26 @@ package la.diversion.views {
 		private function handleTileWalkableUpdated(tiles:Array):void{
 			//trace("IsoSceneMediator handleTileWalkableUpdated: " +tile.isoTile.id + ", " + tile.isWalkable + " " + tile.col + ", " + tile.row);
 			if(sceneModel.viewMode == IsoSceneViewModes.VIEW_MODE_EDIT_PATH || sceneModel.viewMode == IsoSceneViewModes.VIEW_MODE_SET_WALKABLE_TILES){ 
-			
-				//if(!view.isoScene.contains(tile.isoTile)){
-				//	view.isoScene.addChild(tile.isoTile);
-				//}
 				for each(var tile:Tile in tiles){
 					if(tile.isWalkable){
+						if(tile.isoTile && view.isoScene.contains(tile.isoTile)){
+							view.isoScene.removeChild(tile.isoTile);
+						}
+					}else{
+						if(tile.isoTile && !view.isoScene.contains(tile.isoTile)){
+							view.isoScene.addChild(tile.isoTile);
+						}
+					}
+				}
+				view.isoScene.render();
+			}
+		}
+		
+		private function handle_tileTerrainUpdatedSignal(tiles:Array):void{
+			//trace("IsoSceneMediator handleTileWalkableUpdated: " +tile.isoTile.id + ", " + tile.isWalkable + " " + tile.col + ", " + tile.row);
+			if(sceneModel.viewMode == IsoSceneViewModes.VIEW_MODE_EDIT_WATER_TERRAIN ){ 
+				for each(var tile:Tile in tiles){
+					if(tile.terrain_type == TerrainTypes.GROUND){
 						if(tile.isoTile && view.isoScene.contains(tile.isoTile)){
 							view.isoScene.removeChild(tile.isoTile);
 						}
@@ -533,6 +543,13 @@ package la.diversion.views {
 					updateTileWalkable.dispatch([tile], false);
 				}else{
 					updateTileWalkable.dispatch([tile], true);
+				}
+			}else if(_isMouseOverGrid && _isMouseOverThis && sceneModel.viewMode == IsoSceneViewModes.VIEW_MODE_EDIT_WATER_TERRAIN){
+				var tile2:Tile = sceneModel.getTile(_mouseCol, _mouseRow);
+				if(tile2.terrain_type == TerrainTypes.GROUND ){
+					updateTileTerrain.dispatch([tile2], TerrainTypes.WATER);
+				}else{
+					updateTileTerrain.dispatch([tile2], TerrainTypes.GROUND);
 				}
 			}else if(_isMouseOverGrid 
 				&& _isMouseOverThis 
@@ -752,14 +769,15 @@ package la.diversion.views {
 				for(var j:int = 0; j < sceneModel.numRows; j++){
 					tile = sceneModel.getTile(i,j);
 					if (tile && tile.isoTile && !tile.isWalkable && (mode == IsoSceneViewModes.VIEW_MODE_SET_WALKABLE_TILES || mode == IsoSceneViewModes.VIEW_MODE_EDIT_PATH)){
-						//if(!tile.isWalkable){
+						if(!view.isoScene.contains(tile.isoTile)){
 							view.isoScene.addChild(tile.isoTile);
 							tile.isoTile.container.visible = true;
-						//}else{
-							//if (tile.isoTile){
-							//	tile.isoTile.container.visible = false;
-							//}
-						//}
+						}
+					}else if(tile && tile.isoTile && tile.terrain_type != TerrainTypes.GROUND && mode == IsoSceneViewModes.VIEW_MODE_EDIT_WATER_TERRAIN){
+						if(!view.isoScene.contains(tile.isoTile)){
+							view.isoScene.addChild(tile.isoTile);
+							tile.isoTile.container.visible = true;
+						}
 					}else{
 						if(tile.isoTile && view.isoScene.contains(tile.isoTile)){
 							view.isoScene.removeChild(tile.isoTile);

@@ -9,7 +9,6 @@
 
 package la.diversion.views {
 	import flash.events.MouseEvent;
-	import flash.filesystem.File;
 	
 	import la.diversion.enums.AssetViewModes;
 	import la.diversion.enums.PropertyViewModes;
@@ -23,7 +22,6 @@ package la.diversion.views {
 	import la.diversion.signals.NewLibraryAssetAddedSignal;
 	import la.diversion.signals.NewLibraryBackgroundAddedSignal;
 	import la.diversion.signals.UpdateIsoSceneBackgroundSignal;
-	import la.diversion.signals.UpdateIsoSceneViewModeSignal;
 	import la.diversion.signals.UpdatePropertiesViewModeSignal;
 	import la.diversion.views.components.AssetListItem;
 	

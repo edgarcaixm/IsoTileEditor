@@ -3,7 +3,7 @@ package la.diversion
 	import flash.display.DisplayObjectContainer;
 	
 	import la.diversion.controllers.*;
-	import la.diversion.models.*
+	import la.diversion.models.*;
 	import la.diversion.services.*;
 	import la.diversion.signals.*;
 	import la.diversion.views.*;
@@ -59,6 +59,8 @@ package la.diversion
 			injector.mapSingleton(MapAssetPathingPointsUpdatedSignal);
 			injector.mapSingleton(PlayerAvatarSpawnPositionUpdatedSignal);
 			injector.mapSingleton(UpdateIsoSceneGridVisibilitySignal);
+			injector.mapSingleton(UpdateTileTerrainSignal);
+			injector.mapSingleton(TileTerrainUpdatedSignal);
 			
 			//models
 			injector.mapSingleton(SceneModel);
@@ -93,6 +95,7 @@ package la.diversion
 			signalCommandMap.mapSignalClass(UpdateApplicationCurrentFileSignal, UpdateApplicaitonCurrentFileCommand);
 			signalCommandMap.mapSignalClass(AddMapAssetPathingPointSignal, AddMapAssetPathingPointCommand);
 			signalCommandMap.mapSignalClass(RemoveMapAssetPathingPointSignal, RemoveMapAssetPathingPointCommand);
+			signalCommandMap.mapSignalClass(UpdateTileTerrainSignal, UpdateTileTerrainCommand);
 			
 			//mediators
 			mediatorMap.mapView(IsoSceneView,IsoSceneMediator);

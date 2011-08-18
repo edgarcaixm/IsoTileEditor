@@ -23,6 +23,7 @@ package la.diversion.services
 	import flash.utils.getTimer;
 	
 	import la.diversion.enums.AssetTypes;
+	import la.diversion.enums.TerrainTypes;
 	import la.diversion.models.AssetModel;
 	import la.diversion.models.SceneModel;
 	import la.diversion.models.vo.Background;
@@ -178,7 +179,12 @@ package la.diversion.services
 				
 				if(_map.sceneModel.unwalkableGridTiles){
 					for each(var tile:Object in _map.sceneModel.unwalkableGridTiles){
-						sceneModel.getTile(tile.col, tile.row).isWalkable = false;
+						if(tile["isWalkable"] == false){
+							sceneModel.getTile(tile.col, tile.row).isWalkable = false;
+						}
+						if(tile["terrain_type"] && tile["terrain_type"] != TerrainTypes.GROUND){
+							sceneModel.getTile(tile.col, tile.row).terrain_type = tile["terrain_type"];
+						}
 					}
 				}
 				

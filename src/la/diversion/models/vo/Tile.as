@@ -11,6 +11,7 @@ package la.diversion.models.vo {
 	import as3isolib.display.primitive.IsoRectangle;
 	import as3isolib.graphics.SolidColorFill;
 	
+	import la.diversion.enums.TerrainTypes;
 	import la.diversion.signals.TileWalkableUpdatedSignal;
 	
 	import org.osflash.signals.Signal;
@@ -20,40 +21,32 @@ package la.diversion.models.vo {
 	 */
 	public class Tile {
 		
-		private var _col:int;
-		private var _row:int;
+		public var col:int;
+		public var row:int;
+		
+		private var _terrain_type:String = TerrainTypes.GROUND;
 		private var _isWalkable:Boolean = true;
 		private var _cellSize:Number;
 		private var _isoTile:IsoRectangle;
 		
 		public function Tile(col:int, row:int, cellSize:Number) {
-			this._col = col;
-			this._row = row;
+			this.col = col;
+			this.row = row;
 			this._cellSize = cellSize;
-			//this.isoTile = new IsoRectangle();
-			//this.isoTile.setSize(cellSize, cellSize, 0);
-			//this.isoTile.moveTo(_col * cellSize, _row * cellSize, 0);
-			//this.isoTile.fills = [ new SolidColorFill(0xFF0000,.75) ];
-		}
-		
-		public function get row():int
-		{
-			return _row;
 		}
 
-		public function set row(value:int):void
-		{
-			_row = value;
+		public function get terrain_type():String {
+			return _terrain_type;
 		}
 
-		public function get col():int
-		{
-			return _col;
-		}
-
-		public function set col(value:int):void
-		{
-			_col = value;
+		public function set terrain_type(value:String):void {
+			if(!this.isoTile){
+				this.isoTile = new IsoRectangle();
+				this.isoTile.setSize(_cellSize, _cellSize, 0);
+				this.isoTile.moveTo(col * _cellSize, row * _cellSize, 0);
+				this.isoTile.fills = [ new SolidColorFill(0xFF0000,.75) ];
+			}
+			_terrain_type = value;
 		}
 
 		/**
@@ -97,7 +90,7 @@ package la.diversion.models.vo {
 			if(!this.isoTile){
 				this.isoTile = new IsoRectangle();
 				this.isoTile.setSize(_cellSize, _cellSize, 0);
-				this.isoTile.moveTo(_col * _cellSize, _row * _cellSize, 0);
+				this.isoTile.moveTo(col * _cellSize, row * _cellSize, 0);
 				this.isoTile.fills = [ new SolidColorFill(0xFF0000,.75) ];
 			}
 			this._isWalkable = isWalkable;

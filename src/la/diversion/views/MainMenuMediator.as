@@ -113,6 +113,9 @@ package la.diversion.views {
 					case "Mode: Edit Pathing":
 						command.checked = (mode == IsoSceneViewModes.VIEW_MODE_EDIT_PATH);
 						break;
+					case "Mode: Edit Water Terrain":
+						command.checked = (mode == IsoSceneViewModes.VIEW_MODE_EDIT_WATER_TERRAIN);
+						break;
 					
 					default:
 						break;
