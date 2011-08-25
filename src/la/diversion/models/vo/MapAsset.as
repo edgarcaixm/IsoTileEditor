@@ -60,6 +60,7 @@ package la.diversion.models.vo {
 		private var _walkType:int;
 		
 		public var swf_url:String;
+		public var flipped:Boolean = false;
 		
 		private var _addedToStage:NativeSignal;
 		public var mouseDown:NativeSignal;
@@ -301,6 +302,7 @@ package la.diversion.models.vo {
 						{property:"Id", value:this.id, canEdit:false, editProperty:""},
 						{property:"DisplayClassId", value:this.displayClassId, canEdit:false, editProperty:""},
 						{property:"DisplayClassType", value:this.displayClassType, canEdit:false, editProperty:""},
+						{property:"Flipped", value:this.flipped, canEdit:false, editProperty:""},
 						{property:"Cols", value:this.cols, canEdit:true, editProperty:"cols"},
 						{property:"Rows", value:this.rows, canEdit:true, editProperty:"rows"},
 						{property:"Height", value:this.height, canEdit:true, editProperty:"height"},
@@ -422,6 +424,7 @@ package la.diversion.models.vo {
 			result.pathingIdleTime = _pathingIdleTime;
 			result.walkType = _walkType;
 			result.swf_url = this.swf_url;
+			result.flipped = this.flipped;
 			
 			return DiversionJSON.encode(result);
 		}

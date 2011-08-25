@@ -206,6 +206,7 @@ package la.diversion.services
 							newAsset.isInteractive = savedAsset.isInteractive;
 							newAsset.interactiveCol = savedAsset.interactiveCol;
 							newAsset.interactiveRow = savedAsset.interactiveRow;
+							newAsset.flipped = savedAsset.flipped;
 							newAsset.pathingType = savedAsset.pathingType;
 							newAsset.frameWidth = savedAsset.frameWidth;
 							newAsset.frameHeight = savedAsset.frameHeight;

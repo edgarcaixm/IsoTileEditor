@@ -22,6 +22,7 @@ package la.diversion.views {
 	import eDpLib.events.ProxyEvent;
 	
 	import flash.display.Bitmap;
+	import flash.display.DisplayObject;
 	import flash.display.MovieClip;
 	import flash.display.Sprite;
 	import flash.events.Event;
@@ -228,10 +229,8 @@ package la.diversion.views {
 						_shiftTerrain = TerrainTypes.GROUND;
 					}
 					if(tile.isWalkable ){
-						updateTileWalkable.dispatch([tile], false);
 						_shiftIsWalkable = false;
 					}else{
-						updateTileWalkable.dispatch([tile], true);
 						_shiftIsWalkable = true;
 					}
 				}else{
@@ -586,6 +585,13 @@ package la.diversion.views {
 			}else if(asset.displayClassType == AssetTypes.MOVIECLIP){
 				MovieClip(Sprite(asset.container.getChildAt(0)).getChildAt(0)).gotoAndStop("state_0");
 			}
+			if(asset.flipped){
+				for each(var displayO:DisplayObject in asset.actualSprites){
+					if(displayO.scaleX > 0){
+						displayO.scaleX = displayO.scaleX * -1;
+					}
+				}
+			}
 			_assetSelected = asset;
 			updateMapAssetPathingGridDisplay();
 			view.isoScene.render();
@@ -594,21 +600,53 @@ package la.diversion.views {
 		private function handleAssetMouseDown(event:ProxyEvent):void{
 			if(sceneModel.viewMode == IsoSceneViewModes.VIEW_MODE_PLACE_ASSETS){
 				_assetSelected = MapAsset(event.target);
-				_assetSelectedMovePoint = new Point(MouseEvent(event.targetEvent).stageX, MouseEvent(event.targetEvent).stageY);
-				
-				addToSignal(view.stageMouseEventMouseMove, handleAssetMouseMove);
-				addOnceToSignal(view.stageMouseEventMouseUp, handleAssetMouseUpNoDrag);
-				updatePropertiesViewMode.dispatch(PropertyViewModes.VIEW_MODE_ISOVIEW_ASSET, _assetSelected);
-				
-				_highlightIsLocked = true;
-				view.highlight.setSize(_assetSelected.cols * sceneModel.cellSize, _assetSelected.rows * sceneModel.cellSize, 0);
-				view.highlight.moveTo(_assetSelected.stageCol * sceneModel.cellSize, _assetSelected.stageRow * sceneModel.cellSize, 0);
-				if(_assetSelected.isInteractive == 1){
-					var interactiveTile:IsoRectangle = new IsoRectangle();
-					interactiveTile.setSize(sceneModel.cellSize, sceneModel.cellSize, 0);
-					interactiveTile.fills = [ new SolidColorFill(0xFFFF00, 1) ];
-					interactiveTile.moveTo(_assetSelected.interactiveCol * sceneModel.cellSize, _assetSelected.interactiveRow * sceneModel.cellSize,0);
-					view.highlight.addChild(interactiveTile);
+				if(_shiftDown){
+					if(_assetSelected.stageCol >= 0 && _assetSelected.stageRow >=0  && sceneModel.autoSetWalkable == AutoSetWalkableModes.AUTO_SET){
+						var tiles:Array = [];
+						for (var i:int = _assetSelected.stageCol; i < (_assetSelected.stageCol + _assetSelected.cols); i++) {
+							for (var j:int = _assetSelected.stageRow ; j < (_assetSelected.stageRow + _assetSelected.rows); j++) {
+								tiles.push(sceneModel.getTile(i,j));
+							}
+						}
+						updateTileWalkable.dispatch(tiles, true);
+					}
+					_assetSelected.flipped = !_assetSelected.flipped;
+					for each(var displayO:DisplayObject in _assetSelected.actualSprites){
+						displayO.scaleX = displayO.scaleX * -1;
+					}
+					var temp:int = _assetSelected.rows;
+					_assetSelected.rows = _assetSelected.cols;
+					_assetSelected.cols = temp;
+					temp = _assetSelected.interactiveRow;
+					_assetSelected.interactiveRow = _assetSelected.interactiveCol;
+					_assetSelected.interactiveCol = temp;
+					if(_assetSelected.stageCol >= 0 && _assetSelected.stageRow >=0  && sceneModel.autoSetWalkable == AutoSetWalkableModes.AUTO_SET){
+						var tiles2:Array = [];
+						for (var i2:int = _assetSelected.stageCol; i2 < (_assetSelected.stageCol + _assetSelected.cols); i2++) {
+							for (var j2:int = _assetSelected.stageRow ; j2 < (_assetSelected.stageRow + _assetSelected.rows); j2++) {
+								tiles2.push(sceneModel.getTile(i2,j2));
+							}
+						}
+						updateTileWalkable.dispatch(tiles2, false);
+					}
+					updatePropertiesViewMode.dispatch(PropertyViewModes.VIEW_MODE_ISOVIEW_ASSET, _assetSelected);
+				}else{
+					_assetSelectedMovePoint = new Point(MouseEvent(event.targetEvent).stageX, MouseEvent(event.targetEvent).stageY);
+					
+					addToSignal(view.stageMouseEventMouseMove, handleAssetMouseMove);
+					addOnceToSignal(view.stageMouseEventMouseUp, handleAssetMouseUpNoDrag);
+					updatePropertiesViewMode.dispatch(PropertyViewModes.VIEW_MODE_ISOVIEW_ASSET, _assetSelected);
+					
+					_highlightIsLocked = true;
+					view.highlight.setSize(_assetSelected.cols * sceneModel.cellSize, _assetSelected.rows * sceneModel.cellSize, 0);
+					view.highlight.moveTo(_assetSelected.stageCol * sceneModel.cellSize, _assetSelected.stageRow * sceneModel.cellSize, 0);
+					if(_assetSelected.isInteractive == 1){
+						var interactiveTile:IsoRectangle = new IsoRectangle();
+						interactiveTile.setSize(sceneModel.cellSize, sceneModel.cellSize, 0);
+						interactiveTile.fills = [ new SolidColorFill(0xFFFF00, 1) ];
+						interactiveTile.moveTo(_assetSelected.interactiveCol * sceneModel.cellSize, _assetSelected.interactiveRow * sceneModel.cellSize,0);
+						view.highlight.addChild(interactiveTile);
+					}
 				}
 				view.isoScene.render();
 			}
@@ -660,12 +698,13 @@ package la.diversion.views {
 		
 		private function handleAssetStartedDragging(asset:MapAsset):void{
 			if(asset.stageCol >= 0 && asset.stageRow >=0  && sceneModel.autoSetWalkable == AutoSetWalkableModes.AUTO_SET){
+				var tiles:Array = [];
 				for (var i:int = asset.stageCol; i < (asset.stageCol + asset.cols); i++) {
 					for (var j:int = asset.stageRow ; j < (asset.stageRow + asset.rows); j++) {
-						var tile:Tile = sceneModel.getTile(i,j);
-						updateTileWalkable.dispatch([tile], true);
+						tiles.push(sceneModel.getTile(i,j));
 					}
 				}
+				updateTileWalkable.dispatch(tiles, true);
 			}
 			
 			if(_assetSelected != asset){
@@ -698,7 +737,11 @@ package la.diversion.views {
 			view.dragImage.mouseEnabled = false;
 			view.dragImage.mouseChildren = false;
 			view.dragImage.alpha = 0.5;
-			view.dragImage.scaleX = view.isoView.currentZoom;
+			if(asset.flipped){
+				view.dragImage.scaleX = view.isoView.currentZoom * -1;
+			}else{
+				view.dragImage.scaleX = view.isoView.currentZoom;
+			}
 			view.dragImage.scaleY = view.isoView.currentZoom;
 			view.dragImage.x = view.stage.mouseX;
 			view.dragImage.y = view.stage.mouseY;
@@ -735,12 +778,13 @@ package la.diversion.views {
 				updatePropertiesViewMode.dispatch(PropertyViewModes.VIEW_MODE_ISOVIEW_ASSET, asset);
 				
 				if(asset.stageCol >= 0 && asset.stageRow >=0 && sceneModel.autoSetWalkable == AutoSetWalkableModes.AUTO_SET){
+					var tiles:Array = [];
 					for (var i:int = asset.stageCol; i < (asset.stageCol + asset.cols); i++) {
 						for (var j:int = asset.stageRow ; j < (asset.stageRow + asset.rows); j++) {
-							var tile:Tile = sceneModel.getTile(i,j);
-							updateTileWalkable.dispatch([tile], false);
+							tiles.push(sceneModel.getTile(i,j));
 						}
 					}
+					updateTileWalkable.dispatch(tiles, false);
 				}
 			}else{
 				//cleanup the asset, it has landed off the visible stage
