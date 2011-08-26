@@ -585,7 +585,7 @@ package la.diversion.views {
 			}else if(asset.displayClassType == AssetTypes.MOVIECLIP){
 				MovieClip(Sprite(asset.container.getChildAt(0)).getChildAt(0)).gotoAndStop("state_0");
 			}
-			if(asset.flipped){
+			if(asset.is_flipped){
 				for each(var displayO:DisplayObject in asset.actualSprites){
 					if(displayO.scaleX > 0){
 						displayO.scaleX = displayO.scaleX * -1;
@@ -610,7 +610,7 @@ package la.diversion.views {
 						}
 						updateTileWalkable.dispatch(tiles, true);
 					}
-					_assetSelected.flipped = !_assetSelected.flipped;
+					_assetSelected.is_flipped = !_assetSelected.is_flipped;
 					for each(var displayO:DisplayObject in _assetSelected.actualSprites){
 						displayO.scaleX = displayO.scaleX * -1;
 					}
@@ -737,7 +737,7 @@ package la.diversion.views {
 			view.dragImage.mouseEnabled = false;
 			view.dragImage.mouseChildren = false;
 			view.dragImage.alpha = 0.5;
-			if(asset.flipped){
+			if(asset.is_flipped){
 				view.dragImage.scaleX = view.isoView.currentZoom * -1;
 			}else{
 				view.dragImage.scaleX = view.isoView.currentZoom;
